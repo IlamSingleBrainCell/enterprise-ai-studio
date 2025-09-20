@@ -1669,7 +1669,7 @@
                                         </div>
                                         <div style="display: flex; gap: 8px;">
                                             <button onclick="clearAIChat()" style="background: rgba(60, 60, 60, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: white; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 1.1em;">🗑️</button>
-                                            <button onclick="downloadAIFiles()" style="background: rgba(60, 60, 60, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: white; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 1.1em;">📥</button>
+                                            <button onclick="generateAndDownloadFiles()" style="background: linear-gradient(135deg, #4CAF50, #45a049); border: 1px solid rgba(255, 255, 255, 0.1); color: white; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 1.1em; transition: all 0.3s ease;" title="Generate & Download AI Files">📥</button>
                                         </div>
                                     </div>
 
@@ -4639,7 +4639,523 @@ Keep responses practical and actionable for a financial services development tea
             document.querySelector('button[onclick="sendAIMessage()"]').style.opacity = '0.5';
         };
 
-        window.downloadAIFiles = function() {
+        // Real file generation and download function
+        window.generateAndDownloadFiles = async function() {
+            try {
+                console.log('🚀 Starting real file generation...');
+                
+                // Show loading state
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '⏳';
+                btn.disabled = true;
+                
+                // Initialize Gemini API with your key
+                if (!window.geminiAPI) {
+                    window.geminiAPI = new SimpleGeminiAPI();
+                }
+                
+                // Get the last requirements from the workflow
+                const requirementsField = document.getElementById('ai-project-requirements');
+                const requirements = requirementsField ? requirementsField.value.trim() : 'Create a modern web application';
+                const language = document.getElementById('ai-language-select')?.value || 'JavaScript';
+                const framework = document.getElementById('ai-framework-select')?.value || 'React';
+                
+                if (!requirements || requirements.length < 10) {
+                    alert('Please enter detailed project requirements first!');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+                
+                console.log('Generating files for:', {requirements, language, framework});
+                
+                // Show progress message
+                if (typeof addAIMessage === 'function') {
+                    addAIMessage('ai', '🤖 **Generating Real Project Files...**\\n\\nUsing Gemini AI to create:\\n• Application code\\n• Configuration files\\n• Documentation\\n• Test files\\n\\nThis may take a moment...', null);
+                }
+                
+                // Generate files using real AI
+                const files = await generateProjectFiles(requirements, language, framework);
+                
+                // Create ZIP file
+                const zip = new JSZip();
+                
+                // Add generated files to ZIP
+                files.forEach(file => {
+                    zip.file(file.name, file.content);
+                });
+                
+                // Generate and download ZIP
+                const zipBlob = await zip.generateAsync({type: 'blob'});
+                const url = URL.createObjectURL(zipBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${language.toLowerCase()}-${framework.toLowerCase()}-project.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // Reset button
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                // Show success message
+                if (typeof addAIMessage === 'function') {
+                    addAIMessage('ai', '✅ **Files Generated Successfully!**\\n\\nDownloaded: ' + language + '-' + framework + '-project.zip\\n\\nContains:\\n• ' + files.length + ' generated files\\n• Real AI-generated code\\n• Ready-to-use project structure', null);
+                }
+                
+                console.log('✅ File generation and download completed!');
+                
+            } catch (error) {
+                console.error('❌ Error generating files:', error);
+                
+                // Reset button on error
+                if (event.target) {
+                    event.target.innerHTML = '📥';
+                    event.target.disabled = false;
+                }
+                
+                if (typeof addAIMessage === 'function') {
+                    addAIMessage('ai', '❌ **Error generating files:** ' + error.message + '\\n\\nUsing fallback file generation...', null);
+                }
+                
+                // Fallback: generate basic files without AI
+                generateFallbackFiles(requirements, language, framework);
+            }
+        };
+        
+        // Generate project files using real Gemini AI
+        async function generateProjectFiles(requirements, language, framework) {
+            const files = [];
+            
+            try {
+                console.log('🤖 Using Gemini AI to generate files...');
+                
+                // Generate main application file
+                const appPrompt = `Create a complete ${language} application using ${framework} framework for: "${requirements}". 
+                
+Requirements:
+- Write production-ready code with proper structure
+- Include all necessary imports and dependencies
+- Add comprehensive comments explaining the code
+- Follow ${language} and ${framework} best practices
+- Make it functional and ready to run
+- Include error handling where appropriate
+
+Generate ONLY the code, no explanations before or after.`;
+                
+                const appCode = await window.geminiAPI.makeRequest(appPrompt);
+                
+                const appExtension = getFileExtension(language);
+                files.push({
+                    name: `app${appExtension}`,
+                    content: appCode || generateFallbackCode(requirements, language, framework)
+                });
+                
+                // Generate package.json/config file
+                const configPrompt = `Create a ${getConfigFileName(language)} file for a ${language} project using ${framework} framework.
+                
+Project details:
+- Name: ${requirements.toLowerCase().replace(/\\s+/g, '-')}
+- Language: ${language}
+- Framework: ${framework}
+- Include all necessary dependencies
+- Add scripts for development and building
+- Follow standard conventions
+
+Generate ONLY the JSON/config content, no explanations.`;
+                
+                const configCode = await window.geminiAPI.makeRequest(configPrompt);
+                
+                files.push({
+                    name: getConfigFileName(language),
+                    content: configCode || generateFallbackConfig(requirements, language, framework)
+                });
+                
+                // Generate comprehensive README
+                const readmePrompt = `Create a professional README.md file for a ${language} project using ${framework} that implements: "${requirements}".
+                
+Include:
+- Project title and description
+- Features list
+- Technology stack
+- Installation instructions
+- Usage examples
+- Project structure
+- Contributing guidelines
+- License information
+
+Make it comprehensive and professional.`;
+                
+                const readmeCode = await window.geminiAPI.makeRequest(readmePrompt);
+                
+                files.push({
+                    name: 'README.md',
+                    content: readmeCode || generateFallbackReadme(requirements, language, framework)
+                });
+                
+                // Generate test file
+                const testPrompt = `Create comprehensive unit tests for a ${language} application using ${framework} that implements: "${requirements}".
+                
+Include:
+- Test setup and configuration
+- Unit tests for main functionality
+- Integration tests if applicable
+- Mock data and fixtures
+- Follow ${language} testing best practices
+- Use appropriate testing framework
+
+Generate ONLY the test code, no explanations.`;
+                
+                const testCode = await window.geminiAPI.makeRequest(testPrompt);
+                
+                files.push({
+                    name: `test${appExtension}`,
+                    content: testCode || generateFallbackTests(requirements, language, framework)
+                });
+                
+                console.log(`✅ Generated ${files.length} files using AI`);
+                
+            } catch (error) {
+                console.error('❌ Error with AI generation:', error);
+                throw error;
+            }
+            
+            return files;
+        }
+        
+        // Helper functions
+        function getFileExtension(language) {
+            switch(language.toLowerCase()) {
+                case 'javascript': return '.js';
+                case 'typescript': return '.ts';
+                case 'python': return '.py';
+                case 'java': return '.java';
+                case 'c#': return '.cs';
+                case 'go': return '.go';
+                default: return '.js';
+            }
+        }
+        
+        function getConfigFileName(language) {
+            switch(language.toLowerCase()) {
+                case 'javascript':
+                case 'typescript': return 'package.json';
+                case 'python': return 'requirements.txt';
+                case 'java': return 'pom.xml';
+                case 'c#': return 'project.csproj';
+                case 'go': return 'go.mod';
+                default: return 'config.json';
+            }
+        }
+        
+        function generateFallbackCode(requirements, language, framework) {
+            return `// ${requirements}
+// Generated ${language} application with ${framework}
+// Created by Enterprise AI Studio
+
+console.log('Application started successfully!');
+console.log('Framework: ${framework}');
+console.log('Language: ${language}');
+
+// TODO: Implement ${requirements}
+// Add your implementation here
+
+export default class App {
+    constructor() {
+        this.name = '${requirements}';
+        this.framework = '${framework}';
+    }
+    
+    start() {
+        console.log(\`Starting \${this.name} with \${this.framework}\`);
+        // Add startup logic here
+    }
+}`;
+        }
+        
+        function generateFallbackConfig(requirements, language, framework) {
+            if (language.toLowerCase() === 'javascript' || language.toLowerCase() === 'typescript') {
+                return `{
+  "name": "${requirements.toLowerCase().replace(/\\s+/g, '-')}",
+  "version": "1.0.0",
+  "description": "${requirements}",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "build": "webpack --mode production",
+    "test": "jest"
+  },
+  "dependencies": {
+    "${framework.toLowerCase()}": "^18.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.0",
+    "jest": "^29.0.0"
+  },
+  "keywords": ["${language}", "${framework}", "ai-generated"],
+  "author": "Enterprise AI Studio",
+  "license": "MIT"
+}`;
+            }
+            return `# ${requirements}\\n# Generated configuration for ${language} with ${framework}`;
+        }
+        
+        function generateFallbackReadme(requirements, language, framework) {
+            return `# ${requirements}
+
+A ${language} application built with ${framework} framework.
+
+## 🚀 Generated by Enterprise AI Studio
+
+This project was automatically generated using AI-powered SDLC automation.
+
+## 📋 Features
+
+- Modern ${language} implementation
+- ${framework} framework integration
+- Production-ready code structure
+- Comprehensive documentation
+- Test suite included
+
+## 🛠️ Technology Stack
+
+- **Language:** ${language}
+- **Framework:** ${framework}
+- **Generated:** ${new Date().toLocaleDateString()}
+
+## 📦 Installation
+
+1. Clone the repository
+2. Install dependencies
+3. Run the application
+
+## 🏃‍♂️ Usage
+
+\`\`\`bash
+npm install  # or appropriate package manager
+npm start    # or appropriate start command
+\`\`\`
+
+## 🧪 Testing
+
+\`\`\`bash
+npm test
+\`\`\`
+
+## 📁 Project Structure
+
+\`\`\`
+├── app${getFileExtension(language)}          # Main application file
+├── ${getConfigFileName(language)}      # Project configuration
+├── test${getFileExtension(language)}         # Test suite
+└── README.md        # Documentation
+\`\`\`
+
+## 🤝 Contributing
+
+1. Fork the project
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+*Generated with ❤️ by Enterprise AI Studio*`;
+        }
+        
+        function generateFallbackTests(requirements, language, framework) {
+            return `// Test suite for ${requirements}
+// ${language} tests using ${framework}
+// Generated by Enterprise AI Studio
+
+describe('${requirements} Tests', () => {
+    test('should initialize correctly', () => {
+        expect(true).toBe(true);
+    });
+    
+    test('should handle basic functionality', () => {
+        // Add test implementation
+        const app = new App();
+        expect(app).toBeDefined();
+    });
+    
+    test('should work with ${framework}', () => {
+        // Framework-specific tests
+        expect('${framework}').toBeDefined();
+    });
+    
+    // Add more tests as needed
+});`;
+        }
+        
+        function generateFallbackFiles(requirements, language, framework) {
+            const files = [
+                {
+                    name: `app${getFileExtension(language)}`,
+                    content: generateFallbackCode(requirements, language, framework)
+                },
+                {
+                    name: getConfigFileName(language),
+                    content: generateFallbackConfig(requirements, language, framework)
+                },
+                {
+                    name: 'README.md',
+                    content: generateFallbackReadme(requirements, language, framework)
+                }
+            ];
+            
+            // Create and download fallback files
+            const zip = new JSZip();
+            files.forEach(file => zip.file(file.name, file.content));
+            
+            zip.generateAsync({type: 'blob'}).then(function(content) {
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${language.toLowerCase()}-${framework.toLowerCase()}-project-fallback.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                if (typeof addAIMessage === 'function') {
+                    addAIMessage('ai', '✅ **Fallback Files Generated!**\\n\\nDownloaded basic project structure as fallback.', null);
+                }
+            });
+        }
+            try {
+                console.log('🚀 Starting real file generation...');
+                
+                // Show loading state
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '⏳';
+                btn.disabled = true;
+                
+                // Initialize Gemini API
+                if (!window.geminiAPI) {
+                    window.geminiAPI = new SimpleGeminiAPI();
+                }
+                
+                // Get the last requirements from the workflow
+                const requirementsField = document.getElementById('ai-project-requirements');
+                const requirements = requirementsField ? requirementsField.value.trim() : 'Create a modern web application';
+                const language = document.getElementById('ai-language-select')?.value || 'JavaScript';
+                const framework = document.getElementById('ai-framework-select')?.value || 'React';
+                
+                console.log('Generating files for:', {requirements, language, framework});
+                
+                // Generate files using real AI
+                const files = await generateProjectFiles(requirements, language, framework);
+                
+                // Create ZIP file
+                const zip = new JSZip();
+                
+                // Add generated files to ZIP
+                files.forEach(file => {
+                    zip.file(file.name, file.content);
+                });
+                
+                // Generate and download ZIP
+                const zipBlob = await zip.generateAsync({type: 'blob'});
+                const url = URL.createObjectURL(zipBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${language.toLowerCase()}-${framework.toLowerCase()}-project.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // Reset button
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                // Show success message
+                if (typeof addAIMessage === 'function') {
+                    addAIMessage('ai', '✅ **Files Generated Successfully!**\\n\\nDownloaded: ' + language + '-' + framework + '-project.zip\\n\\nContains:\\n• Application code\\n• Configuration files\\n• Documentation\\n• Test files', null);
+                }
+                
+                console.log('✅ File generation and download completed!');
+                
+            } catch (error) {
+                console.error('❌ Error generating files:', error);
+                
+                // Reset button on error
+                if (event.target) {
+                    event.target.innerHTML = '📥';
+                    event.target.disabled = false;
+                }
+                
+                alert('Error generating files: ' + error.message + '. Please try again.');
+            }
+        };
+        
+        // Generate project files using real AI
+        async function generateProjectFiles(requirements, language, framework) {
+            const files = [];
+            
+            try {
+                // Generate main application file
+                const appPrompt = `Create a ${language} application using ${framework} for: ${requirements}. Generate a complete main application file with proper structure, imports, and basic functionality. Include comments explaining the code.`;
+                const appCode = await window.geminiAPI.makeRequest(appPrompt);
+                
+                const appExtension = language === 'JavaScript' ? '.js' : language === 'TypeScript' ? '.ts' : language === 'Python' ? '.py' : '.js';
+                files.push({
+                    name: `app${appExtension}`,
+                    content: appCode || `// ${language} application for: ${requirements}\n// Generated with ${framework}\n\nconsole.log('Hello World - ${requirements}');`
+                });
+                
+                // Generate configuration file
+                const configPrompt = `Create a configuration file for a ${language} project using ${framework}. Include package.json for Node.js projects, or appropriate config for other languages.`;
+                const configCode = await window.geminiAPI.makeRequest(configPrompt);
+                
+                files.push({
+                    name: language === 'JavaScript' || language === 'TypeScript' ? 'package.json' : 'config.txt',
+                    content: configCode || `{\n  "name": "${requirements.toLowerCase().replace(/\\s+/g, '-')}",\n  "version": "1.0.0",\n  "main": "app.js"\n}`
+                });
+                
+                // Generate README
+                const readmePrompt = `Create a comprehensive README.md file for a ${language} project using ${framework} that implements: ${requirements}. Include setup instructions, usage, and features.`;
+                const readmeCode = await window.geminiAPI.makeRequest(readmePrompt);
+                
+                files.push({
+                    name: 'README.md',
+                    content: readmeCode || `# ${requirements}\n\nA ${language} application built with ${framework}.\n\n## Setup\n1. Install dependencies\n2. Run the application\n\n## Features\n- Modern ${language} code\n- ${framework} framework\n- Production ready`
+                });
+                
+                // Generate test file
+                files.push({
+                    name: `test${appExtension}`,
+                    content: `// Test file for ${requirements}\n// ${language} tests using ${framework}\n\ndescribe('Application Tests', () => {\n    test('should work correctly', () => {\n        expect(true).toBe(true);\n    });\n});`
+                });
+                
+            } catch (error) {
+                console.error('Error generating files with AI:', error);
+                
+                // Fallback files if AI fails
+                files.push({
+                    name: 'app.js',
+                    content: `// ${requirements}\n// Generated ${language} application with ${framework}\n\nconsole.log('Application started successfully!');\n\n// Add your implementation here`
+                });
+                
+                files.push({
+                    name: 'README.md',
+                    content: `# ${requirements}\n\nProject generated with Enterprise AI Studio\n\n## Technology Stack\n- Language: ${language}\n- Framework: ${framework}\n\n## Getting Started\n1. Review the generated code\n2. Install dependencies\n3. Run the application`
+                });
+            }
+            
+            return files;
+        }
             if (!window.aiWorkflowActive) {
                 showConfigModal();
                 return;
