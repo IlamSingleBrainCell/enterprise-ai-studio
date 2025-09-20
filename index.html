@@ -2812,72 +2812,139 @@
     
     <!-- SIMPLE DIRECT WORKFLOW IMPLEMENTATION -->
     <script>
-        // Simple direct workflow function
-        function directStartWorkflow() {
-            console.log('🚀 Direct workflow started!');
-            
-            const requirements = document.getElementById('ai-project-requirements').value.trim();
-            const language = document.getElementById('ai-language-select').value;
-            const framework = document.getElementById('ai-framework-select').value;
-            
-            if (!requirements) {
-                alert('Please enter project requirements first!');
-                return;
+        // Ensure functions are available globally and safely
+        window.directStartWorkflow = function() {
+            try {
+                console.log('🚀 Direct workflow started!');
+                
+                const requirements = document.getElementById('ai-project-requirements');
+                const language = document.getElementById('ai-language-select');
+                const framework = document.getElementById('ai-framework-select');
+                
+                if (!requirements || !language || !framework) {
+                    alert('Form elements not found. Please refresh the page.');
+                    return;
+                }
+                
+                const requirementsValue = requirements.value.trim();
+                const languageValue = language.value;
+                const frameworkValue = framework.value;
+                
+                if (!requirementsValue) {
+                    alert('Please enter project requirements first!');
+                    return;
+                }
+                
+                console.log('Starting with:', {requirements: requirementsValue, language: languageValue, framework: frameworkValue});
+                
+                // Disable button during workflow
+                const startButton = document.getElementById('start-workflow-btn');
+                if (startButton) {
+                    startButton.disabled = true;
+                    startButton.style.background = 'linear-gradient(135deg, #FF9800, #F57C00)';
+                    startButton.style.cursor = 'not-allowed';
+                    startButton.innerHTML = '🔄 Starting Workflow...';
+                }
+                
+                // Update progress immediately
+                if (typeof window.updateTransformationProgress === 'function') {
+                    window.updateTransformationProgress(1, 'Requirements Analysis - Starting AI workflow', 16);
+                } else {
+                    console.warn('updateTransformationProgress function not found');
+                }
+                
+                // Hide config panel
+                const configPanel = document.getElementById('ai-config-panel');
+                if (configPanel) configPanel.style.display = 'none';
+                
+                // Enable chat
+                const chatInput = document.getElementById('ai-chat-input');
+                const sendButton = document.querySelector('button[onclick="sendAIMessage()"]');
+                
+                if (chatInput) {
+                    chatInput.disabled = false;
+                    chatInput.style.opacity = '1';
+                }
+                if (sendButton) {
+                    sendButton.disabled = false;
+                    sendButton.style.opacity = '1';
+                }
+                
+                // Add initial messages
+                if (typeof window.addAIMessage === 'function') {
+                    window.addAIMessage('user', requirementsValue);
+                    window.addAIMessage('ai', '🚀 Starting SDLC workflow with ' + languageValue + ' and ' + frameworkValue + '\\n\\nOrchestrating specialized AI agents...', null);
+                } else {
+                    console.warn('addAIMessage function not found');
+                }
+                
+                // Run the workflow phases
+                window.runWorkflowPhases(requirementsValue, languageValue, frameworkValue);
+                
+            } catch (error) {
+                console.error('Error in directStartWorkflow:', error);
+                alert('Workflow error: ' + error.message + '. Please refresh the page and try again.');
             }
-            
-            console.log('Starting with:', {requirements, language, framework});
-            
-            // Update progress immediately
-            updateTransformationProgress(1, 'Requirements Analysis - Starting AI workflow', 16);
-            
-            // Hide config panel
-            const configPanel = document.getElementById('ai-config-panel');
-            if (configPanel) configPanel.style.display = 'none';
-            
-            // Add initial message
-            addAIMessage('user', requirements);
-            addAIMessage('ai', '🚀 Starting SDLC workflow with ' + language + ' and ' + framework + '\\n\\nOrchestrating specialized AI agents...', null);
-            
-            // Run the workflow phases
-            runWorkflowPhases(requirements, language, framework);
-        }
+        };
         
-        // Simple workflow phases
-        function runWorkflowPhases(requirements, language, framework) {
+        // Simple workflow phases with safe function calls
+        window.runWorkflowPhases = function(requirements, language, framework) {
             // Phase 1: Product Manager
             setTimeout(() => {
-                updateTransformationProgress(2, 'User Story Generation - Creating user stories', 33);
-                addAIMessage('ai', '📋 **Product Manager**: Analyzing requirements and defining project scope...\\n\\n✅ Business objectives identified\\n✅ Stakeholder needs analyzed\\n✅ Success criteria defined', 'product-manager');
+                if (typeof window.updateTransformationProgress === 'function') {
+                    window.updateTransformationProgress(2, 'User Story Generation - Creating user stories', 33);
+                }
+                if (typeof window.addAIMessage === 'function') {
+                    window.addAIMessage('ai', '📋 **Product Manager**: Analyzing requirements and defining project scope...\\n\\n✅ Business objectives identified\\n✅ Stakeholder needs analyzed\\n✅ Success criteria defined', 'product-manager');
+                }
             }, 2000);
             
             // Phase 2: Business Analyst
             setTimeout(() => {
-                updateTransformationProgress(3, 'Code Generation - Developing application architecture', 50);
-                addAIMessage('ai', '📊 **Business Analyst**: Creating detailed user stories...\\n\\n✅ User personas defined\\n✅ Acceptance criteria created\\n✅ Data flow requirements documented', 'business-analyst');
+                if (typeof window.updateTransformationProgress === 'function') {
+                    window.updateTransformationProgress(3, 'Code Generation - Developing application architecture', 50);
+                }
+                if (typeof window.addAIMessage === 'function') {
+                    window.addAIMessage('ai', '📊 **Business Analyst**: Creating detailed user stories...\\n\\n✅ User personas defined\\n✅ Acceptance criteria created\\n✅ Data flow requirements documented', 'business-analyst');
+                }
             }, 4000);
             
             // Phase 3: Developer
             setTimeout(() => {
-                updateTransformationProgress(4, 'Testing Strategy - Quality assurance planning', 67);
-                addAIMessage('ai', '💻 **Software Developer**: Generating production code...\\n\\n✅ ' + language + ' application architecture\\n✅ ' + framework + ' implementation\\n✅ Best practices applied', 'software-developer');
+                if (typeof window.updateTransformationProgress === 'function') {
+                    window.updateTransformationProgress(4, 'Testing Strategy - Quality assurance planning', 67);
+                }
+                if (typeof window.addAIMessage === 'function') {
+                    window.addAIMessage('ai', '💻 **Software Developer**: Generating production code...\\n\\n✅ ' + language + ' application architecture\\n✅ ' + framework + ' implementation\\n✅ Best practices applied', 'software-developer');
+                }
             }, 6000);
             
             // Phase 4: QA Engineer
             setTimeout(() => {
-                updateTransformationProgress(5, 'Deployment Setup - CI/CD pipeline configuration', 84);
-                addAIMessage('ai', '🧪 **QA Engineer**: Creating comprehensive test strategy...\\n\\n✅ Unit tests designed\\n✅ Integration tests planned\\n✅ Quality gates defined', 'qa-engineer');
+                if (typeof window.updateTransformationProgress === 'function') {
+                    window.updateTransformationProgress(5, 'Deployment Setup - CI/CD pipeline configuration', 84);
+                }
+                if (typeof window.addAIMessage === 'function') {
+                    window.addAIMessage('ai', '🧪 **QA Engineer**: Creating comprehensive test strategy...\\n\\n✅ Unit tests designed\\n✅ Integration tests planned\\n✅ Quality gates defined', 'qa-engineer');
+                }
             }, 8000);
             
             // Phase 5: DevOps Engineer
             setTimeout(() => {
-                updateTransformationProgress(6, 'Security & Compliance - Final verification', 100);
-                addAIMessage('ai', '🚀 **DevOps Engineer**: Setting up deployment pipeline...\\n\\n✅ CI/CD configured\\n✅ Infrastructure ready\\n✅ Monitoring enabled', 'devops-engineer');
+                if (typeof window.updateTransformationProgress === 'function') {
+                    window.updateTransformationProgress(6, 'Security & Compliance - Final verification', 100);
+                }
+                if (typeof window.addAIMessage === 'function') {
+                    window.addAIMessage('ai', '🚀 **DevOps Engineer**: Setting up deployment pipeline...\\n\\n✅ CI/CD configured\\n✅ Infrastructure ready\\n✅ Monitoring enabled', 'devops-engineer');
+                }
             }, 10000);
             
             // Phase 6: Security Analyst (Completion)
             setTimeout(() => {
-                addAIMessage('ai', '🔒 **Security Analyst**: Security and compliance verification complete!\\n\\n✅ Security assessment passed\\n✅ Regulatory compliance verified\\n✅ Risk analysis completed', 'security-analyst');
-                addAIMessage('ai', '🎉 **SDLC Workflow Completed!**\\n\\nYour ' + language + ' project with ' + framework + ' is ready!\\n\\n📋 Requirements Analysis\\n📊 User Stories\\n💻 Production Code\\n🧪 Test Suite\\n🚀 CI/CD Pipeline\\n🔒 Security Review\\n\\n**Ready to download!**', null);
+                if (typeof window.addAIMessage === 'function') {
+                    window.addAIMessage('ai', '🔒 **Security Analyst**: Security and compliance verification complete!\\n\\n✅ Security assessment passed\\n✅ Regulatory compliance verified\\n✅ Risk analysis completed', 'security-analyst');
+                    window.addAIMessage('ai', '🎉 **SDLC Workflow Completed!**\\n\\nYour ' + language + ' project with ' + framework + ' is ready!\\n\\n📋 Requirements Analysis\\n📊 User Stories\\n💻 Production Code\\n🧪 Test Suite\\n🚀 CI/CD Pipeline\\n🔒 Security Review\\n\\n**Ready to download!**', null);
+                }
                 
                 // Re-enable button
                 const btn = document.getElementById('start-workflow-btn');
@@ -2890,7 +2957,7 @@
                     btn.style.opacity = '1';
                 }
             }, 12000);
-        }
+        };
         
         // Simple button enabling
         function enableButtonWhenReady() {
