@@ -2845,6 +2845,52 @@
                 requirementsField.addEventListener('keyup', updateButton);
                 requirementsField.addEventListener('change', updateButton);
                 
+                // Add click handler for the button
+                startButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('🚀 Button clicked!');
+                    
+                    if (startButton.disabled) {
+                        alert('Please enter project requirements first.');
+                        return;
+                    }
+                    
+                    const requirements = requirementsField.value.trim();
+                    const languageSelect = document.getElementById('ai-language-select');
+                    const frameworkSelect = document.getElementById('ai-framework-select');
+                    
+                    if (!requirements) {
+                        alert('Please enter project requirements.');
+                        return;
+                    }
+                    
+                    if (!languageSelect || !frameworkSelect) {
+                        alert('Please ensure language and framework selectors are available.');
+                        return;
+                    }
+                    
+                    const language = languageSelect.value;
+                    const framework = frameworkSelect.value;
+                    
+                    console.log('Starting workflow with:', {requirements, language, framework});
+                    
+                    // Update button state
+                    startButton.disabled = true;
+                    startButton.style.background = 'linear-gradient(135deg, #FF9800, #F57C00)';
+                    startButton.innerHTML = '🔄 Starting Workflow...';
+                    
+                    // Call the workflow function
+                    if (typeof window.startWorkflowProcess === 'function') {
+                        window.startWorkflowProcess(requirements, language, framework);
+                    } else if (typeof window.executeRealAIWorkflow === 'function') {
+                        window.executeRealAIWorkflow(requirements, language, framework);
+                    } else {
+                        console.error('No workflow function found');
+                        alert('Workflow function not available. Please refresh the page.');
+                        updateButton(); // Reset button
+                    }
+                });
+                
                 // Initial check
                 updateButton();
                 
@@ -4133,6 +4179,8 @@ Include installation and usage instructions.`;
             // Define the workflow function directly here
             window.startWorkflowProcess = function(requirements, language, framework) {
                 try {
+                    console.log('🚀 Starting workflow process...', {requirements, language, framework});
+                    
                     // Hide config panel and start workflow
                     const configPanel = document.getElementById('ai-config-panel');
                     if (configPanel) {
@@ -4150,40 +4198,22 @@ Include installation and usage instructions.`;
                         sendButton.style.opacity = '1';
                     }
 
-                    // Add user message
+                    // Add user message to chat
                     if (typeof addAIMessage === 'function') {
                         addAIMessage('user', requirements);
                     }
 
-                    // Start real AI agent workflow with personas
+                    // Call the actual workflow execution function that has progress tracking
                     setTimeout(function() {
-                        if (typeof addAIMessage === 'function') {
-                            addAIMessage('ai', '🚀 Starting SDLC workflow with ' + language + ' and ' + framework + '\\n\\nOrchestrating specialized AI agents for your project...', null);
-                        }
-                        if (typeof executeRealAIWorkflow === 'function') {
-                            executeRealAIWorkflow(requirements, language, framework);
+                        console.log('🤖 Calling executeRealAIWorkflow...');
+                        if (typeof window.executeRealAIWorkflow === 'function') {
+                            window.executeRealAIWorkflow(requirements, language, framework);
                         } else {
-                            console.log('executeRealAIWorkflow function not found, using fallback');
-                            alert('Workflow started! Check the agent logs and progress bar for updates.');
+                            console.error('❌ executeRealAIWorkflow function not found');
+                            alert('Workflow function not available. Please refresh the page.');
                         }
-                        
-                        // Reset button after workflow starts
-                        setTimeout(function() {
-                            const startBtn = document.getElementById('start-workflow-btn');
-                            if (startBtn) {
-                                startBtn.innerHTML = '✅ Workflow In Progress';
-                                startBtn.style.background = 'linear-gradient(135deg, #4CAF50, #45a049)';
-                                startBtn.disabled = false;
-                                startBtn.style.cursor = 'pointer';
-                                
-                                // After 5 seconds, allow new workflow
-                                setTimeout(function() {
-                                    startBtn.innerHTML = '🚀 Start SDLC Workflow';
-                                    toggleButtonState(); // Re-enable based on requirements field
-                                }, 5000);
-                            }
-                        }, 2000);
                     }, 1000);
+                    
                 } catch (error) {
                     console.error('Error in startWorkflowProcess:', error);
                     alert('Workflow error: ' + error.message);
@@ -4192,7 +4222,9 @@ Include installation and usage instructions.`;
                     const startBtn = document.getElementById('start-workflow-btn');
                     if (startBtn) {
                         startBtn.innerHTML = '🚀 Start SDLC Workflow';
-                        toggleButtonState();
+                        if (typeof window.toggleButtonState === 'function') {
+                            window.toggleButtonState();
+                        }
                     }
                 }
             };
