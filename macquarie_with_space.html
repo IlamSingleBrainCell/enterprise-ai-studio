@@ -1,0 +1,2236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macquarie CGM Post Trade - AI SDLC Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 30px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            color: white;
+        }
+
+        .logo-text h1 {
+            font-size: 1.6em;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2px;
+        }
+
+        .logo-text p {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .jurisdiction-pills {
+            display: flex;
+            gap: 8px;
+        }
+
+        .jurisdiction-pill {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: #e8f5e8;
+            border: 2px solid #4CAF50;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #4CAF50;
+        }
+
+        .main-container {
+            display: flex;
+            height: calc(100vh - 90px);
+        }
+
+        .sidebar {
+            width: 350px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            overflow-y: auto;
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .main-nav {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            gap: 20px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            border: 2px solid transparent;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+        }
+
+        .nav-tab:hover {
+            border-color: #FFD700;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .control-section {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid #FFD700;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .control-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            border-color: #FFD700;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .integration-status {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .integration-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .integration-item.connected {
+            border-color: #4CAF50;
+            background: linear-gradient(135deg, #e8f5e8, #f1f8e9);
+        }
+
+        .integration-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .integration-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8em;
+        }
+
+        .github-logo { background: #24292e; }
+        .jira-logo { background: #0052cc; }
+        .confluence-logo { background: #172b4d; }
+        .posttrade-logo { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .rcm-logo { background: linear-gradient(135deg, #FFD700, #FFA500); }
+
+        .integration-details {
+            flex: 1;
+        }
+
+        .integration-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .integration-desc {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .status-connected {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .status-active {
+            background: #FFD700;
+            color: #333;
+        }
+
+        .ai-agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .ai-agent {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .ai-agent:hover {
+            transform: scale(1.05);
+            border-color: #FFD700;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .ai-agent.active {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #333;
+        }
+
+        .agent-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .agent-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .agent-status {
+            font-size: 0.8em;
+            opacity: 0.9;
+        }
+
+        .progress-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+
+        .progress-title {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .progress-metrics {
+            display: flex;
+            gap: 20px;
+        }
+
+        .metric {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        .metric-label {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            height: 12px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            height: 100%;
+            width: 35%;
+            transition: width 0.8s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -15px;
+            width: 30px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .workflow-stages {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        .stage {
+            text-align: center;
+            padding: 20px 15px;
+            border-radius: 15px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .stage.active {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .stage.completed {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .stage.blocked {
+            background: #ffebee;
+            border-color: #f44336;
+            color: #c62828;
+        }
+
+        .stage-icon {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .stage-title {
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .stage-status {
+            font-size: 0.7em;
+            opacity: 0.8;
+        }
+
+        .gate-indicator {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4CAF50;
+            border: 2px solid white;
+        }
+
+        .gate-indicator.failed {
+            background: #f44336;
+        }
+
+        .gate-indicator.pending {
+            background: #FF9800;
+        }
+
+        .quality-gates {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .gate-category {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .gate-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .gate-item.passed {
+            border-left-color: #4CAF50;
+            background: #e8f5e8;
+        }
+
+        .gate-item.failed {
+            border-left-color: #f44336;
+            background: #ffebee;
+        }
+
+        .gate-item.pending {
+            border-left-color: #FF9800;
+            background: #fff3e0;
+        }
+
+        .gate-info {
+            flex: 1;
+        }
+
+        .gate-name {
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-bottom: 3px;
+        }
+
+        .gate-criteria {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .gate-result {
+            font-size: 0.8em;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 10px;
+        }
+
+        .result-passed {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .result-failed {
+            background: #f44336;
+            color: white;
+        }
+
+        .result-pending {
+            background: #FF9800;
+            color: white;
+        }
+
+        .requirements-form {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95em;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-textarea:focus {
+            border-color: #FFD700;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: #FFD700;
+            outline: none;
+        }
+
+        .template-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .template-btn {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .template-btn:hover {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            border-color: #FFD700;
+        }
+
+        .action-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            width: 100%;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .suggestion-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 4px solid #FFD700;
+        }
+
+        .suggestion-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .notification.success { background: #4CAF50; }
+        .notification.error { background: #f44336; }
+        .notification.warning { background: #FF9800; }
+
+        .hidden { display: none; }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    
+/* DORA Metrics styles - injected */
+.dora-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+.dora-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 18px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border-left: 4px solid #FFD700;
+    transition: transform 0.25s ease;
+}
+.dora-card:hover { transform: translateY(-6px); }
+.dora-title { font-weight: 700; font-size: 1.02em; margin-bottom: 8px; color: #333; }
+.dora-value { font-size: 1.6em; font-weight: 800; color: #333; }
+.dora-subtext { font-size: 0.82em; color: #666; margin-top: 6px; }
+.dora-trend { font-size: 0.78em; color: #4CAF50; font-weight: 700; margin-top: 6px; }
+
+
+/* SPACE Framework styles - injected */
+.space-section {
+    margin-top: 22px;
+}
+.space-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+}
+.space-card {
+    background: rgba(255,255,255,0.97);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    border-left: 4px solid #667eea;
+}
+.space-title {
+    font-weight: 800;
+    color: #172b4d;
+    margin-bottom: 8px;
+}
+.space-body {
+    font-size: 0.9em;
+    color: #444;
+    line-height: 1.45;
+}
+.space-small {
+    font-size: 0.82em;
+    color: #666;
+    margin-top: 8px;
+}
+.space-header {
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+.space-pill {
+    padding:6px 10px; background:#e3f2fd; border-radius:999px; font-weight:700; color:#0d47a1; font-size:0.85em;
+}
+.space-list { margin-top:10px; padding-left:16px; color:#444; }
+.space-list li { margin-bottom:6px; }
+.collapse-toggle { cursor:pointer; color:#667eea; font-weight:700; font-size:0.9em; }
+
+</style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <div class="logo">🚀</div>
+            <div class="logo-text">
+                <h1>Macquarie CGM Post Trade</h1>
+                <p>AI-Powered SDLC Platform • EY Strategic Partnership</p>
+            </div>
+        </div>
+        
+        <div class="header-actions">
+            <div class="jurisdiction-pills">
+                <div class="jurisdiction-pill">🇦🇺 AU</div>
+                <div class="jurisdiction-pill">🇬🇧 UK</div>
+                <div class="jurisdiction-pill">🇺🇸 US</div>
+                <div class="jurisdiction-pill">🇪🇺 EU</div>
+            </div>
+            
+            <div class="status-indicator">
+                <span style="width: 8px; height: 8px; background: #4CAF50; border-radius: 50%; display: block;"></span>
+                All Systems Operational
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="control-section">
+                <h3>🔗 Platform Integrations</h3>
+                <div class="integration-status">
+                    <div class="integration-item connected">
+                        <div class="integration-info">
+                            <div class="integration-logo github-logo">GH</div>
+                            <div class="integration-details">
+                                <div class="integration-name">GitHub Enterprise</div>
+                                <div class="integration-desc">Source control & CI/CD</div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-connected">Live</div>
+                    </div>
+                    
+                    <div class="integration-item connected">
+                        <div class="integration-info">
+                            <div class="integration-logo jira-logo">JA</div>
+                            <div class="integration-details">
+                                <div class="integration-name">JIRA Agile</div>
+                                <div class="integration-desc">Project & sprint management</div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-connected">Live</div>
+                    </div>
+                    
+                    <div class="integration-item connected">
+                        <div class="integration-info">
+                            <div class="integration-logo confluence-logo">CF</div>
+                            <div class="integration-details">
+                                <div class="integration-name">Confluence</div>
+                                <div class="integration-desc">Documentation & knowledge</div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-connected">Live</div>
+                    </div>
+                    
+                    <div class="integration-item connected">
+                        <div class="integration-info">
+                            <div class="integration-logo posttrade-logo">PT</div>
+                            <div class="integration-details">
+                                <div class="integration-name">PostTrade.ai</div>
+                                <div class="integration-desc">Core AI platform</div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-active">Active</div>
+                    </div>
+                    
+                    <div class="integration-item connected">
+                        <div class="integration-info">
+                            <div class="integration-logo rcm-logo">RC</div>
+                            <div class="integration-details">
+                                <div class="integration-name">RCM Service</div>
+                                <div class="integration-desc">Regulatory compliance</div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-active">Active</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>📊 Real-time Metrics</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div style="background: #e8f5e8; padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 1.4em; font-weight: bold; color: #4CAF50;">98.7%</div>
+                        <div style="font-size: 0.8em; color: #666;">Pipeline Success</div>
+                    </div>
+                    <div style="background: #fff3e0; padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 1.4em; font-weight: bold; color: #FF9800;">8.5min</div>
+                        <div style="font-size: 0.8em; color: #666;">Avg Build Time</div>
+                    </div>
+                    <div style="background: #f3e5f5; padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 1.4em; font-weight: bold; color: #9C27B0;">23</div>
+                        <div style="font-size: 0.8em; color: #666;">Active Repos</div>
+                    </div>
+                    <div style="background: #e3f2fd; padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 1.4em; font-weight: bold; color: #2196F3;">156</div>
+                        <div style="font-size: 0.8em; color: #666;">JIRA Issues</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>🛡️ Compliance Status</h3>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #e8f5e8; border-radius: 6px;">
+                        <span style="font-size: 0.9em;">MiFID II</span>
+                        <span style="color: #4CAF50; font-weight: bold;">✓ Compliant</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #e8f5e8; border-radius: 6px;">
+                        <span style="font-size: 0.9em;">EMIR</span>
+                        <span style="color: #4CAF50; font-weight: bold;">✓ Compliant</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #e8f5e8; border-radius: 6px;">
+                        <span style="font-size: 0.9em;">SOX</span>
+                        <span style="color: #4CAF50; font-weight: bold;">✓ Compliant</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #fff3e0; border-radius: 6px;">
+                        <span style="font-size: 0.9em;">GDPR</span>
+                        <span style="color: #FF9800; font-weight: bold;">⚠ Review</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="main-nav">
+                <div class="nav-tab active" onclick="showTab('dashboard')">🏠 Dashboard</div>
+                <div class="nav-tab" onclick="showTab('agents')">🤖 AI Agents</div>
+                <div class="nav-tab" onclick="showTab('pipeline')">🔄 Pipeline</div>
+                <div class="nav-tab" onclick="showTab('quality')">🛡️ Quality Gates</div>
+                <div class="nav-tab" onclick="showTab('projects')">📋 Projects</div>
+                <div class="nav-tab" onclick="showTab('compliance')">⚖️ Compliance</div>
+            </div>
+
+            <div class="main-content">
+                <!-- Dashboard Tab -->
+                <div id="dashboard-tab" class="tab-content">
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>🚀</span>
+                                    Transformation Progress
+                                </div>
+                                <div style="color: #FFD700; font-weight: bold;">Phase 2</div>
+                            </div>
+                            <div class="progress-bar" style="margin-bottom: 15px;">
+                                <div class="progress-fill" style="width: 35%;"></div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5em; font-weight: bold; color: #4CAF50;">4/8</div>
+                                    <div style="font-size: 0.8em; color: #666;">Phases Complete</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5em; font-weight: bold; color: #FFD700;">35%</div>
+                                    <div style="font-size: 0.8em; color: #666;">Overall Progress</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>🤖</span>
+                                    AI Agents Status
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">All Active</div>
+                            </div>
+                            <div class="ai-agents-grid" style="grid-template-columns: 1fr 1fr;">
+                                <div class="ai-agent active" style="padding: 15px;">
+                                    <div class="agent-icon">📋</div>
+                                    <div class="agent-name">Requirements</div>
+                                    <div class="agent-status">Processing</div>
+                                </div>
+                                <div class="ai-agent" style="padding: 15px;">
+                                    <div class="agent-icon">🎨</div>
+                                    <div class="agent-name">Design</div>
+                                    <div class="agent-status">Ready</div>
+                                </div>
+                                <div class="ai-agent" style="padding: 15px;">
+                                    <div class="agent-icon">🔧</div>
+                                    <div class="agent-name">Build</div>
+                                    <div class="agent-status">Standby</div>
+                                </div>
+                                <div class="ai-agent active" style="padding: 15px;">
+                                    <div class="agent-icon">🛡️</div>
+                                    <div class="agent-name">RCM</div>
+                                    <div class="agent-status">Monitoring</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>🔄</span>
+                                    Pipeline Activity
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">Running</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <span style="font-size: 0.9em;">macquarie/post-trade-core</span>
+                                    <span style="color: #4CAF50; font-size: 0.8em; font-weight: bold;">✓ Passed</span>
+                                </div>
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #fff3e0; border-radius: 8px;">
+                                    <span style="font-size: 0.9em;">macquarie/regulatory-engine</span>
+                                    <span style="color: #FF9800; font-size: 0.8em; font-weight: bold;">⚠ Testing</span>
+                                </div>
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <span style="font-size: 0.9em;">macquarie/ai-agents</span>
+                                    <span style="color: #2196F3; font-size: 0.8em; font-weight: bold;">🔄 Building</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>📊</span>
+                                    Quality Metrics
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">Excellent</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div style="text-align: center; padding: 10px; background: #e8f5e8; border-radius: 8px;">
+                                    <div style="font-size: 1.3em; font-weight: bold; color: #4CAF50;">87%</div>
+                                    <div style="font-size: 0.8em; color: #666;">Code Coverage</div>
+                                </div>
+                                <div style="text-align: center; padding: 10px; background: #e8f5e8; border-radius: 8px;">
+                                    <div style="font-size: 1.3em; font-weight: bold; color: #4CAF50;">A+</div>
+                                    <div style="font-size: 0.8em; color: #666;">Security Score</div>
+                                </div>
+                                <div style="text-align: center; padding: 10px; background: #e8f5e8; border-radius: 8px;">
+                                    <div style="font-size: 1.3em; font-weight: bold; color: #4CAF50;">0</div>
+                                    <div style="font-size: 0.8em; color: #666;">Critical Issues</div>
+                                </div>
+                                <div style="text-align: center; padding: 10px; background: #fff3e0; border-radius: 8px;">
+                                    <div style="font-size: 1.3em; font-weight: bold; color: #FF9800;">2</div>
+                                    <div style="font-size: 0.8em; color: #666;">Performance</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DORA Metrics - START -->
+                        <div class="dashboard-card" id="dora-metrics-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>📈</span>
+                                    DORA Metrics
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">Live</div>
+                            </div>
+
+                            <div style="padding-top: 6px;">
+                                <div class="dora-metrics">
+                                    <div class="dora-card" id="dora-deploy-frequency">
+                                        <div class="dora-title">Deployment Frequency</div>
+                                        <div class="dora-value" id="df-value">Daily</div>
+                                        <div class="dora-subtext">Multiple deploys per day</div>
+                                        <div class="dora-trend" id="df-trend">↑ 2x week-over-week</div>
+                                    </div>
+
+                                    <div class="dora-card" id="dora-lead-time">
+                                        <div class="dora-title">Lead Time for Changes</div>
+                                        <div class="dora-value" id="lt-value">2h</div>
+                                        <div class="dora-subtext">From commit to production</div>
+                                        <div class="dora-trend" id="lt-trend">↓ 15% vs last month</div>
+                                    </div>
+
+                                    <div class="dora-card" id="dora-change-failure">
+                                        <div class="dora-title">Change Failure Rate</div>
+                                        <div class="dora-value" id="cfr-value">3%</div>
+                                        <div class="dora-subtext">Failed deployments</div>
+                                        <div class="dora-trend" id="cfr-trend">Stable</div>
+                                    </div>
+
+                                    <div class="dora-card" id="dora-mttr">
+                                        <div class="dora-title">MTTR (Mean Time to Restore)</div>
+                                        <div class="dora-value" id="mttr-value">25m</div>
+                                        <div class="dora-subtext">From incident to recovery</div>
+                                        <div class="dora-trend" id="mttr-trend">↓ 10% last 7 days</div>
+                                    </div>
+                                </div>
+
+                                <div style="margin-top:12px; font-size:0.85em; color:#666; text-align:center;">
+                                    <em>Tip: Connect CI/CD, monitoring, and ticketing data sources to make these metrics live.</em>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- DORA Metrics - END -->
+                        <!-- SPACE Framework Section - START -->
+                        <div class="dashboard-card space-section" id="space-framework-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>🧭</span>
+                                    SPACE Framework for AI Agent Productivity
+                                </div>
+                                <div style="color: #667eea; font-weight: bold;">Adapted · AI Agents</div>
+                            </div>
+
+                            <div style="padding-top:8px;">
+                                <div class="space-header" style="margin-bottom:10px;">
+                                    <div style="display:flex; flex-direction:column;">
+                                        <div style="font-weight:800; color:#333;">Refined SPACE adaptation for AI agents</div>
+                                        <div style="font-size:0.88em; color:#666;">Holistic measurement across Satisfaction, Performance, Activity, Communication, Efficiency</div>
+                                    </div>
+                                    <div>
+                                        <span class="space-pill">Balanced · Outcome-focused</span>
+                                    </div>
+                                </div>
+
+                                <div class="space-grid">
+                                    <div class="space-card">
+                                        <div class="space-title">S — Satisfaction & Well‑being</div>
+                                        <div class="space-body">
+                                            Measures developer trust, satisfaction, and system sustainability when working with AI agents.
+                                            <ul class="space-list">
+                                                <li>Developer satisfaction surveys and tool ratings</li>
+                                                <li>System reliability & uptime</li>
+                                                <li>Trust/confidence scores for recommendations</li>
+                                                <li>Impact on developer stress and on-call burden</li>
+                                            </ul>
+                                        </div>
+                                        <div class="space-small">Practical: weekly short NPS + automated trust signals (accepted suggestions %).</div>
+                                    </div>
+
+                                    <div class="space-card">
+                                        <div class="space-title">P — Performance</div>
+                                        <div class="space-body">
+                                            Outcome-focused metrics that measure the quality and business value of agent contributions.
+                                            <ul class="space-list">
+                                                <li>Bug detection & vulnerability identification accuracy</li>
+                                                <li>Success rate of generated code & refactorings</li>
+                                                <li>Deployment success & reduced change-failure rate</li>
+                                                <li>Business impact: reduced time-to-market, customer metrics</li>
+                                            </ul>
+                                        </div>
+                                        <div class="space-small">Practical: tie agent actions to CI results and post-release defect counts.</div>
+                                    </div>
+
+                                    <div class="space-card">
+                                        <div class="space-title">A — Activity</div>
+                                        <div class="space-body">
+                                            Quantifies volume and scope of agent activity while cautioning against optimizing volume alone.
+                                            <ul class="space-list">
+                                                <li>Code reviews completed, comments left</li>
+                                                <li>Automated tests created & executed</li>
+                                                <li>Docs or PR descriptions generated</li>
+                                                <li>PRs triaged or labeled</li>
+                                            </ul>
+                                        </div>
+                                        <div class="space-small">Practical: correlate activity with downstream quality metrics.</div>
+                                    </div>
+
+                                    <div class="space-card">
+                                        <div class="space-title">C — Communication & Collaboration</div>
+                                        <div class="space-body">
+                                            Measures how well agents integrate into team workflows and improve coordination.
+                                            <ul class="space-list">
+                                                <li>Quality of review comments and suggested fixes</li>
+                                                <li>Meeting summary usefulness & action item completion</li>
+                                                <li>Integration with chat/issue trackers and knowledge transfer</li>
+                                                <li>Cross-team coordination improvements</li>
+                                            </ul>
+                                        </div>
+                                        <div class="space-small">Practical: sample reviews rated by humans for helpfulness.</div>
+                                    </div>
+
+                                    <div class="space-card">
+                                        <div class="space-title">E — Efficiency & Flow</div>
+                                        <div class="space-body">
+                                            Measures impact on developer flow and throughput.
+                                            <ul class="space-list">
+                                                <li>Context switches reduced</li>
+                                                <li>Time saved on repetitive tasks</li>
+                                                <li>Improved cycle times & deployment frequency</li>
+                                                <li>Bottlenecks identified and resolved</li>
+                                            </ul>
+                                        </div>
+                                        <div class="space-small">Practical: instrument IDE and CI to measure time savings and flow improvements.</div>
+                                    </div>
+                                </div>
+
+                                <div style="margin-top:12px; color:#444; font-size:0.92em;">
+                                    <strong>Key Principles</strong>
+                                    <ul class="space-list">
+                                        <li><strong>Balanced metrics:</strong> don't optimise activity without quality or satisfaction.</li>
+                                        <li><strong>Automated + self-reported:</strong> combine system signals with occasional developer surveys.</li>
+                                        <li><strong>Actionable insights:</strong> surface concrete playbooks for agent retraining, throttling, or UX change.</li>
+                                        <li><strong>Continuous review:</strong> incorporate SPACE reviews into retros and platform KPIs.</li>
+                                    </ul>
+                                </div>
+
+                                <div style="margin-top:10px; text-align:center;">
+                                    <button class="action-button" id="space-guide-btn" onclick="toggleSpaceDetails()">Show implementation guidance</button>
+                                </div>
+
+                                <div id="space-details" class="hidden" style="margin-top:12px; background:#f8f9fa; padding:12px; border-radius:8px;">
+                                    <div style="font-weight:700; margin-bottom:8px;">Implementation roadmap (practical)</div>
+                                    <ol style="padding-left:18px; color:#444;">
+                                        <li>Instrument data sources: CI, GitHub Actions, monitoring, IDE plugins, chat logs, Jira.</li>
+                                        <li>Start with 6–8 pilot metrics (one per SPACE sub-area) and collect 8–12 weeks of baseline.</li>
+                                        <li>Run weekly dashboards for teams + monthly cross-team KPI reviews.</li>
+                                        <li>Use agents to detect regressions and propose corrective playbooks (retrain, UX fix, throttle).</li>
+                                        <li>Measure business outcomes: time-to-market, customer feedback, incident reduction.</li>
+                                    </ol>
+                                    <div style="margin-top:8px; font-size:0.9em; color:#666;">Tip: connect to existing tools (GitHub, JIRA, Datadog, New Relic) to avoid manual instrumentation.</div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- SPACE Framework Section - END -->
+
+
+                    </div>
+
+                    <div class="progress-section">
+                        <div class="progress-header">
+                            <div class="progress-title">🎯 Development Workflow</div>
+                            <div class="progress-metrics">
+                                <div class="metric">
+                                    <div class="metric-value">35%</div>
+                                    <div class="metric-label">Complete</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-value">8.5min</div>
+                                    <div class="metric-label">Build Time</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-value">98.7%</div>
+                                    <div class="metric-label">Success Rate</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 35%;"></div>
+                        </div>
+                        
+                        <div class="workflow-stages">
+                            <div class="stage completed">
+                                <span class="stage-icon">📋</span>
+                                <div class="stage-title">Requirements</div>
+                                <div class="stage-status">Complete</div>
+                                <div class="gate-indicator"></div>
+                            </div>
+                            <div class="stage completed">
+                                <span class="stage-icon">👥</span>
+                                <div class="stage-title">Stakeholders</div>
+                                <div class="stage-status">Complete</div>
+                                <div class="gate-indicator"></div>
+                            </div>
+                            <div class="stage active">
+                                <span class="stage-icon">🎨</span>
+                                <div class="stage-title">Design</div>
+                                <div class="stage-status">In Progress</div>
+                                <div class="gate-indicator pending"></div>
+                            </div>
+                            <div class="stage">
+                                <span class="stage-icon">💻</span>
+                                <div class="stage-title">Development</div>
+                                <div class="stage-status">Waiting</div>
+                                <div class="gate-indicator pending"></div>
+                            </div>
+                            <div class="stage">
+                                <span class="stage-icon">🧪</span>
+                                <div class="stage-title">Testing</div>
+                                <div class="stage-status">Ready</div>
+                                <div class="gate-indicator"></div>
+                            </div>
+                            <div class="stage">
+                                <span class="stage-icon">🔍</span>
+                                <div class="stage-title">Review</div>
+                                <div class="stage-status">Pending</div>
+                                <div class="gate-indicator pending"></div>
+                            </div>
+                            <div class="stage">
+                                <span class="stage-icon">🚀</span>
+                                <div class="stage-title">Deploy</div>
+                                <div class="stage-status">Waiting</div>
+                                <div class="gate-indicator pending"></div>
+                            </div>
+                            <div class="stage">
+                                <span class="stage-icon">📊</span>
+                                <div class="stage-title">Monitor</div>
+                                <div class="stage-status">Ready</div>
+                                <div class="gate-indicator"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Agents Tab -->
+                <div id="agents-tab" class="tab-content hidden">
+                    <div class="progress-section">
+                        <h2 style="color: #333; margin-bottom: 20px;">🤖 AI Agent Orchestration</h2>
+                        <p style="color: #666; margin-bottom: 25px;">Manage and monitor your AI-powered development agents</p>
+                        
+                        <div class="ai-agents-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                            <div class="ai-agent active">
+                                <span class="agent-icon">📋</span>
+                                <div class="agent-name">Requirements Agent</div>
+                                <div class="agent-status">Processing regulatory changes</div>
+                                <div style="margin-top: 10px; font-size: 0.8em;">
+                                    <div>• Automated requirement analysis</div>
+                                    <div>• Regulatory impact assessment</div>
+                                    <div>• Gap identification</div>
+                                </div>
+                            </div>
+                            
+                            <div class="ai-agent">
+                                <span class="agent-icon">🎨</span>
+                                <div class="agent-name">Design Agent</div>
+                                <div class="agent-status">Ready for activation</div>
+                                <div style="margin-top: 10px; font-size: 0.8em;">
+                                    <div>• Architecture validation</div>
+                                    <div>• Design pattern recommendations</div>
+                                    <div>• Compliance verification</div>
+                                </div>
+                            </div>
+                            
+                            <div class="ai-agent">
+                                <span class="agent-icon">🔧</span>
+                                <div class="agent-name">Build Agent</div>
+                                <div class="agent-status">Standby mode</div>
+                                <div style="margin-top: 10px; font-size: 0.8em;">
+                                    <div>• Code generation</div>
+                                    <div>• Automated testing</div>
+                                    <div>• Quality validation</div>
+                                </div>
+                            </div>
+                            
+                            <div class="ai-agent">
+                                <span class="agent-icon">🧪</span>
+                                <div class="agent-name">Test Agent</div>
+                                <div class="agent-status">Ready for testing</div>
+                                <div style="margin-top: 10px; font-size: 0.8em;">
+                                    <div>• Automated test generation</div>
+                                    <div>• Performance testing</div>
+                                    <div>• Security validation</div>
+                                </div>
+                            </div>
+                            
+                            <div class="ai-agent">
+                                <span class="agent-icon">🚀</span>
+                                <div class="agent-name">Deploy Agent</div>
+                                <div class="agent-status">Deployment ready</div>
+                                <div style="margin-top: 10px; font-size: 0.8em;">
+                                    <div>• Environment provisioning</div>
+                                    <div>• Rollback strategies</div>
+                                    <div>• Health monitoring</div>
+                                </div>
+                            </div>
+                            
+                            <div class="ai-agent active">
+                                <span class="agent-icon">🛡️</span>
+                                <div class="agent-name">RCM Agent</div>
+                                <div class="agent-status">Actively monitoring</div>
+                                <div style="margin-top: 10px; font-size: 0.8em;">
+                                    <div>• Real-time compliance monitoring</div>
+                                    <div>• Regulatory change alerts</div>
+                                    <div>• Automated reporting</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pipeline Tab -->
+                <div id="pipeline-tab" class="tab-content hidden">
+                    <div class="progress-section">
+                        <h2 style="color: #333; margin-bottom: 20px;">🔄 CI/CD Pipeline Management</h2>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px;">
+                            <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                                <h3 style="color: #333; margin-bottom: 15px;">🏗️ Active Builds</h3>
+                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #e8f5e8; border-radius: 8px;">
+                                        <div>
+                                            <div style="font-weight: bold; font-size: 0.9em;">post-trade-core</div>
+                                            <div style="font-size: 0.8em; color: #666;">Feature/regulatory-updates</div>
+                                        </div>
+                                        <div style="color: #4CAF50; font-weight: bold;">✓ Passed</div>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #fff3e0; border-radius: 8px;">
+                                        <div>
+                                            <div style="font-weight: bold; font-size: 0.9em;">ai-agents-service</div>
+                                            <div style="font-size: 0.8em; color: #666;">Main branch</div>
+                                        </div>
+                                        <div style="color: #FF9800; font-weight: bold;">🔄 Running</div>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #ffebee; border-radius: 8px;">
+                                        <div>
+                                            <div style="font-weight: bold; font-size: 0.9em;">compliance-engine</div>
+                                            <div style="font-size: 0.8em; color: #666;">Feature/mifid-updates</div>
+                                        </div>
+                                        <div style="color: #f44336; font-weight: bold;">✗ Failed</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                                <h3 style="color: #333; margin-bottom: 15px;">📊 Pipeline Stats</h3>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                    <div style="text-align: center; padding: 15px; background: #e8f5e8; border-radius: 10px;">
+                                        <div style="font-size: 1.5em; font-weight: bold; color: #4CAF50;">47</div>
+                                        <div style="font-size: 0.8em; color: #666;">Successful Builds</div>
+                                    </div>
+                                    <div style="text-align: center; padding: 15px; background: #ffebee; border-radius: 10px;">
+                                        <div style="font-size: 1.5em; font-weight: bold; color: #f44336;">3</div>
+                                        <div style="font-size: 0.8em; color: #666;">Failed Builds</div>
+                                    </div>
+                                    <div style="text-align: center; padding: 15px; background: #e3f2fd; border-radius: 10px;">
+                                        <div style="font-size: 1.5em; font-weight: bold; color: #2196F3;">8.5min</div>
+                                        <div style="font-size: 0.8em; color: #666;">Avg Duration</div>
+                                    </div>
+                                    <div style="text-align: center; padding: 15px; background: #f3e5f5; border-radius: 10px;">
+                                        <div style="font-size: 1.5em; font-weight: bold; color: #9C27B0;">23</div>
+                                        <div style="font-size: 0.8em; color: #666;">Active PRs</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                            <h3 style="color: #333; margin-bottom: 20px;">🔧 Pipeline Configuration</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                                <div>
+                                    <h4 style="color: #667eea; margin-bottom: 10px;">GitHub Actions</h4>
+                                    <ul style="list-style: none; padding: 0; font-size: 0.9em; color: #666;">
+                                        <li style="padding: 5px 0;">✓ Automated PR validation</li>
+                                        <li style="padding: 5px 0;">✓ Branch protection rules</li>
+                                        <li style="padding: 5px 0;">✓ Security scanning</li>
+                                        <li style="padding: 5px 0;">✓ Code quality checks</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 style="color: #0052cc; margin-bottom: 10px;">JIRA Integration</h4>
+                                    <ul style="list-style: none; padding: 0; font-size: 0.9em; color: #666;">
+                                        <li style="padding: 5px 0;">✓ Auto ticket updates</li>
+                                        <li style="padding: 5px 0;">✓ Sprint tracking</li>
+                                        <li style="padding: 5px 0;">✓ Release notes generation</li>
+                                        <li style="padding: 5px 0;">✓ Story point tracking</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 style="color: #172b4d; margin-bottom: 10px;">Confluence Docs</h4>
+                                    <ul style="list-style: none; padding: 0; font-size: 0.9em; color: #666;">
+                                        <li style="padding: 5px 0;">✓ API documentation sync</li>
+                                        <li style="padding: 5px 0;">✓ Architecture updates</li>
+                                        <li style="padding: 5px 0;">✓ Compliance reports</li>
+                                        <li style="padding: 5px 0;">✓ Change documentation</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quality Gates Tab -->
+                <div id="quality-tab" class="tab-content hidden">
+                    <div class="progress-section">
+                        <h2 style="color: #333; margin-bottom: 20px;">🛡️ Quality Gates Configuration</h2>
+                        <p style="color: #666; margin-bottom: 25px;">Configure automated quality checks and compliance validation</p>
+                        
+                        <div class="quality-gates">
+                            <div class="gate-category">
+                                <div class="category-header">
+                                    <span>🔒</span>
+                                    Security Gates
+                                </div>
+                                <div class="gate-item passed">
+                                    <div class="gate-info">
+                                        <div class="gate-name">SAST Security Scan</div>
+                                        <div class="gate-criteria">No critical vulnerabilities</div>
+                                    </div>
+                                    <div class="gate-result result-passed">Clean</div>
+                                </div>
+                                <div class="gate-item passed">
+                                    <div class="gate-info">
+                                        <div class="gate-name">Dependency Check</div>
+                                        <div class="gate-criteria">No vulnerable dependencies</div>
+                                    </div>
+                                    <div class="gate-result result-passed">Safe</div>
+                                </div>
+                                <div class="gate-item pending">
+                                    <div class="gate-info">
+                                        <div class="gate-name">Container Security</div>
+                                        <div class="gate-criteria">Docker image scan</div>
+                                    </div>
+                                    <div class="gate-result result-pending">Running</div>
+                                </div>
+                            </div>
+
+                            <div class="gate-category">
+                                <div class="category-header">
+                                    <span>🧪</span>
+                                    Testing Gates
+                                </div>
+                                <div class="gate-item passed">
+                                    <div class="gate-info">
+                                        <div class="gate-name">Unit Tests</div>
+                                        <div class="gate-criteria">100% test pass rate</div>
+                                    </div>
+                                    <div class="gate-result result-passed">687/687</div>
+                                </div>
+                                <div class="gate-item passed">
+                                    <div class="gate-info">
+                                        <div class="gate-name">Code Coverage</div>
+                                        <div class="gate-criteria">Minimum 80% coverage</div>
+                                    </div>
+                                    <div class="gate-result result-passed">87%</div>
+                                </div>
+                                <div class="gate-item passed">
+                                    <div class="gate-info">
+                                        <div class="gate-name">Integration Tests</div>
+                                        <div class="gate-criteria">API & service tests</div>
+                                    </div>
+                                    <div class="gate-result result-passed">156/156</div>
+                                </div>
+                            </div>
+
+                            <div class="gate-category">
+                                <div class="category-header">
+                                    <span>⚡</span>
+                                    Performance Gates
+                                </div>
+                                <div class="gate-item pending">
+                                    <div class="gate-info">
+                                        <div class="gate-name">Load Testing</div>
+                                        <div class="gate-criteria">Response time < 200ms</div>
+                                    </div>
+                                    <div class="gate-result result-pending">Testing</div>
+                                </div>
+                                <div class="gate-item passed">
+                                    <div class="gate-info">
+                                        <div class="gate-name">Memory Usage</div>
+                                        <div class="gate-criteria">< 2GB heap usage</div>
+                                    </div>
+                                    <div class="gate-result result-passed">1.2GB</div>
+                                </div>
+                                <div class="gate-item passed">
+                                    <div class="gate-info">
+                                        <div class="gate-name">Database Performance</div>
+                                        <div class="gate-criteria">Query optimization</div>
+                                    </div>
+                                    <div class="gate-result result-passed">Optimal</div>
+                                </div>
+                            </div>
+
+                            <div class="gate-category">
+                                <div class="category-header">
+                                    <span>📋</span>
+                                    Compliance Gates
+                                </div>
+                                <div class="gate-item passed">
+                                    <div class="gate-info">
+                                        <div class="gate-name">MiFID II Compliance</div>
+                                        <div class="gate-criteria">Regulatory requirements</div>
+                                    </div>
+                                    <div class="gate-result result-passed">Valid</div>
+                                </div>
+                                <div class="gate-item passed">
+                                    <div class="gate-info">
+                                        <div class="gate-name">EMIR Compliance</div>
+                                        <div class="gate-criteria">Trade reporting standards</div>
+                                    </div>
+                                    <div class="gate-result result-passed">Valid</div>
+                                </div>
+                                <div class="gate-item pending">
+                                    <div class="gate-info">
+                                        <div class="gate-name">GDPR Compliance</div>
+                                        <div class="gate-criteria">Data privacy check</div>
+                                    </div>
+                                    <div class="gate-result result-pending">Review</div>
+                                </div>
+                            </div>
+
+                            <div class="gate-category">
+                                <div class="category-header">
+                                    <span>📊</span>
+                                    Quality Gates
+                                </div>
+                                <div class="gate-item passed">
+                                    <div class="gate-info">
+                                        <div class="gate-name">SonarQube Quality</div>
+                                        <div class="gate-criteria">Quality gate passed</div>
+                                    </div>
+                                    <div class="gate-result result-passed">A Rating</div>
+                                </div>
+                                <div class="gate-item passed">
+                                    <div class="gate-info">
+                                        <div class="gate-name">Technical Debt</div>
+                                        <div class="gate-criteria">Maintainability < 5%</div>
+                                    </div>
+                                    <div class="gate-result result-passed">2.1%</div>
+                                </div>
+                                <div class="gate-item passed">
+                                    <div class="gate-info">
+                                        <div class="gate-name">Code Duplication</div>
+                                        <div class="gate-criteria">Duplication < 3%</div>
+                                    </div>
+                                    <div class="gate-result result-passed">1.4%</div>
+                                </div>
+                            </div>
+
+                            <div class="gate-category">
+                                <div class="category-header">
+                                    <span>🚀</span>
+                                    Deployment Gates
+                                </div>
+                                <div class="gate-item passed">
+                                    <div class="gate-info">
+                                        <div class="gate-name">Environment Parity</div>
+                                        <div class="gate-criteria">Dev/staging/prod sync</div>
+                                    </div>
+                                    <div class="gate-result result-passed">Synced</div>
+                                </div>
+                                <div class="gate-item passed">
+                                    <div class="gate-info">
+                                        <div class="gate-name">Rollback Strategy</div>
+                                        <div class="gate-criteria">Automated rollback ready</div>
+                                    </div>
+                                    <div class="gate-result result-passed">Ready</div>
+                                </div>
+                                <div class="gate-item passed">
+                                    <div class="gate-info">
+                                        <div class="gate-name">Health Checks</div>
+                                        <div class="gate-criteria">All endpoints healthy</div>
+                                    </div>
+                                    <div class="gate-result result-passed">Healthy</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects Tab -->
+                <div id="projects-tab" class="tab-content hidden">
+                    <div class="requirements-form">
+                        <h2 style="color: #333; margin-bottom: 20px;">📋 Project Configuration & Requirements</h2>
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-group">
+                                    <label class="form-label">🎯 Project Requirements</label>
+                                    <div class="template-buttons">
+                                        <button class="template-btn" onclick="loadTemplate('regulatory')">Regulatory Compliance</button>
+                                        <button class="template-btn" onclick="loadTemplate('automation')">Process Automation</button>
+                                        <button class="template-btn" onclick="loadTemplate('integration')">System Integration</button>
+                                        <button class="template-btn" onclick="loadTemplate('rcm')">RCM Service</button>
+                                        <button class="template-btn" onclick="loadTemplate('complete')">Complete Solution</button>
+                                    </div>
+                                    <textarea 
+                                        class="form-textarea"
+                                        id="projectRequirements"
+                                        placeholder="Describe your Macquarie Post Trade transformation requirements...
+
+Example - Complete AI-Powered Post Trade Solution:
+
+🎯 REGULATORY COMPLIANCE TRANSFORMATION
+• Implement automated regulatory compliance management across AU, UK, US, EU jurisdictions
+• Deploy AI agents for real-time regulatory change detection and impact analysis
+• Ensure 99.9% compliance accuracy with 20-30% faster response times
+• Support MiFID II, EMIR, SOX, GDPR compliance frameworks
+• Automated regulatory reporting and audit trail generation
+
+🤖 AI AGENT ORCHESTRATION
+• Requirements Enhancement Agents for automated regulatory analysis
+• Design & Build Agents for accelerated compliant development
+• Test & QA Agents for comprehensive validation and security testing
+• Operations Agents for continuous monitoring and optimization
+• RCM (Regulatory Compliance Manager) as a centralized service
+
+🔗 ENTERPRISE INTEGRATIONS
+• GitHub Enterprise integration for source control and CI/CD pipelines
+• JIRA Agile integration for project management and sprint tracking
+• Confluence integration for automated documentation and knowledge management
+• PostTrade.ai platform for modular agentic architecture
+• CLM, settlements, and payments system connectivity
+
+🛡️ COMPREHENSIVE QUALITY GATES
+• Security: SAST scanning, dependency checks, container security
+• Testing: Unit tests (100% pass), code coverage (>80%), integration tests
+• Performance: Load testing (<200ms response), memory optimization
+• Compliance: Automated regulatory validation, audit trail management
+• Quality: SonarQube gates, technical debt monitoring, code quality metrics
+
+🚀 DEPLOYMENT & OPERATIONS
+• Blue-green deployments with zero downtime
+• Automated rollback strategies and environment parity
+• Real-time monitoring and performance analytics
+• Scalable cloud-native architecture supporting peak trading volumes
+• 24/7 operational monitoring with predictive issue detection"></textarea>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                    <div class="form-group">
+                                        <label class="form-label">🔗 GitHub Repository</label>
+                                        <input type="text" class="form-input" value="macquarie/post-trade-platform" placeholder="Repository name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">📊 JIRA Project Key</label>
+                                        <input type="text" class="form-input" value="MCQPT" placeholder="Project key">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">📚 Confluence Space</label>
+                                    <input type="text" class="form-input" value="Post Trade Documentation & Architecture" placeholder="Confluence space name">
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                    <div class="form-group">
+                                        <label class="form-label">🌍 Primary Jurisdiction</label>
+                                        <select class="form-input">
+                                            <option value="AU">Australia (AU)</option>
+                                            <option value="UK">United Kingdom (UK)</option>
+                                            <option value="US">United States (US)</option>
+                                            <option value="EU">European Union (EU)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">🤖 AI Agent Priority</label>
+                                        <select class="form-input">
+                                            <option value="rcm">RCM (Regulatory Compliance)</option>
+                                            <option value="requirements">Requirements Analysis</option>
+                                            <option value="testing">Testing & QA</option>
+                                            <option value="security">Security & Compliance</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <button class="action-button" onclick="initializeProject()">
+                                    🚀 Initialize Macquarie Post Trade Project
+                                </button>
+                            </div>
+
+                            <div class="suggestion-panel">
+                                <h3 style="color: #333; margin-bottom: 15px;">💡 AI-Powered Recommendations</h3>
+                                
+                                <div class="suggestion-item" onclick="applySuggestion('compliance')">
+                                    <div style="font-weight: 600; color: #333; margin-bottom: 5px;">🛡️ Enhanced Regulatory Framework</div>
+                                    <div style="font-size: 0.9em; color: #666;">Implement comprehensive regulatory monitoring across all jurisdictions with predictive compliance analytics</div>
+                                </div>
+                                
+                                <div class="suggestion-item" onclick="applySuggestion('performance')">
+                                    <div style="font-weight: 600; color: #333; margin-bottom: 5px;">⚡ Performance Optimization</div>
+                                    <div style="font-size: 0.9em; color: #666;">Target 20-30% improvement in regulatory response velocity with enhanced operational efficiency</div>
+                                </div>
+                                
+                                <div class="suggestion-item" onclick="applySuggestion('integration')">
+                                    <div style="font-weight: 600; color: #333; margin-bottom: 5px;">🔗 PostTrade.ai Integration</div>
+                                    <div style="font-size: 0.9em; color: #666;">Seamless integration with modular agentic platform for scalable AI orchestration</div>
+                                </div>
+                                
+                                <div class="suggestion-item" onclick="applySuggestion('security')">
+                                    <div style="font-weight: 600; color: #333; margin-bottom: 5px;">🔒 Advanced Security Gates</div>
+                                    <div style="font-size: 0.9em; color: #666;">Multi-layer security validation with automated vulnerability detection and remediation</div>
+                                </div>
+
+                                <div style="background: white; padding: 20px; border-radius: 12px; margin-top: 20px;">
+                                    <h4 style="color: #333; margin-bottom: 15px;">📊 Expected Outcomes</h4>
+                                    <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.9em;">
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <span>Regulatory Response Time:</span>
+                                            <span style="color: #4CAF50; font-weight: bold;">↓ 20-30%</span>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <span>Compliance Accuracy:</span>
+                                            <span style="color: #4CAF50; font-weight: bold;">99.9%</span>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <span>Operational Efficiency:</span>
+                                            <span style="color: #4CAF50; font-weight: bold;">↑ 25%</span>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <span>Pipeline Success Rate:</span>
+                                            <span style="color: #4CAF50; font-weight: bold;">98%+</span>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <span>Deployment Frequency:</span>
+                                            <span style="color: #4CAF50; font-weight: bold;">Daily</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="background: #e8f5e8; padding: 15px; border-radius: 10px; margin-top: 15px; border-left: 4px solid #4CAF50;">
+                                    <h4 style="color: #333; margin-bottom: 8px;">✅ EY Delivery Assurance</h4>
+                                    <div style="font-size: 0.85em; color: #666;">
+                                        Strategic Change Partnership model ensures comprehensive transformation with dedicated Concierge Team support and proven methodology.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compliance Tab -->
+                <div id="compliance-tab" class="tab-content hidden">
+                    <div class="progress-section">
+                        <h2 style="color: #333; margin-bottom: 20px;">⚖️ Regulatory Compliance Dashboard</h2>
+                        <p style="color: #666; margin-bottom: 25px;">Real-time compliance monitoring across all jurisdictions</p>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-bottom: 30px;">
+                            <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-left: 4px solid #4CAF50;">
+                                <h3 style="color: #333; margin-bottom: 15px;">🇦🇺 Australia (ASIC)</h3>
+                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>MiFID II Compliance</span>
+                                        <span style="color: #4CAF50; font-weight: bold;">✓ Compliant</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Trade Reporting</span>
+                                        <span style="color: #4CAF50; font-weight: bold;">✓ Current</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Risk Management</span>
+                                        <span style="color: #4CAF50; font-weight: bold;">✓ Active</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Last Update</span>
+                                        <span style="color: #666; font-size: 0.9em;">2 hours ago</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-left: 4px solid #4CAF50;">
+                                <h3 style="color: #333; margin-bottom: 15px;">🇬🇧 United Kingdom (FCA)</h3>
+                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>EMIR Compliance</span>
+                                        <span style="color: #4CAF50; font-weight: bold;">✓ Compliant</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>CASS Rules</span>
+                                        <span style="color: #4CAF50; font-weight: bold;">✓ Current</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Market Conduct</span>
+                                        <span style="color: #4CAF50; font-weight: bold;">✓ Active</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Last Update</span>
+                                        <span style="color: #666; font-size: 0.9em;">1 hour ago</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-left: 4px solid #FF9800;">
+                                <h3 style="color: #333; margin-bottom: 15px;">🇺🇸 United States (SEC/CFTC)</h3>
+                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Dodd-Frank</span>
+                                        <span style="color: #4CAF50; font-weight: bold;">✓ Compliant</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>SOX Compliance</span>
+                                        <span style="color: #4CAF50; font-weight: bold;">✓ Current</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>GDPR Framework</span>
+                                        <span style="color: #FF9800; font-weight: bold;">⚠ Review</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Last Update</span>
+                                        <span style="color: #666; font-size: 0.9em;">3 hours ago</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-left: 4px solid #4CAF50;">
+                                <h3 style="color: #333; margin-bottom: 15px;">🇪🇺 European Union (ESMA)</h3>
+                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>MiFIR Reporting</span>
+                                        <span style="color: #4CAF50; font-weight: bold;">✓ Compliant</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>GDPR Privacy</span>
+                                        <span style="color: #4CAF50; font-weight: bold;">✓ Current</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Market Abuse</span>
+                                        <span style="color: #4CAF50; font-weight: bold;">✓ Active</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Last Update</span>
+                                        <span style="color: #666; font-size: 0.9em;">30 minutes ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 25px;">
+                            <h3 style="color: #333; margin-bottom: 20px;">🤖 RCM Service - Active Monitoring</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                                <div style="background: #e8f5e8; padding: 20px; border-radius: 12px;">
+                                    <div style="font-size: 1.5em; font-weight: bold; color: #4CAF50; margin-bottom: 5px;">247</div>
+                                    <div style="font-size: 0.9em; color: #666;">Regulatory Changes Monitored</div>
+                                    <div style="font-size: 0.8em; color: #4CAF50; margin-top: 5px;">↑ 15% this month</div>
+                                </div>
+                                <div style="background: #fff3e0; padding: 20px; border-radius: 12px;">
+                                    <div style="font-size: 1.5em; font-weight: bold; color: #FF9800; margin-bottom: 5px;">12</div>
+                                    <div style="font-size: 0.9em; color: #666;">Pending Reviews</div>
+                                    <div style="font-size: 0.8em; color: #FF9800; margin-top: 5px;">Avg: 2.3 days</div>
+                                </div>
+                                <div style="background: #f3e5f5; padding: 20px; border-radius: 12px;">
+                                    <div style="font-size: 1.5em; font-weight: bold; color: #9C27B0; margin-bottom: 5px;">99.7%</div>
+                                    <div style="font-size: 0.9em; color: #666;">Compliance Accuracy</div>
+                                    <div style="font-size: 0.8em; color: #4CAF50; margin-top: 5px;">Above target</div>
+                                </div>
+                                <div style="background: #e3f2fd; padding: 20px; border-radius: 12px;">
+                                    <div style="font-size: 1.5em; font-weight: bold; color: #2196F3; margin-bottom: 5px;">4.2sec</div>
+                                    <div style="font-size: 0.9em; color: #666;">Avg Response Time</div>
+                                    <div style="font-size: 0.8em; color: #4CAF50; margin-top: 5px;">28% faster</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                            <h3 style="color: #333; margin-bottom: 20px;">📊 Compliance Audit Trail</h3>
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #4CAF50;">
+                                    <div>
+                                        <div style="font-weight: bold; color: #333;">MiFID II Trade Reporting Update</div>
+                                        <div style="font-size: 0.9em; color: #666;">Automated compliance validation completed</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="color: #4CAF50; font-weight: bold; font-size: 0.9em;">✓ Validated</div>
+                                        <div style="font-size: 0.8em; color: #666;">2 hours ago</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #FF9800;">
+                                    <div>
+                                        <div style="font-weight: bold; color: #333;">GDPR Data Privacy Review</div>
+                                        <div style="font-size: 0.9em; color: #666;">Manual review required for new data processing</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="color: #FF9800; font-weight: bold; font-size: 0.9em;">⚠ Pending</div>
+                                        <div style="font-size: 0.8em; color: #666;">4 hours ago</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #4CAF50;">
+                                    <div>
+                                        <div style="font-weight: bold; color: #333;">EMIR Risk Mitigation Update</div>
+                                        <div style="font-size: 0.9em; color: #666;">Automated policy update deployed successfully</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="color: #4CAF50; font-weight: bold; font-size: 0.9em;">✓ Complete</div>
+                                        <div style="font-size: 0.8em; color: #666;">1 day ago</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Tab switching functionality
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Remove active class from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(nav => {
+                nav.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
+        }
+
+        // Template loading functionality
+        function loadTemplate(type) {
+            const templates = {
+                regulatory: `🛡️ COMPREHENSIVE REGULATORY COMPLIANCE TRANSFORMATION
+
+• Implement automated regulatory compliance management across AU, UK, US, EU jurisdictions
+• Deploy AI-powered regulatory change detection with real-time impact analysis
+• Ensure 99.9% compliance accuracy with 20-30% faster regulatory response times
+• Full support for MiFID II, EMIR, SOX, GDPR, and local jurisdiction requirements
+• Automated regulatory reporting, documentation, and audit trail generation
+• Integration with regulatory databases and real-time compliance monitoring
+• Predictive compliance analytics and risk-based scoring systems
+• Comprehensive examination support and regulatory inquiry management`,
+
+                automation: `🤖 AI-POWERED PROCESS AUTOMATION
+
+• Deploy intelligent AI agents across the complete post-trade lifecycle
+• Automated trade processing, matching, and settlement operations
+• AI-driven exception handling and resolution with human oversight
+• Smart client onboarding and KYC automation with compliance validation
+• Real-time trade monitoring with anomaly detection and alerting
+• Integration with PostTrade.ai modular agentic platform architecture
+• Automated workflow orchestration and task routing optimization
+• Performance analytics and continuous process improvement recommendations`,
+
+                integration: `🔗 ENTERPRISE PLATFORM INTEGRATION
+
+• Seamless GitHub Enterprise integration for source control and CI/CD automation
+• JIRA Agile integration for comprehensive project and sprint management
+• Confluence integration for automated documentation and knowledge management
+• PostTrade.ai platform implementation with modular AI agent architecture
+• Real-time connectivity to CLM, settlements, and payments systems
+• API-first architecture with microservices and cloud-native deployment
+• Comprehensive data synchronization and quality management systems
+• Security compliance and data protection with enterprise-grade controls`,
+
+                rcm: `⚖️ REGULATORY COMPLIANCE MANAGER (RCM) SERVICE
+
+• Deploy RCM as a centralized compliance-as-a-service platform
+• Real-time regulatory change monitoring with intelligent notification systems
+• Automated compliance impact assessment and risk scoring algorithms
+• Intelligent routing of compliance tasks to appropriate teams and stakeholders
+• Automated regulatory reporting and filing with multiple jurisdiction support
+• Executive compliance dashboard with real-time insights and analytics
+• Integration with global regulatory databases and information feeds
+• Audit trail management and regulatory examination support capabilities`,
+
+                complete: `🚀 COMPLETE MACQUARIE POST TRADE AI TRANSFORMATION
+
+🎯 REGULATORY COMPLIANCE EXCELLENCE
+• Automated compliance management across AU, UK, US, EU jurisdictions
+• AI-powered regulatory change detection with 20-30% faster response times
+• 99.9% compliance accuracy with comprehensive audit trail management
+• Full MiFID II, EMIR, SOX, GDPR support with predictive analytics
+
+🤖 COMPREHENSIVE AI AGENT ORCHESTRATION
+• Requirements Enhancement Agents for automated regulatory analysis
+• Design & Build Agents for accelerated compliant development cycles
+• Test & QA Agents with comprehensive security and performance validation
+• Operations Agents for continuous monitoring and optimization
+• RCM Service as centralized regulatory compliance management platform
+
+🔗 ENTERPRISE-GRADE INTEGRATIONS
+• GitHub Enterprise: Source control, CI/CD pipelines, automated code reviews
+• JIRA Agile: Sprint management, story tracking, release planning
+• Confluence: Automated documentation, architecture diagrams, compliance reports
+• PostTrade.ai: Modular agentic platform with scalable AI orchestration
+• CLM/Settlements/Payments: Real-time connectivity and data synchronization
+
+🛡️ COMPREHENSIVE QUALITY GATES & SECURITY
+• Multi-layer security validation: SAST, dependency scanning, container security
+• Comprehensive testing: Unit (100% pass), integration, performance, load testing
+• Code quality: SonarQube gates, coverage (>80%), technical debt monitoring
+• Compliance validation: Automated regulatory checks and audit documentation
+• Performance optimization: <200ms response times, memory management
+
+🚀 ADVANCED DEPLOYMENT & OPERATIONS
+• Blue-green deployments with zero downtime and automated rollback strategies
+• Real-time monitoring with predictive issue detection and resolution
+• Scalable cloud-native architecture supporting peak trading volumes
+• 24/7 operational excellence with comprehensive performance analytics
+• Continuous improvement with AI-driven optimization recommendations
+
+📊 MEASURABLE BUSINESS OUTCOMES
+• 20-30% improvement in regulatory response velocity
+• 99.9% compliance accuracy with reduced operational risk
+• 25% increase in operational efficiency and resource optimization
+• 98%+ pipeline success rate with daily deployment capability
+• Significant cost reduction through automation and AI optimization
+
+✅ EY STRATEGIC PARTNERSHIP DELIVERY
+• Dedicated Concierge Team with proven post-trade transformation expertise
+• Strategic Change Partnership model with full-service delivery capability
+• Comprehensive change management and stakeholder engagement programs
+• Knowledge transfer and capability building for sustainable transformation`
+            };
+            
+            document.getElementById('projectRequirements').value = templates[type];
+        }
+
+        // Suggestion application
+        function applySuggestion(type) {
+            const currentText = document.getElementById('projectRequirements').value;
+            const suggestions = {
+                compliance: '\n\n🛡️ ENHANCED REGULATORY FRAMEWORK:\n• Implement predictive compliance analytics with machine learning\n• Real-time regulatory monitoring across all global jurisdictions\n• Automated impact assessment and remediation recommendations\n• Comprehensive audit trail with blockchain-based immutability',
+                
+                performance: '\n\n⚡ PERFORMANCE & EFFICIENCY OPTIMIZATION:\n• Target 20-30% improvement in regulatory response velocity\n• Achieve 25% reduction in operational processing overhead\n• Implement real-time performance monitoring and optimization\n• Predictive capacity planning and resource allocation',
+                
+                integration: '\n\n🔗 POSTTRADE.AI PLATFORM INTEGRATION:\n• Modular agentic architecture with scalable AI orchestration\n• Seamless connectivity to CLM, settlements, and payments systems\n• Real-time data synchronization with enterprise-grade security\n• API-first design with comprehensive integration capabilities',
+                
+                security: '\n\n🔒 ADVANCED SECURITY & COMPLIANCE:\n• Multi-layer security validation with automated vulnerability detection\n• Comprehensive penetration testing and security auditing\n• Zero-trust security model with continuous compliance monitoring\n• Advanced threat detection and automated incident response'
+            };
+            
+            if (currentText.trim()) {
+                document.getElementById('projectRequirements').value = currentText + suggestions[type];
+            } else {
+                document.getElementById('projectRequirements').value = suggestions[type].substring(2); // Remove leading newlines
+            }
+        }
+
+        // Project initialization
+        function initializeProject() {
+            const requirements = document.getElementById('projectRequirements').value.trim();
+            
+            if (!requirements) {
+                showNotification('Please provide project requirements before initialization.', 'error');
+                return;
+            }
+            
+            showNotification('Initializing Macquarie Post Trade project with AI agents...', 'success');
+            
+            // Simulate project setup process
+            setTimeout(() => {
+                showNotification('GitHub repository created and configured successfully!', 'success');
+            }, 2000);
+            
+            setTimeout(() => {
+                showNotification('JIRA project initialized with sprint templates!', 'success');
+            }, 4000);
+            
+            setTimeout(() => {
+                showNotification('Confluence space created with documentation templates!', 'success');
+            }, 6000);
+            
+            setTimeout(() => {
+                showNotification('AI agents deployed and ready for processing!', 'success');
+            }, 8000);
+            
+            setTimeout(() => {
+                showNotification('Project initialization complete! All systems operational.', 'success');
+            }, 10000);
+        }
+
+        // Notification system
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        // Initialize default tab
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load default template
+            loadTemplate('complete');
+            
+            // Show periodic status updates
+            setInterval(() => {
+                const metrics = [
+                    'Pipeline status updated: 3 builds completed successfully',
+                    'RCM Service: 5 new regulatory changes detected and processed',
+                    'Quality gates passed: Security scan completed with no issues',
+                    'AI Agents: Requirements analysis completed for 12 new items',
+                    'Compliance monitoring: All jurisdictions reporting green status'
+                ];
+                
+                const randomMetric = metrics[Math.floor(Math.random() * metrics.length)];
+                console.log(`🤖 ${randomMetric}`);
+            }, 30000);
+        });
+    </script>
+
+<!-- DORA Live Simulation Script -->
+<script>
+(function(){
+    // small simulated updater to show values changing (no external network calls)
+    function fmtMinutes(m){ return m + 'm'; }
+    const state = {
+        df: ['Daily','2x/day','Multiple/day','Weekly'],
+        dfIdx: 0,
+        lt: [120, 90, 60, 30], // minutes
+        ltIdx: 0,
+        cfr: [3,4,2,5],
+        cfrIdx: 0,
+        mttr: [25, 30, 18, 22],
+        mttrIdx: 0
+    };
+
+    function update() {
+        // rotate indexes
+        state.dfIdx = (state.dfIdx + 1) % state.df.length;
+        state.ltIdx = (state.ltIdx + 1) % state.lt.length;
+        state.cfrIdx = (state.cfrIdx + 1) % state.cfr.length;
+        state.mttrIdx = (state.mttrIdx + 1) % state.mttr.length;
+
+        // set values
+        const dfVal = state.df[state.dfIdx];
+        document.getElementById('df-value') && (document.getElementById('df-value').textContent = dfVal);
+        document.getElementById('df-trend') && (document.getElementById('df-trend').textContent = 'trend: ' + (state.dfIdx%2? '↑' : '↓') + ' vs prior period');
+
+        const ltMin = state.lt[state.ltIdx];
+        document.getElementById('lt-value') && (document.getElementById('lt-value').textContent = (ltMin>=60? Math.round(ltMin/60)+'h' : ltMin+'m'));
+        document.getElementById('lt-trend') && (document.getElementById('lt-trend').textContent = (ltMin<60? 'Improved' : 'Needs improvement'));
+
+        const cfr = state.cfr[state.cfrIdx];
+        document.getElementById('cfr-value') && (document.getElementById('cfr-value').textContent = cfr + '%');
+
+        const mttr = state.mttr[state.mttrIdx];
+        document.getElementById('mttr-value') && (document.getElementById('mttr-value').textContent = fmtMinutes(mttr));
+        document.getElementById('mttr-trend') && (document.getElementById('mttr-trend').textContent = (mttr < 25 ? 'Faster' : 'Slower'));
+    }
+
+    // initial update
+    update();
+    // update every 7 seconds to simulate live changes
+    setInterval(update, 7000);
+})();
+</script>
+
+
+<script>
+function toggleSpaceDetails(){
+    var el = document.getElementById('space-details');
+    if(!el) return;
+    if(el.classList.contains('hidden')) {
+        el.classList.remove('hidden');
+        document.getElementById('space-guide-btn').textContent = 'Hide implementation guidance';
+    } else {
+        el.classList.add('hidden');
+        document.getElementById('space-guide-btn').textContent = 'Show implementation guidance';
+    }
+}
+</script>
+
+</body>
+</html>

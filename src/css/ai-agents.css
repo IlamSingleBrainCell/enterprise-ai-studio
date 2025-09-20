@@ -1,0 +1,189 @@
+/* AI Agent Interface Styles */
+
+.ai-task-section {
+    background: rgba(40, 40, 40, 0.9);
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.task-input-container {
+    max-width: 100%;
+}
+
+.task-input-container textarea {
+    font-size: 14px;
+    line-height: 1.5;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.task-input-container textarea:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.task-input-container button {
+    transition: all 0.3s ease;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.task-input-container button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.task-input-container button:active {
+    transform: translateY(0);
+}
+
+.task-input-container button:disabled {
+    background: rgba(100, 100, 100, 0.5) !important;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Agent Status Indicators */
+.agent-status-active {
+    color: #4CAF50 !important;
+}
+
+.agent-status-processing {
+    color: #2196F3 !important;
+    animation: pulse 2s infinite;
+}
+
+.agent-status-completed {
+    color: #4CAF50 !important;
+}
+
+.agent-status-failed {
+    color: #F44336 !important;
+}
+
+.agent-status-idle {
+    color: #FF9800 !important;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+/* Progress Animations */
+.agent-card-processing {
+    border-left: 4px solid #2196F3;
+    animation: glow 2s infinite;
+}
+
+@keyframes glow {
+    0% { box-shadow: 0 0 5px rgba(33, 150, 243, 0.3); }
+    50% { box-shadow: 0 0 20px rgba(33, 150, 243, 0.6); }
+    100% { box-shadow: 0 0 5px rgba(33, 150, 243, 0.3); }
+}
+
+.agent-card-completed {
+    border-left: 4px solid #4CAF50;
+    background: rgba(76, 175, 80, 0.05);
+}
+
+.agent-card-failed {
+    border-left: 4px solid #F44336;
+    background: rgba(244, 67, 54, 0.05);
+}
+
+/* Results Display */
+.agent-results {
+    background: rgba(76, 175, 80, 0.2);
+    border: 1px solid rgba(76, 175, 80, 0.4);
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+    animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Workflow Status Messages */
+.workflow-status {
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+.workflow-status.success {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+    border-left: 4px solid #4CAF50;
+}
+
+.workflow-status.info {
+    background: rgba(33, 150, 243, 0.2);
+    color: #2196F3;
+    border-left: 4px solid #2196F3;
+}
+
+.workflow-status.warning {
+    background: rgba(255, 152, 0, 0.2);
+    color: #FF9800;
+    border-left: 4px solid #FF9800;
+}
+
+.workflow-status.error {
+    background: rgba(244, 67, 54, 0.2);
+    color: #F44336;
+    border-left: 4px solid #F44336;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .ai-task-section {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .task-input-container > div {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .task-input-container button {
+        min-width: auto;
+        width: 100%;
+    }
+}
+
+/* Loading Spinner */
+.agent-loading {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #2196F3;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

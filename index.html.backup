@@ -1,0 +1,3223 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macquarie CGM Post Trade - AI SDLC Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        .header {
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 30px;
+            box-shadow: 0 2px 20px rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            color: white;
+        }
+
+        .logo-text h1 {
+            font-size: 1.6em;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2px;
+        }
+
+        .logo-text p {
+            font-size: 0.9em;
+            color: #cccccc;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .jurisdiction-pills {
+            display: flex;
+            gap: 8px;
+        }
+
+        .jurisdiction-pill {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Flag indicators */
+        .flag-au, .flag-uk, .flag-us, .flag-eu {
+            width: 14px;
+            height: 10px;
+            border-radius: 2px;
+            display: inline-block;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .flag-au {
+            background: linear-gradient(to bottom, #0048ac 33%, #ffffff 33%, #ffffff 66%, #d91e18 66%);
+        }
+
+        .flag-uk {
+            background: linear-gradient(135deg, #012169 25%, #ffffff 25%, #ffffff 75%, #c8102e 75%);
+        }
+
+        .flag-us {
+            background: linear-gradient(to bottom, #b22234 46%, #ffffff 46%, #ffffff 54%, #b22234 54%);
+        }
+
+        .flag-eu {
+            background: #003399;
+            position: relative;
+        }
+
+        .flag-eu::after {
+            content: 'â˜…';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffcc00;
+            font-size: 8px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4CAF50;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #4CAF50;
+        }
+
+        .main-container {
+            display: flex;
+            height: calc(100vh - 90px);
+        }
+
+        .sidebar {
+            width: 350px;
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            overflow-y: auto;
+            box-shadow: 2px 0 20px rgba(255, 255, 255, 0.1);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .main-nav {
+            background: rgba(30, 30, 30, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            gap: 20px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+            flex-shrink: 0;
+            min-height: 60px;
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            border: 2px solid transparent;
+            color: #ffffff;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000000;
+        }
+
+        .nav-tab:hover {
+            border-color: #FFD700;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: transparent;
+            min-height: 400px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .control-section {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(40, 40, 40, 0.8);
+            border-radius: 12px;
+            border-left: 4px solid #FFD700;
+            box-shadow: 0 2px 10px rgba(255, 255, 255, 0.05);
+        }
+
+        .control-section h3 {
+            color: #ffffff;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-card {
+            background: rgba(40, 40, 40, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.15);
+            border-color: #FFD700;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .integration-status {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .integration-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: rgba(60, 60, 60, 0.8);
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .integration-item.connected {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .integration-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .integration-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8em;
+        }
+
+        .github-logo { background: #24292e; }
+        .jira-logo { background: #0052cc; }
+        .confluence-logo { background: #172b4d; }
+        .jenkins-logo { background: #d33833; }
+        .docker-logo { background: #0db7ed; }
+        .aws-logo { background: #ff9900; }
+        .azure-logo { background: #0078d4; }
+        .gcp-logo { background: #4285f4; }
+        .posttrade-logo { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .rcm-logo { background: linear-gradient(135deg, #FFD700, #FFA500); }
+
+        .integration-details {
+            flex: 1;
+        }
+
+        .integration-name {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 3px;
+        }
+
+        .integration-desc {
+            font-size: 0.8em;
+            color: #cccccc;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .status-connected {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .status-failed {
+            background: #f44336;
+            color: white;
+        }
+
+        .status-pending {
+            background: #FF9800;
+            color: white;
+        }
+
+        .status-active {
+            background: #FFD700;
+            color: #000000;
+        }
+
+        .ai-agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .ai-agent {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .ai-agent:hover {
+            transform: scale(1.05);
+            border-color: #FFD700;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .ai-agent.active {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000000;
+        }
+
+        .agent-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .agent-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .agent-status {
+            font-size: 0.8em;
+            opacity: 0.9;
+        }
+
+        .progress-section {
+            background: rgba(40, 40, 40, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+
+        .progress-title {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .progress-metrics {
+            display: flex;
+            gap: 20px;
+        }
+
+        .metric {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        .metric-label {
+            font-size: 0.8em;
+            color: #cccccc;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            height: 12px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            height: 100%;
+            width: 35%;
+            transition: width 0.8s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -15px;
+            width: 30px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .workflow-stages {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        .stage {
+            text-align: center;
+            padding: 20px 15px;
+            border-radius: 15px;
+            background: rgba(60, 60, 60, 0.8);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            position: relative;
+            color: #ffffff;
+        }
+
+        .stage.active {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000000;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .stage.completed {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .stage.blocked {
+            background: rgba(244, 67, 54, 0.2);
+            border-color: #f44336;
+            color: #ff6b6b;
+        }
+
+        .stage-icon {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .stage-title {
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .stage-status {
+            font-size: 0.7em;
+            opacity: 0.8;
+        }
+
+        .gate-indicator {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4CAF50;
+            border: 2px solid white;
+        }
+
+        .gate-indicator.failed {
+            background: #f44336;
+        }
+
+        .gate-indicator.pending {
+            background: #FF9800;
+        }
+
+        /* DORA Metrics styles */
+        .dora-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .dora-card {
+            background: rgba(60, 60, 60, 0.95);
+            border-radius: 15px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.08);
+            border-left: 4px solid #FFD700;
+            transition: transform 0.25s ease;
+        }
+
+        .dora-card:hover { 
+            transform: translateY(-6px); 
+        }
+
+        .dora-title { 
+            font-weight: 700; 
+            font-size: 1.02em; 
+            margin-bottom: 8px; 
+            color: #ffffff; 
+        }
+
+        .dora-value { 
+            font-size: 1.6em; 
+            font-weight: 800; 
+            color: #FFD700; 
+        }
+
+        .dora-subtext { 
+            font-size: 0.82em; 
+            color: #cccccc; 
+            margin-top: 6px; 
+        }
+
+        .dora-trend { 
+            font-size: 0.78em; 
+            color: #4CAF50; 
+            font-weight: 700; 
+            margin-top: 6px; 
+        }
+
+        /* SPACE Framework styles */
+        .space-section {
+            margin-top: 22px;
+        }
+
+        .space-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+        }
+
+        .space-card {
+            background: rgba(60, 60, 60, 0.97);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 6px 18px rgba(255, 255, 255, 0.06);
+            border-left: 4px solid #667eea;
+        }
+
+        .space-title {
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .space-body {
+            font-size: 0.9em;
+            color: #cccccc;
+            line-height: 1.45;
+        }
+
+        .space-small {
+            font-size: 0.82em;
+            color: #aaaaaa;
+            margin-top: 8px;
+        }
+
+        .space-header {
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            gap: 12px;
+        }
+
+        .space-pill {
+            padding: 6px 10px; 
+            background: rgba(227, 242, 253, 0.2); 
+            border-radius: 999px; 
+            font-weight: 700; 
+            color: #64b5f6; 
+            font-size: 0.85em;
+        }
+
+        .space-list { 
+            margin-top: 10px; 
+            padding-left: 16px; 
+            color: #cccccc; 
+        }
+
+        .space-list li { 
+            margin-bottom: 6px; 
+        }
+
+        .collapse-toggle { 
+            cursor: pointer; 
+            color: #667eea; 
+            font-weight: 700; 
+            font-size: 0.9em; 
+        }
+
+        .quality-gates {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .gate-category {
+            background: rgba(40, 40, 40, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.08);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .gate-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(60, 60, 60, 0.8);
+            border-radius: 8px;
+            border-left: 4px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .gate-item.passed {
+            border-left-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .gate-item.failed {
+            border-left-color: #f44336;
+            background: rgba(244, 67, 54, 0.1);
+        }
+
+        .gate-item.pending {
+            border-left-color: #FF9800;
+            background: rgba(255, 152, 0, 0.1);
+        }
+
+        .gate-info {
+            flex: 1;
+        }
+
+        .gate-name {
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-bottom: 3px;
+            color: #ffffff;
+        }
+
+        .gate-criteria {
+            font-size: 0.8em;
+            color: #cccccc;
+        }
+
+        .gate-result {
+            font-size: 0.8em;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 10px;
+        }
+
+        .result-passed {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .result-failed {
+            background: #f44336;
+            color: white;
+        }
+
+        .result-pending {
+            background: #FF9800;
+            color: white;
+        }
+
+        .requirements-form {
+            background: rgba(40, 40, 40, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95em;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+            background: rgba(60, 60, 60, 0.8);
+            color: #ffffff;
+        }
+
+        .form-textarea:focus {
+            border-color: #FFD700;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+            background: rgba(60, 60, 60, 0.8);
+            color: #ffffff;
+        }
+
+        .form-input:focus {
+            border-color: #FFD700;
+            outline: none;
+        }
+
+        .template-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .template-btn {
+            background: rgba(60, 60, 60, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            color: #ffffff;
+        }
+
+        .template-btn:hover {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000000;
+            border-color: #FFD700;
+        }
+
+        .action-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            width: 100%;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .suggestion-panel {
+            background: rgba(60, 60, 60, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 4px solid #FFD700;
+        }
+
+        .suggestion-item {
+            background: rgba(40, 40, 40, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 5px rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .notification.success { background: #4CAF50; }
+        .notification.error { background: #f44336; }
+        .notification.warning { background: #FF9800; }
+
+        .hidden { display: none; }
+
+        /* Enterprise Connector Styles */
+        .enterprise-connector-card {
+            background: rgba(60, 60, 60, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.08);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .enterprise-connector-card:hover {
+            border-color: #FFD700;
+            transform: translateY(-2px);
+        }
+
+        .connector-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .connector-info {
+            flex: 1;
+        }
+
+        .connector-name {
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .connector-status {
+            font-size: 0.8em;
+            color: #FF9800;
+            font-weight: 600;
+        }
+
+        .connector-status.connected {
+            color: #4CAF50;
+        }
+
+        .connector-status.error {
+            color: #F44336;
+        }
+
+        .configure-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .configure-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .connector-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+        }
+
+        .detail-item span:first-child {
+            color: #cccccc;
+        }
+
+        .detail-item span:last-child {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 300px;
+                overflow-y: auto;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+            
+            .ai-agents-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            }
+            
+            .dora-metrics {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+            
+            .space-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .logo-section {
+                justify-content: center;
+            }
+            
+            .header-actions {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .main-nav {
+                padding: 10px 15px;
+                flex-wrap: wrap;
+                gap: 10px;
+                justify-content: center;
+            }
+            
+            .nav-tab {
+                font-size: 0.9em;
+                padding: 8px 16px;
+            }
+            
+            .main-content {
+                padding: 20px 15px;
+            }
+            
+            .sidebar {
+                padding: 20px 15px;
+                max-height: 250px;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .ai-agents-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dora-metrics {
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+                gap: 15px;
+            }
+            
+            .space-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .workflow-stages {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 10px;
+            }
+            
+            .quality-gates {
+                grid-template-columns: 1fr;
+            }
+            
+            .progress-metrics {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+        /* AI Agent Interface Styles */
+        .ai-task-section {
+            background: rgba(40, 40, 40, 0.9);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .task-input-container textarea {
+            font-size: 14px;
+            line-height: 1.5;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .task-input-container textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+
+        .agent-status-processing {
+            color: #2196F3 !important;
+            animation: pulse 2s infinite;
+        }
+
+        .agent-status-completed {
+            color: #4CAF50 !important;
+        }
+
+        .agent-status-failed {
+            color: #F44336 !important;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .agent-card-processing {
+            border-left: 4px solid #2196F3;
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px rgba(33, 150, 243, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(33, 150, 243, 0.6); }
+            100% { box-shadow: 0 0 5px rgba(33, 150, 243, 0.3); }
+        }
+
+        .agent-card-completed {
+            border-left: 4px solid #4CAF50;
+            background: rgba(76, 175, 80, 0.05);
+        }
+
+        .workflow-status {
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .workflow-status.success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .workflow-status.info {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196F3;
+            border-left: 4px solid #2196F3;
+        }
+
+        .workflow-status.warning {
+            background: rgba(255, 152, 0, 0.2);
+            color: #FF9800;
+            border-left: 4px solid #FF9800;
+        }
+
+        .workflow-status.error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+            border-left: 4px solid #F44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <div class="logo">
+                <span style="font-size: 1.2em; font-weight: 900; font-family: 'Arial', sans-serif; color: #000000; letter-spacing: 1px; font-style: italic;">i</span>
+            </div>
+            <div class="logo-text">
+                <h1>Macquarie CGM Post Trade</h1>
+                <p>AI-Powered SDLC Platform â€¢ EY Strategic Partnership</p>
+            </div>
+        </div>
+        
+        <div class="header-actions">
+            <div class="jurisdiction-pills">
+                <div class="jurisdiction-pill"><span class="flag-au"></span> AU</div>
+                <div class="jurisdiction-pill"><span class="flag-uk"></span> UK</div>
+                <div class="jurisdiction-pill"><span class="flag-us"></span> US</div>
+                <div class="jurisdiction-pill"><span class="flag-eu"></span> EU</div>
+            </div>
+            
+            <div class="status-indicator">
+                <span style="width: 8px; height: 8px; background: #4CAF50; border-radius: 50%; display: block;"></span>
+                All Systems Operational
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="control-section">
+                <h3>ðŸ”— Platform Integrations</h3>
+                <div class="integration-status">
+                    <div class="integration-item connected">
+                        <div class="integration-info">
+                            <div class="integration-logo github-logo">GH</div>
+                            <div class="integration-details">
+                                <div class="integration-name">GitHub Enterprise</div>
+                                <div class="integration-desc">Source control & CI/CD</div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-connected">Live</div>
+                    </div>
+                    
+                    <div class="integration-item connected">
+                        <div class="integration-info">
+                            <div class="integration-logo jira-logo">JA</div>
+                            <div class="integration-details">
+                                <div class="integration-name">JIRA Agile</div>
+                                <div class="integration-desc">Project & sprint management</div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-connected">Live</div>
+                    </div>
+                    
+                    <div class="integration-item connected">
+                        <div class="integration-info">
+                            <div class="integration-logo confluence-logo">CF</div>
+                            <div class="integration-details">
+                                <div class="integration-name">Confluence</div>
+                                <div class="integration-desc">Documentation & knowledge</div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-connected">Live</div>
+                    </div>
+                    
+                    <div class="integration-item connected">
+                        <div class="integration-info">
+                            <div class="integration-logo jenkins-logo">JK</div>
+                            <div class="integration-details">
+                                <div class="integration-name">Jenkins</div>
+                                <div class="integration-desc">CI/CD automation</div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-connected">Live</div>
+                    </div>
+                    
+                    <div class="integration-item connected">
+                        <div class="integration-info">
+                            <div class="integration-logo docker-logo">DK</div>
+                            <div class="integration-details">
+                                <div class="integration-name">Docker</div>
+                                <div class="integration-desc">Container management</div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-connected">Live</div>
+                    </div>
+                    
+                    <div class="integration-item connected">
+                        <div class="integration-info">
+                            <div class="integration-logo aws-logo">AWS</div>
+                            <div class="integration-details">
+                                <div class="integration-name">Amazon Web Services</div>
+                                <div class="integration-desc">Cloud infrastructure</div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-connected">Live</div>
+                    </div>
+                    
+                    <div class="integration-item connected">
+                        <div class="integration-info">
+                            <div class="integration-logo azure-logo">AZ</div>
+                            <div class="integration-details">
+                                <div class="integration-name">Microsoft Azure</div>
+                                <div class="integration-desc">Cloud platform</div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-connected">Live</div>
+                    </div>
+                    
+                    <div class="integration-item connected">
+                        <div class="integration-info">
+                            <div class="integration-logo gcp-logo">GCP</div>
+                            <div class="integration-details">
+                                <div class="integration-name">Google Cloud Platform</div>
+                                <div class="integration-desc">Cloud services</div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-connected">Live</div>
+                    </div>
+                    
+                    <div class="integration-item connected">
+                        <div class="integration-info">
+                            <div class="integration-logo posttrade-logo">PT</div>
+                            <div class="integration-details">
+                                <div class="integration-name">PostTrade.ai</div>
+                                <div class="integration-desc">Core AI platform</div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-active">Active</div>
+                    </div>
+                    
+                    <div class="integration-item connected">
+                        <div class="integration-info">
+                            <div class="integration-logo rcm-logo">RC</div>
+                            <div class="integration-details">
+                                <div class="integration-name">RCM Service</div>
+                                <div class="integration-desc">Regulatory compliance</div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-active">Active</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>ðŸ“Š Real-time Metrics</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div style="background: rgba(76, 175, 80, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 1.4em; font-weight: bold; color: #4CAF50;">98.7%</div>
+                        <div style="font-size: 0.8em; color: #cccccc;">Pipeline Success</div>
+                    </div>
+                    <div style="background: rgba(255, 152, 0, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 1.4em; font-weight: bold; color: #FF9800;">8.5min</div>
+                        <div style="font-size: 0.8em; color: #cccccc;">Avg Build Time</div>
+                    </div>
+                    <div style="background: rgba(156, 39, 176, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 1.4em; font-weight: bold; color: #9C27B0;">23</div>
+                        <div style="font-size: 0.8em; color: #cccccc;">Active Repos</div>
+                    </div>
+                    <div style="background: rgba(33, 150, 243, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 1.4em; font-weight: bold; color: #2196F3;">156</div>
+                        <div style="font-size: 0.8em; color: #cccccc;">JIRA Issues</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>ðŸ›¡ï¸ Compliance Status</h3>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                        <span style="font-size: 0.9em; color: #ffffff;">MiFID II</span>
+                        <span style="color: #4CAF50; font-weight: bold;">âœ“ Compliant</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                        <span style="font-size: 0.9em; color: #ffffff;">EMIR</span>
+                        <span style="color: #4CAF50; font-weight: bold;">âœ“ Compliant</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                        <span style="font-size: 0.9em; color: #ffffff;">SOX</span>
+                        <span style="color: #4CAF50; font-weight: bold;">âœ“ Compliant</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 152, 0, 0.2); border-radius: 6px;">
+                        <span style="font-size: 0.9em; color: #ffffff;">GDPR</span>
+                        <span style="color: #FF9800; font-weight: bold;">âš  Review</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="main-nav">
+                <div class="nav-tab active" data-tab="dashboard">ðŸ  Dashboard</div>
+                <div class="nav-tab" data-tab="agents">ðŸ¤– AI Agents</div>
+                <div class="nav-tab" data-tab="enterprise">ðŸ”— Enterprise</div>
+                <div class="nav-tab" data-tab="pipeline">ðŸ”„ Pipeline</div>
+                <div class="nav-tab" data-tab="quality">ðŸ›¡ï¸ Quality Gates</div>
+                <div class="nav-tab" data-tab="projects">ðŸ“‹ Projects</div>
+                <div class="nav-tab" data-tab="compliance">âš–ï¸ Compliance</div>
+            </div>
+
+            <div class="main-content">
+                <!-- Dashboard Tab -->
+                <div id="dashboard-tab" class="tab-content active">
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸš€</span>
+                                    Transformation Progress
+                                </div>
+                                <div style="color: #FFD700; font-weight: bold;">Phase 2</div>
+                            </div>
+                            <div class="progress-bar" style="margin-bottom: 15px;">
+                                <div class="progress-fill" style="width: 35%;"></div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5em; font-weight: bold; color: #4CAF50;">4/8</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Phases Complete</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5em; font-weight: bold; color: #FFD700;">35%</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Overall Progress</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ¤–</span>
+                                    AI Agents Status
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">All Active</div>
+                            </div>
+                            <div class="ai-agents-grid" style="grid-template-columns: 1fr 1fr;">
+                                <div class="ai-agent active" style="padding: 15px;">
+                                    <div class="agent-icon">ðŸ“‹</div>
+                                    <div class="agent-name">Requirements</div>
+                                    <div class="agent-status">Processing</div>
+                                </div>
+                                <div class="ai-agent" style="padding: 15px;">
+                                    <div class="agent-icon">ðŸŽ¨</div>
+                                    <div class="agent-name">Design</div>
+                                    <div class="agent-status">Ready</div>
+                                </div>
+                                <div class="ai-agent" style="padding: 15px;">
+                                    <div class="agent-icon">ðŸ”§</div>
+                                    <div class="agent-name">Build</div>
+                                    <div class="agent-status">Standby</div>
+                                </div>
+                                <div class="ai-agent active" style="padding: 15px;">
+                                    <div class="agent-icon">ðŸ›¡ï¸</div>
+                                    <div class="agent-name">RCM</div>
+                                    <div class="agent-status">Monitoring</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ”„</span>
+                                    Pipeline Activity
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">Running</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: rgba(60, 60, 60, 0.8); border-radius: 8px;">
+                                    <span style="font-size: 0.9em; color: #ffffff;">macquarie/post-trade-core</span>
+                                    <span style="color: #4CAF50; font-size: 0.8em; font-weight: bold;">âœ“ Passed</span>
+                                </div>
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: rgba(255, 152, 0, 0.2); border-radius: 8px;">
+                                    <span style="font-size: 0.9em; color: #ffffff;">macquarie/regulatory-engine</span>
+                                    <span style="color: #FF9800; font-size: 0.8em; font-weight: bold;">âš  Testing</span>
+                                </div>
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: rgba(60, 60, 60, 0.8); border-radius: 8px;">
+                                    <span style="font-size: 0.9em; color: #ffffff;">macquarie/ai-agents</span>
+                                    <span style="color: #2196F3; font-size: 0.8em; font-weight: bold;">ðŸ”„ Building</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ“Š</span>
+                                    DORA Metrics
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">Live</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div style="text-align: center; padding: 15px; background: rgba(76, 175, 80, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.3em; font-weight: bold; color: #4CAF50;">Daily</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Deployment Frequency</div>
+                                    <div style="font-size: 0.7em; color: #999999;">Multiple deploys per day</div>
+                                </div>
+                                <div style="text-align: center; padding: 15px; background: rgba(76, 175, 80, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.3em; font-weight: bold; color: #4CAF50;">2h</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Lead Time</div>
+                                    <div style="font-size: 0.7em; color: #999999;">Commit to production</div>
+                                </div>
+                                <div style="text-align: center; padding: 15px; background: rgba(255, 152, 0, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.3em; font-weight: bold; color: #FF9800;">15min</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Recovery Time</div>
+                                    <div style="font-size: 0.7em; color: #999999;">Average MTTR</div>
+                                </div>
+                                <div style="text-align: center; padding: 15px; background: rgba(76, 175, 80, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.3em; font-weight: bold; color: #4CAF50;">0.1%</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Change Failure</div>
+                                    <div style="font-size: 0.7em; color: #999999;">Elite performance</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸŽ¯</span>
+                                    Current Sprint
+                                </div>
+                                <div style="color: #FF9800; font-weight: bold;">Sprint 23</div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span style="font-size: 0.9em; color: #cccccc;">Sprint Progress</span>
+                                    <span style="font-size: 0.9em; color: #ffffff;">12/20 stories</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 60%;"></div>
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div style="text-align: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.3em; font-weight: bold; color: #4CAF50;">12</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Completed</div>
+                                </div>
+                                <div style="text-align: center; padding: 10px; background: rgba(255, 152, 0, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.3em; font-weight: bold; color: #FF9800;">8</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Remaining</div>
+                                </div>
+                                <div style="text-align: center; padding: 10px; background: rgba(33, 150, 243, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.3em; font-weight: bold; color: #2196F3;">3</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">In Progress</div>
+                                </div>
+                                <div style="text-align: center; padding: 10px; background: rgba(156, 39, 176, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.3em; font-weight: bold; color: #9C27B0;">5</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Todo</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card" style="grid-column: span 2;">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ“ˆ</span>
+                                    Development Velocity
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">Trending Up</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 15px;">
+                                <div style="text-align: center;">
+                                    <div style="height: 40px; background: #4CAF50; border-radius: 4px; margin-bottom: 5px; opacity: 0.6;"></div>
+                                    <div style="font-size: 0.7em; color: #cccccc;">Mon</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="height: 60px; background: #4CAF50; border-radius: 4px; margin-bottom: 5px; opacity: 0.7;"></div>
+                                    <div style="font-size: 0.7em; color: #cccccc;">Tue</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="height: 80px; background: #4CAF50; border-radius: 4px; margin-bottom: 5px; opacity: 0.8;"></div>
+                                    <div style="font-size: 0.7em; color: #cccccc;">Wed</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="height: 50px; background: #4CAF50; border-radius: 4px; margin-bottom: 5px; opacity: 0.6;"></div>
+                                    <div style="font-size: 0.7em; color: #cccccc;">Thu</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="height: 90px; background: #4CAF50; border-radius: 4px; margin-bottom: 5px;"></div>
+                                    <div style="font-size: 0.7em; color: #cccccc;">Fri</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="height: 20px; background: #666; border-radius: 4px; margin-bottom: 5px; opacity: 0.4;"></div>
+                                    <div style="font-size: 0.7em; color: #cccccc;">Sat</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="height: 25px; background: #666; border-radius: 4px; margin-bottom: 5px; opacity: 0.4;"></div>
+                                    <div style="font-size: 0.7em; color: #cccccc;">Sun</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Agents Tab -->
+                <div id="agents-tab" class="tab-content" style="display: none;">
+                    <!-- Enhanced AI Workflow Section with Chat Interface -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+                        <!-- Left Side: Legacy AI Workflow -->
+                        <div class="ai-task-section">
+                            <div class="task-input-container">
+                                <h3 style="color: #ffffff; margin-bottom: 15px;">ðŸ¤– AI Agent Workflow</h3>
+                                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                                    <textarea 
+                                        id="task-input" 
+                                        placeholder="Describe your requirements (e.g., 'Create a trade settlement API with regulatory compliance')"
+                                        style="flex: 1; padding: 12px; background: rgba(60, 60, 60, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #ffffff; resize: vertical; min-height: 80px; font-family: inherit;"
+                                    ></textarea>
+                                    <button 
+                                        id="start-workflow-btn" 
+                                        style="padding: 12px 24px; background: linear-gradient(135deg, #4CAF50, #45a049); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; min-width: 120px; transition: all 0.3s ease;"
+                                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(76, 175, 80, 0.4)'"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'"
+                                    >
+                                        Start Workflow
+                                    </button>
+                                </div>
+                                <div id="workflow-status" style="color: #cccccc; font-size: 0.9em; margin-bottom: 20px;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Right Side: Enhanced AI Chat Interface -->
+                        <div class="ai-workflow-section">
+                            <div id="ai-chat-container">
+                                <!-- Working AI Chat Interface -->
+                                <div style="height: 100%; display: flex; flex-direction: column; background: rgba(20, 20, 20, 0.95); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden;">
+                                    <!-- Chat Header -->
+                                    <div style="background: rgba(30, 30, 30, 0.95); padding: 15px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center;">
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2em;">ðŸ¤–</div>
+                                            <div>
+                                                <h3 style="margin: 0; color: #ffffff; font-size: 1.1em; font-weight: 600;">AI Agent Orchestrator</h3>
+                                                <span style="font-size: 0.8em; color: #4CAF50;">â— Ready for SDLC workflow</span>
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; gap: 8px;">
+                                            <button onclick="clearAIChat()" style="background: rgba(60, 60, 60, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: white; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 1.1em;">ðŸ—‘ï¸</button>
+                                            <button onclick="downloadAIFiles()" style="background: rgba(60, 60, 60, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: white; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 1.1em;">ðŸ“¥</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Project Configuration -->
+                                    <div id="ai-config-panel" style="background: rgba(25, 25, 25, 0.95); padding: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                                        <h4 style="color: #ffffff; margin: 0 0 15px 0; font-size: 1em; font-weight: 600;">ðŸ› ï¸ Project Configuration</h4>
+                                        <div style="margin-bottom: 15px;">
+                                            <label style="color: #cccccc; font-size: 0.9em; font-weight: 500; display: block; margin-bottom: 8px;">Project Requirements</label>
+                                            <textarea id="ai-project-requirements" placeholder="e.g., Create a simple to-do list application..." style="width: 100%; background: rgba(40, 40, 40, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: white; padding: 12px; font-family: inherit; resize: vertical; min-height: 80px; box-sizing: border-box;"></textarea>
+                                        </div>
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                            <div>
+                                                <label style="color: #cccccc; font-size: 0.9em; font-weight: 500; display: block; margin-bottom: 8px;">Language</label>
+                                                <select id="ai-language-select" style="width: 100%; background: rgba(40, 40, 40, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: white; padding: 10px; font-family: inherit;">
+                                                    <option value="typescript">TypeScript</option>
+                                                    <option value="javascript">JavaScript</option>
+                                                    <option value="python">Python</option>
+                                                    <option value="java">Java</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label style="color: #cccccc; font-size: 0.9em; font-weight: 500; display: block; margin-bottom: 8px;">Framework</label>
+                                                <select id="ai-framework-select" style="width: 100%; background: rgba(40, 40, 40, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: white; padding: 10px; font-family: inherit;">
+                                                    <option value="react">React</option>
+                                                    <option value="vue">Vue.js</option>
+                                                    <option value="angular">Angular</option>
+                                                    <option value="nextjs">Next.js</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <button onclick="startAIWorkflow()" style="background: linear-gradient(135deg, #4CAF50, #45a049); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 1em; font-weight: 600; cursor: pointer; width: 100%;">
+                                            ðŸš€ Start SDLC Workflow
+                                        </button>
+                                    </div>
+
+                                    <!-- Chat Messages -->
+                                    <div id="ai-chat-messages" style="flex: 1; padding: 20px; overflow-y: auto;">
+                                        <div style="display: flex; gap: 12px; align-items: flex-start;">
+                                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2em;">ðŸ¤–</div>
+                                            <div style="background: rgba(40, 40, 40, 0.8); padding: 15px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                                                <h4 style="color: #ffffff; margin: 0 0 10px 0; font-size: 1.1em;">Welcome to AI Agent Orchestrator!</h4>
+                                                <p style="color: #cccccc; margin: 0 0 10px 0; line-height: 1.5;">I'm your AI-powered SDLC assistant. I can help you:</p>
+                                                <ul style="color: #cccccc; margin: 0; padding-left: 20px;">
+                                                    <li style="margin-bottom: 5px;">ðŸ” Analyze requirements and create specifications</li>
+                                                    <li style="margin-bottom: 5px;">ðŸ“ Generate user stories and workflows</li>
+                                                    <li style="margin-bottom: 5px;">ðŸ’» Create complete code in multiple languages</li>
+                                                    <li style="margin-bottom: 5px;">ðŸ§ª Design test cases and security reviews</li>
+                                                    <li style="margin-bottom: 5px;">ðŸš€ Generate deployment configurations</li>
+                                                </ul>
+                                                <p style="color: #cccccc; margin: 10px 0 0 0;">Configure your project above and click "Start SDLC Workflow" to begin!</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Chat Input -->
+                                    <div style="background: rgba(30, 30, 30, 0.95); padding: 15px 20px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                                        <div style="display: flex; gap: 10px; align-items: flex-end;">
+                                            <textarea id="ai-chat-input" placeholder="Ask me anything about your project..." style="flex: 1; background: rgba(40, 40, 40, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; color: white; padding: 12px 15px; font-family: inherit; resize: none; min-height: 20px;" disabled></textarea>
+                                            <button onclick="sendAIMessage()" disabled style="background: linear-gradient(135deg, #667eea, #764ba2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; opacity: 0.5;">âž¤</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Agents Status Grid -->
+                    <div class="dashboard-grid">
+                        <!-- Requirements Agent -->
+                        <div class="dashboard-card" id="requirements-agent-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ“‹</span>
+                                    Requirements Agent
+                                </div>
+                                <div id="req-status" style="color: #FF9800; font-weight: bold;">Idle</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 15px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #cccccc;">Status:</span>
+                                    <span id="req-detailed-status" style="color: #FF9800; font-weight: bold;">Waiting</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #cccccc;">Confidence:</span>
+                                    <span id="req-confidence" style="color: #4CAF50; font-weight: bold;">92%</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #cccccc;">Last Update:</span>
+                                    <span id="req-last-update" style="color: #ffffff;">-</span>
+                                </div>
+                                <div style="background: rgba(60, 60, 60, 0.8); padding: 12px; border-radius: 8px;">
+                                    <div style="font-size: 0.9em; color: #cccccc; margin-bottom: 8px;">Current Task:</div>
+                                    <div id="req-current-task" style="font-size: 0.85em; color: #ffffff;">Ready for new requirements</div>
+                                </div>
+                                <div id="req-results" style="display: none; background: rgba(76, 175, 80, 0.2); padding: 12px; border-radius: 8px;">
+                                    <div style="font-size: 0.9em; color: #4CAF50; margin-bottom: 8px; font-weight: bold;">Analysis Results:</div>
+                                    <div style="font-size: 0.85em; color: #ffffff;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Design Agent -->
+                        <div class="dashboard-card" id="design-agent-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸŽ¨</span>
+                                    Design Agent
+                                </div>
+                                <div id="design-status" style="color: #FF9800; font-weight: bold;">Standby</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 15px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #cccccc;">Status:</span>
+                                    <span id="design-detailed-status" style="color: #FF9800; font-weight: bold;">Ready</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #cccccc;">Queue:</span>
+                                    <span id="design-queue" style="color: #ffffff;">0 items</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #cccccc;">Patterns:</span>
+                                    <span id="design-patterns" style="color: #4CAF50; font-weight: bold;">47 loaded</span>
+                                </div>
+                                <div style="background: rgba(60, 60, 60, 0.8); padding: 12px; border-radius: 8px;">
+                                    <div style="font-size: 0.9em; color: #cccccc; margin-bottom: 8px;">Current Task:</div>
+                                    <div id="design-current-task" style="font-size: 0.85em; color: #ffffff;">Awaiting requirements analysis</div>
+                                </div>
+                                <div id="design-results" style="display: none; background: rgba(76, 175, 80, 0.2); padding: 12px; border-radius: 8px;">
+                                    <div style="font-size: 0.9em; color: #4CAF50; margin-bottom: 8px; font-weight: bold;">Design Results:</div>
+                                    <div style="font-size: 0.85em; color: #ffffff;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Build Agent -->
+                        <div class="dashboard-card" id="build-agent-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ”§</span>
+                                    Build Agent
+                                </div>
+                                <div id="build-status" style="color: #FF9800; font-weight: bold;">Standby</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 15px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #cccccc;">Status:</span>
+                                    <span id="build-detailed-status" style="color: #FF9800; font-weight: bold;">Ready</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #cccccc;">Progress:</span>
+                                    <span id="build-progress" style="color: #ffffff;">0%</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #cccccc;">ETA:</span>
+                                    <span id="build-eta" style="color: #ffffff;">-</span>
+                                </div>
+                                <div style="background: rgba(60, 60, 60, 0.8); padding: 12px; border-radius: 8px;">
+                                    <div style="font-size: 0.9em; color: #cccccc; margin-bottom: 8px;">Current Build:</div>
+                                    <div id="build-current-task" style="font-size: 0.85em; color: #ffffff;">Awaiting design specifications</div>
+                                </div>
+                                <div id="build-results" style="display: none; background: rgba(76, 175, 80, 0.2); padding: 12px; border-radius: 8px;">
+                                    <div style="font-size: 0.9em; color: #4CAF50; margin-bottom: 8px; font-weight: bold;">Build Plan:</div>
+                                    <div style="font-size: 0.85em; color: #ffffff;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RCM Agent -->
+                        <div class="dashboard-card" id="rcm-agent-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ›¡ï¸</span>
+                                    RCM Agent
+                                </div>
+                                <div id="rcm-status" style="color: #FF9800; font-weight: bold;">Standby</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 15px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #cccccc;">Status:</span>
+                                    <span id="rcm-detailed-status" style="color: #FF9800; font-weight: bold;">Ready</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #cccccc;">Compliance:</span>
+                                    <span id="rcm-compliance" style="color: #4CAF50; font-weight: bold;">98.2%</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #cccccc;">Issues:</span>
+                                    <span id="rcm-issues" style="color: #FF9800; font-weight: bold;">0 pending</span>
+                                </div>
+                                <div style="background: rgba(60, 60, 60, 0.8); padding: 12px; border-radius: 8px;">
+                                    <div style="font-size: 0.9em; color: #cccccc; margin-bottom: 8px;">Monitoring:</div>
+                                    <div id="rcm-current-task" style="font-size: 0.85em; color: #ffffff;">Awaiting build completion for compliance review</div>
+                                </div>
+                                <div id="rcm-results" style="display: none; background: rgba(76, 175, 80, 0.2); padding: 12px; border-radius: 8px;">
+                                    <div style="font-size: 0.9em; color: #4CAF50; margin-bottom: 8px; font-weight: bold;">Compliance Report:</div>
+                                    <div style="font-size: 0.85em; color: #ffffff;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Workflow Results Section -->
+                    <div id="workflow-results" style="display: none; margin-top: 30px;">
+                        <div class="dashboard-card" style="grid-column: span 2;">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ“Š</span>
+                                    Workflow Results
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">Complete</div>
+                            </div>
+                            <div id="workflow-summary" style="padding: 20px;">
+                                <!-- Dynamic workflow results will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enterprise Connectors Tab -->
+                <div id="enterprise-tab" class="tab-content" style="display: none;">
+                    <div class="dashboard-grid">
+                        <!-- Enterprise Service Manager Status -->
+                        <div class="dashboard-card" style="grid-column: span 2;">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ”—</span>
+                                    Enterprise Service Manager
+                                </div>
+                                <div id="esm-status" style="color: #FF9800; font-weight: bold;">Initializing...</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
+                                <!-- GitHub Enterprise -->
+                                <div class="enterprise-connector-card" data-service="github">
+                                    <div class="connector-header">
+                                        <div class="integration-logo github-logo">GH</div>
+                                        <div class="connector-info">
+                                            <div class="connector-name">GitHub Enterprise</div>
+                                            <div class="connector-status" id="github-status">Not Configured</div>
+                                        </div>
+                                        <button class="configure-btn" onclick="configureService('github')">Configure</button>
+                                    </div>
+                                    <div class="connector-details">
+                                        <div class="detail-item">
+                                            <span>Repositories:</span>
+                                            <span id="github-repos">--</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span>Last Sync:</span>
+                                            <span id="github-sync">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- JIRA Agile -->
+                                <div class="enterprise-connector-card" data-service="jira">
+                                    <div class="connector-header">
+                                        <div class="integration-logo jira-logo">JA</div>
+                                        <div class="connector-info">
+                                            <div class="connector-name">JIRA Agile</div>
+                                            <div class="connector-status" id="jira-status">Not Configured</div>
+                                        </div>
+                                        <button class="configure-btn" onclick="configureService('jira')">Configure</button>
+                                    </div>
+                                    <div class="connector-details">
+                                        <div class="detail-item">
+                                            <span>Projects:</span>
+                                            <span id="jira-projects">--</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span>Issues:</span>
+                                            <span id="jira-issues">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Confluence -->
+                                <div class="enterprise-connector-card" data-service="confluence">
+                                    <div class="connector-header">
+                                        <div class="integration-logo confluence-logo">CF</div>
+                                        <div class="connector-info">
+                                            <div class="connector-name">Confluence</div>
+                                            <div class="connector-status" id="confluence-status">Not Configured</div>
+                                        </div>
+                                        <button class="configure-btn" onclick="configureService('confluence')">Configure</button>
+                                    </div>
+                                    <div class="connector-details">
+                                        <div class="detail-item">
+                                            <span>Spaces:</span>
+                                            <span id="confluence-spaces">--</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span>Pages:</span>
+                                            <span id="confluence-pages">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Jenkins -->
+                                <div class="enterprise-connector-card" data-service="jenkins">
+                                    <div class="connector-header">
+                                        <div class="integration-logo jenkins-logo">JK</div>
+                                        <div class="connector-info">
+                                            <div class="connector-name">Jenkins</div>
+                                            <div class="connector-status" id="jenkins-status">Not Configured</div>
+                                        </div>
+                                        <button class="configure-btn" onclick="configureService('jenkins')">Configure</button>
+                                    </div>
+                                    <div class="connector-details">
+                                        <div class="detail-item">
+                                            <span>Jobs:</span>
+                                            <span id="jenkins-jobs">--</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span>Builds:</span>
+                                            <span id="jenkins-builds">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Docker -->
+                                <div class="enterprise-connector-card" data-service="docker">
+                                    <div class="connector-header">
+                                        <div class="integration-logo docker-logo">DK</div>
+                                        <div class="connector-info">
+                                            <div class="connector-name">Docker</div>
+                                            <div class="connector-status" id="docker-status">Not Configured</div>
+                                        </div>
+                                        <button class="configure-btn" onclick="configureService('docker')">Configure</button>
+                                    </div>
+                                    <div class="connector-details">
+                                        <div class="detail-item">
+                                            <span>Containers:</span>
+                                            <span id="docker-containers">--</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span>Images:</span>
+                                            <span id="docker-images">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- AWS -->
+                                <div class="enterprise-connector-card" data-service="aws">
+                                    <div class="connector-header">
+                                        <div class="integration-logo aws-logo">AWS</div>
+                                        <div class="connector-info">
+                                            <div class="connector-name">Amazon Web Services</div>
+                                            <div class="connector-status" id="aws-status">Not Configured</div>
+                                        </div>
+                                        <button class="configure-btn" onclick="configureService('aws')">Configure</button>
+                                    </div>
+                                    <div class="connector-details">
+                                        <div class="detail-item">
+                                            <span>EC2 Instances:</span>
+                                            <span id="aws-ec2">--</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span>S3 Buckets:</span>
+                                            <span id="aws-s3">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Azure -->
+                                <div class="enterprise-connector-card" data-service="azure">
+                                    <div class="connector-header">
+                                        <div class="integration-logo azure-logo">AZ</div>
+                                        <div class="connector-info">
+                                            <div class="connector-name">Microsoft Azure</div>
+                                            <div class="connector-status" id="azure-status">Not Configured</div>
+                                        </div>
+                                        <button class="configure-btn" onclick="configureService('azure')">Configure</button>
+                                    </div>
+                                    <div class="connector-details">
+                                        <div class="detail-item">
+                                            <span>VMs:</span>
+                                            <span id="azure-vms">--</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span>Storage:</span>
+                                            <span id="azure-storage">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- GCP -->
+                                <div class="enterprise-connector-card" data-service="gcp">
+                                    <div class="connector-header">
+                                        <div class="integration-logo gcp-logo">GCP</div>
+                                        <div class="connector-info">
+                                            <div class="connector-name">Google Cloud Platform</div>
+                                            <div class="connector-status" id="gcp-status">Not Configured</div>
+                                        </div>
+                                        <button class="configure-btn" onclick="configureService('gcp')">Configure</button>
+                                    </div>
+                                    <div class="connector-details">
+                                        <div class="detail-item">
+                                            <span>Instances:</span>
+                                            <span id="gcp-instances">--</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span>Buckets:</span>
+                                            <span id="gcp-buckets">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configuration Modal (initially hidden) -->
+                    <div id="connector-config-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+                        <div style="background: rgba(40, 40, 40, 0.95); padding: 30px; border-radius: 15px; width: 90%; max-width: 600px; color: white;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3 id="config-modal-title">Configure Service</h3>
+                                <button onclick="closeConfigModal()" style="background: transparent; border: none; color: white; font-size: 24px; cursor: pointer;">&times;</button>
+                            </div>
+                            <div id="config-modal-content">
+                                <!-- Dynamic configuration form will be inserted here -->
+                            </div>
+                            <div style="display: flex; gap: 15px; margin-top: 20px; justify-content: flex-end;">
+                                <button onclick="closeConfigModal()" style="background: #666; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">Cancel</button>
+                                <button onclick="testConnection()" style="background: #FF9800; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">Test Connection</button>
+                                <button onclick="saveConfiguration()" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">Save Configuration</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pipeline Tab -->
+                <div id="pipeline-tab" class="tab-content" style="display: none;">
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card" style="grid-column: span 2;">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ”„</span>
+                                    Active Pipelines
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">3 Running</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(76, 175, 80, 0.2); border-radius: 8px;">
+                                    <div>
+                                        <div style="font-weight: bold; color: #ffffff; margin-bottom: 4px;">macquarie/post-trade-core</div>
+                                        <div style="font-size: 0.8em; color: #cccccc;">Build #847 â€¢ main branch</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="color: #4CAF50; font-weight: bold; margin-bottom: 4px;">âœ“ Passed</div>
+                                        <div style="font-size: 0.8em; color: #cccccc;">8m 23s</div>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(33, 150, 243, 0.2); border-radius: 8px;">
+                                    <div>
+                                        <div style="font-weight: bold; color: #ffffff; margin-bottom: 4px;">macquarie/ai-agents</div>
+                                        <div style="font-size: 0.8em; color: #cccccc;">Build #234 â€¢ feature/rcm-updates</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="color: #2196F3; font-weight: bold; margin-bottom: 4px;">ðŸ”„ Building</div>
+                                        <div style="font-size: 0.8em; color: #cccccc;">4m 12s</div>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(255, 152, 0, 0.2); border-radius: 8px;">
+                                    <div>
+                                        <div style="font-weight: bold; color: #ffffff; margin-bottom: 4px;">macquarie/regulatory-engine</div>
+                                        <div style="font-size: 0.8em; color: #cccccc;">Build #156 â€¢ develop</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="color: #FF9800; font-weight: bold; margin-bottom: 4px;">âš  Testing</div>
+                                        <div style="font-size: 0.8em; color: #cccccc;">12m 45s</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ“Š</span>
+                                    Pipeline Stats
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">Today</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px;">
+                                <div style="text-align: center; padding: 12px; background: rgba(76, 175, 80, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.4em; font-weight: bold; color: #4CAF50;">24</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Successful</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: rgba(244, 67, 54, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.4em; font-weight: bold; color: #F44336;">2</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Failed</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: rgba(33, 150, 243, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.4em; font-weight: bold; color: #2196F3;">3</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Running</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: rgba(255, 152, 0, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.4em; font-weight: bold; color: #FF9800;">7.2m</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Avg Time</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸš¨</span>
+                                    Recent Alerts
+                                </div>
+                                <div style="color: #FF9800; font-weight: bold;">2 Active</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px;">
+                                <div style="padding: 10px; background: rgba(255, 152, 0, 0.2); border-radius: 6px; border-left: 3px solid #FF9800;">
+                                    <div style="font-size: 0.9em; font-weight: bold; color: #ffffff; margin-bottom: 4px;">High Memory Usage</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">ai-agents service using 85% memory</div>
+                                </div>
+                                <div style="padding: 10px; background: rgba(244, 67, 54, 0.2); border-radius: 6px; border-left: 3px solid #F44336;">
+                                    <div style="font-size: 0.9em; font-weight: bold; color: #ffffff; margin-bottom: 4px;">Test Failure</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">regulatory-engine unit tests failing</div>
+                                </div>
+                                <div style="padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px; border-left: 3px solid #4CAF50;">
+                                    <div style="font-size: 0.9em; font-weight: bold; color: #ffffff; margin-bottom: 4px;">Security Scan</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">All repositories passed security scan</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quality Gates Tab -->
+                <div id="quality-tab" class="tab-content" style="display: none;">
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ›¡ï¸</span>
+                                    Security Gates
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">Passed</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">SAST Scan</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ Passed</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">DAST Scan</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ Passed</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Dependency Check</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ Passed</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255, 152, 0, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">License Compliance</span>
+                                    <span style="color: #FF9800; font-weight: bold;">âš  Review</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ§ª</span>
+                                    Test Gates
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">87% Coverage</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px;">
+                                <div style="text-align: center; padding: 12px; background: rgba(76, 175, 80, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.4em; font-weight: bold; color: #4CAF50;">1,847</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Unit Tests</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: rgba(76, 175, 80, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.4em; font-weight: bold; color: #4CAF50;">156</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Integration</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: rgba(255, 152, 0, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.4em; font-weight: bold; color: #FF9800;">23</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">E2E Tests</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: rgba(76, 175, 80, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.4em; font-weight: bold; color: #4CAF50;">87%</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Coverage</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>âš¡</span>
+                                    Performance Gates
+                                </div>
+                                <div style="color: #FF9800; font-weight: bold;">Warning</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Response Time</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ 145ms</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Throughput</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ 1.2K/s</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255, 152, 0, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Memory Usage</span>
+                                    <span style="color: #FF9800; font-weight: bold;">âš  85%</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">CPU Usage</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ 32%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ“</span>
+                                    Code Quality
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">Grade A</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px;">
+                                <div style="text-align: center; padding: 12px; background: rgba(76, 175, 80, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.4em; font-weight: bold; color: #4CAF50;">A</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Maintainability</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: rgba(76, 175, 80, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.4em; font-weight: bold; color: #4CAF50;">A+</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Reliability</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: rgba(76, 175, 80, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.4em; font-weight: bold; color: #4CAF50;">0</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Bugs</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: rgba(255, 152, 0, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.4em; font-weight: bold; color: #FF9800;">7</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Code Smells</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects Tab -->
+                <div id="projects-tab" class="tab-content" style="display: none;">
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card" style="grid-column: span 2;">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ“‹</span>
+                                    Active Projects
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">5 Projects</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(60, 60, 60, 0.8); border-radius: 8px; border-left: 4px solid #4CAF50;">
+                                    <div>
+                                        <div style="font-weight: bold; color: #ffffff; margin-bottom: 4px;">Post-Trade Settlement Automation</div>
+                                        <div style="font-size: 0.8em; color: #cccccc;">AI-powered settlement processing system</div>
+                                        <div style="font-size: 0.7em; color: #999999; margin-top: 4px;">Team: 8 developers â€¢ Sprint 23</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="color: #4CAF50; font-weight: bold; margin-bottom: 4px;">78% Complete</div>
+                                        <div style="font-size: 0.8em; color: #cccccc;">Due: Mar 15</div>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(60, 60, 60, 0.8); border-radius: 8px; border-left: 4px solid #FF9800;">
+                                    <div>
+                                        <div style="font-weight: bold; color: #ffffff; margin-bottom: 4px;">Regulatory Compliance Engine</div>
+                                        <div style="font-size: 0.8em; color: #cccccc;">Real-time regulatory monitoring and alerts</div>
+                                        <div style="font-size: 0.7em; color: #999999; margin-top: 4px;">Team: 6 developers â€¢ Sprint 18</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="color: #FF9800; font-weight: bold; margin-bottom: 4px;">45% Complete</div>
+                                        <div style="font-size: 0.8em; color: #cccccc;">Due: Apr 30</div>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(60, 60, 60, 0.8); border-radius: 8px; border-left: 4px solid #2196F3;">
+                                    <div>
+                                        <div style="font-weight: bold; color: #ffffff; margin-bottom: 4px;">AI Agent Framework</div>
+                                        <div style="font-size: 0.8em; color: #cccccc;">Multi-agent AI system for SDLC automation</div>
+                                        <div style="font-size: 0.7em; color: #999999; margin-top: 4px;">Team: 12 developers â€¢ Sprint 31</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="color: #2196F3; font-weight: bold; margin-bottom: 4px;">92% Complete</div>
+                                        <div style="font-size: 0.8em; color: #cccccc;">Due: Feb 28</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ“Š</span>
+                                    Project Metrics
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">On Track</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px;">
+                                <div style="text-align: center; padding: 12px; background: rgba(76, 175, 80, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.4em; font-weight: bold; color: #4CAF50;">5</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Active</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: rgba(255, 152, 0, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.4em; font-weight: bold; color: #FF9800;">2</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">At Risk</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: rgba(76, 175, 80, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.4em; font-weight: bold; color: #4CAF50;">12</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Completed</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: rgba(33, 150, 243, 0.2); border-radius: 8px;">
+                                    <div style="font-size: 1.4em; font-weight: bold; color: #2196F3;">67%</div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Avg Progress</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ‘¥</span>
+                                    Team Allocation
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">Optimal</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(60, 60, 60, 0.8); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Frontend Developers</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">8/10</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(60, 60, 60, 0.8); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Backend Developers</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">12/12</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(60, 60, 60, 0.8); border-radius: 6px;">
+                                    <span style="color: #ffffff;">QA Engineers</span>
+                                    <span style="color: #FF9800; font-weight: bold;">4/6</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(60, 60, 60, 0.8); border-radius: 6px;">
+                                    <span style="color: #ffffff;">DevOps Engineers</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">3/3</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compliance Tab -->
+                <div id="compliance-tab" class="tab-content" style="display: none;">
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>âš–ï¸</span>
+                                    MiFID II Compliance
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">Compliant</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Trade Reporting</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ Active</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Best Execution</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ Monitored</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Record Keeping</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ Compliant</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Clock Sync</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ Synced</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ›¡ï¸</span>
+                                    EMIR Compliance
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">Compliant</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Trade Reporting</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ T+1</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Risk Mitigation</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ Active</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Clearing</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ Centralized</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Margins</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ Posted</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ“Š</span>
+                                    SOX Compliance
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">Compliant</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Internal Controls</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ Tested</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Financial Reporting</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ Accurate</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Audit Trail</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ Complete</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Access Controls</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ Enforced</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ”’</span>
+                                    GDPR Compliance
+                                </div>
+                                <div style="color: #FF9800; font-weight: bold;">Review Required</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Data Encryption</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ Active</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255, 152, 0, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Consent Management</span>
+                                    <span style="color: #FF9800; font-weight: bold;">âš  Review</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Right to Erasure</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">âœ“ Implemented</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255, 152, 0, 0.2); border-radius: 6px;">
+                                    <span style="color: #ffffff;">Data Portability</span>
+                                    <span style="color: #FF9800; font-weight: bold;">âš  Pending</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card" style="grid-column: span 2;">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <span>ðŸ“‹</span>
+                                    Recent Compliance Events
+                                </div>
+                                <div style="color: #4CAF50; font-weight: bold;">Last 30 Days</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px;">
+                                <div style="padding: 12px; background: rgba(60, 60, 60, 0.8); border-radius: 6px; border-left: 3px solid #4CAF50;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                        <div style="font-weight: bold; color: #ffffff;">MiFID II Annual Review Completed</div>
+                                        <div style="font-size: 0.8em; color: #cccccc;">2 days ago</div>
+                                    </div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">All systems passed annual compliance review</div>
+                                </div>
+                                <div style="padding: 12px; background: rgba(60, 60, 60, 0.8); border-radius: 6px; border-left: 3px solid #FF9800;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                        <div style="font-weight: bold; color: #ffffff;">GDPR Consent Audit</div>
+                                        <div style="font-size: 0.8em; color: #cccccc;">5 days ago</div>
+                                    </div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">Minor issues found in consent management system</div>
+                                </div>
+                                <div style="padding: 12px; background: rgba(60, 60, 60, 0.8); border-radius: 6px; border-left: 3px solid #4CAF50;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                        <div style="font-weight: bold; color: #ffffff;">SOX Controls Testing</div>
+                                        <div style="font-size: 0.8em; color: #cccccc;">1 week ago</div>
+                                    </div>
+                                    <div style="font-size: 0.8em; color: #cccccc;">All internal controls tested successfully</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification" class="notification" aria-live="assertive" aria-atomic="true"></div>
+
+    <!-- Enhanced AI Agent Modules -->
+    <script src="src/js/conversation-db.js"></script>
+    <script src="src/js/gemini-api.js"></script>
+    <script src="src/js/ai-chat-interface.js"></script>
+    <script src="src/js/ai-workflow.js"></script>
+    <script src="src/js/ai-agent-ui.js"></script>
+    
+    <!-- JavaScript Modules -->
+    <!-- <script src="src/js/app.js"></script> -->
+    
+    <!-- Direct Tab Navigation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all tab buttons and content
+            const tabButtons = document.querySelectorAll('.nav-tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            // Function to switch tabs
+            function switchTab(targetTabId) {
+                // Remove active class from all buttons
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Hide all tab content
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    content.style.display = 'none';
+                });
+                
+                // Find and activate the target tab button
+                const targetButton = document.querySelector(`[data-tab="${targetTabId}"]`);
+                if (targetButton) {
+                    targetButton.classList.add('active');
+                }
+                
+                // Show the target tab content
+                const targetContent = document.getElementById(`${targetTabId}-tab`);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                    targetContent.style.display = 'block';
+                }
+            }
+            
+            // Add click listeners to all tab buttons
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabId = this.getAttribute('data-tab');
+                    if (tabId) {
+                        switchTab(tabId);
+                    }
+                });
+            });
+            
+            // Initialize with dashboard tab
+            switchTab('dashboard');
+            
+            // Make switchTab globally available
+            window.switchTab = switchTab;
+        });
+    </script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        // Enhanced Tab Navigation System
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing tab system...');
+            
+            // Get all tab buttons and content
+            const tabButtons = document.querySelectorAll('.nav-tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            console.log('Found', tabButtons.length, 'tab buttons and', tabContents.length, 'tab contents');
+            
+            // Function to switch tabs
+            function switchTab(targetTabId) {
+                console.log('Switching to tab:', targetTabId);
+                
+                // Remove active class from all buttons
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Hide all tab content
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    content.style.display = 'none';
+                });
+                
+                // Find and activate the target tab button
+                const targetButton = document.querySelector(`[data-tab="${targetTabId}"]`);
+                if (targetButton) {
+                    targetButton.classList.add('active');
+                }
+                
+                // Show the target tab content
+                const targetContent = document.getElementById(`${targetTabId}-tab`);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                    targetContent.style.display = 'block';
+                    console.log('Activated tab content:', targetTabId);
+                } else {
+                    console.error('Tab content not found for:', targetTabId);
+                }
+                
+                // Initialize tab-specific functionality
+                if (targetTabId === 'agents') {
+                    console.log('Initializing AI Agents...');
+                    // Initialize AI agents if needed
+                    if (typeof window.initializeAIAgents === 'function') {
+                        window.initializeAIAgents();
+                    }
+                }
+            }
+            
+            // Add click listeners to all tab buttons
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabId = this.getAttribute('data-tab');
+                    console.log('Tab clicked:', tabId);
+                    
+                    if (tabId) {
+                        switchTab(tabId);
+                    } else {
+                        console.error('No data-tab attribute found on button:', this);
+                    }
+                });
+            });
+            
+            // Initialize with dashboard tab
+            switchTab('dashboard');
+            
+            // Make switchTab globally available
+            window.switchTab = switchTab;
+            
+            console.log('Tab system initialized successfully');
+        });
+
+        // Initialize AI Workflow when agents tab is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const startButton = document.getElementById('start-workflow-btn');
+            const taskInput = document.getElementById('task-input');
+            
+            if (startButton && taskInput) {
+                // Remove any existing listeners
+                startButton.replaceWith(startButton.cloneNode(true));
+                const newButton = document.getElementById('start-workflow-btn');
+                
+                newButton.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    console.log('Start Workflow clicked!');
+                    
+                    if (!taskInput || !taskInput.value.trim()) {
+                        alert('Please enter a task description');
+                        return;
+                    }
+                    
+                    const taskDescription = taskInput.value.trim();
+                    newButton.disabled = true;
+                    newButton.textContent = 'Processing...';
+                    
+                    try {
+                        await simulateAIWorkflow(taskDescription);
+                        updateWorkflowStatus('Workflow completed successfully!', 'success');
+                    } catch (error) {
+                        updateWorkflowStatus('Workflow failed: ' + error.message, 'error');
+                    } finally {
+                        newButton.disabled = false;
+                        newButton.textContent = 'Start Workflow';
+                    }
+                });
+                console.log('AI Workflow button listener attached');
+            } else {
+                console.log('Start workflow button not found, retrying...');
+            }
+        });
+        
+        // AI Workflow Simulation
+        async function simulateAIWorkflow(description) {
+            updateWorkflowStatus('Starting AI workflow...', 'info');
+            
+            const agents = [
+                { name: 'Requirements', id: 'req', duration: 2000 },
+                { name: 'Design', id: 'design', duration: 3000 },
+                { name: 'Build', id: 'build', duration: 2500 },
+                { name: 'RCM', id: 'rcm', duration: 1500 }
+            ];
+            
+            for (const agent of agents) {
+                updateAgentStatus(agent.id, 'processing', `Processing: ${description}`);
+                updateWorkflowStatus(`${agent.name} agent is processing...`, 'info');
+                
+                await new Promise(resolve => setTimeout(resolve, agent.duration));
+                
+                updateAgentStatus(agent.id, 'completed', 'Processing completed successfully');
+                showAgentResults(agent.id, `${agent.name} analysis completed for: ${description}`);
+            }
+            
+            showWorkflowResults(description);
+        }
+        
+        // Update agent status
+        function updateAgentStatus(agentId, status, message) {
+            const statusColors = {
+                'processing': '#2196F3',
+                'completed': '#4CAF50',
+                'failed': '#F44336'
+            };
+            
+            const statusTexts = {
+                'processing': 'Processing',
+                'completed': 'Completed',
+                'failed': 'Failed'
+            };
+            
+            const statusElement = document.getElementById(`${agentId}-status`);
+            const detailedStatusElement = document.getElementById(`${agentId}-detailed-status`);
+            const currentTaskElement = document.getElementById(`${agentId}-current-task`);
+            const lastUpdateElement = document.getElementById(`${agentId}-last-update`);
+            
+            if (statusElement) {
+                statusElement.textContent = statusTexts[status];
+                statusElement.style.color = statusColors[status];
+            }
+            
+            if (detailedStatusElement) {
+                detailedStatusElement.textContent = statusTexts[status];
+                detailedStatusElement.style.color = statusColors[status];
+            }
+            
+            if (currentTaskElement) {
+                currentTaskElement.textContent = message;
+            }
+            
+            if (lastUpdateElement) {
+                lastUpdateElement.textContent = new Date().toLocaleTimeString();
+            }
+        }
+        
+        // Show agent results
+        function showAgentResults(agentId, result) {
+            const resultsElement = document.getElementById(`${agentId}-results`);
+            if (resultsElement) {
+                const resultText = resultsElement.querySelector('div:last-child');
+                if (resultText) {
+                    resultText.textContent = result;
+                }
+                resultsElement.style.display = 'block';
+            }
+        }
+        
+        // Show workflow results
+        function showWorkflowResults(description) {
+            const resultsSection = document.getElementById('workflow-results');
+            const summaryDiv = document.getElementById('workflow-summary');
+            
+            if (resultsSection && summaryDiv) {
+                summaryDiv.innerHTML = `
+                    <h4 style="color: #4CAF50; margin-bottom: 15px;">Task Completed: ${description}</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <div style="background: rgba(60, 60, 60, 0.8); padding: 15px; border-radius: 8px;">
+                            <h5 style="color: #FFD700; margin-bottom: 10px;">ðŸ“‹ Requirements Analysis</h5>
+                            <p style="color: #cccccc; font-size: 0.9em;">Successfully analyzed business requirements and identified key components.</p>
+                        </div>
+                        <div style="background: rgba(60, 60, 60, 0.8); padding: 15px; border-radius: 8px;">
+                            <h5 style="color: #FFD700; margin-bottom: 10px;">ðŸŽ¨ System Design</h5>
+                            <p style="color: #cccccc; font-size: 0.9em;">Generated comprehensive system architecture with microservices design.</p>
+                        </div>
+                        <div style="background: rgba(60, 60, 60, 0.8); padding: 15px; border-radius: 8px;">
+                            <h5 style="color: #FFD700; margin-bottom: 10px;">ðŸ”§ Build Plan</h5>
+                            <p style="color: #cccccc; font-size: 0.9em;">Created detailed implementation plan with technology recommendations.</p>
+                        </div>
+                        <div style="background: rgba(60, 60, 60, 0.8); padding: 15px; border-radius: 8px;">
+                            <h5 style="color: #FFD700; margin-bottom: 10px;">ðŸ›¡ï¸ Compliance Review</h5>
+                            <p style="color: #cccccc; font-size: 0.9em;">Completed regulatory compliance analysis for all requirements.</p>
+                        </div>
+                    </div>
+                `;
+                resultsSection.style.display = 'block';
+            }
+        }
+        
+        // Update workflow status
+        function updateWorkflowStatus(message, type = 'info') {
+            const statusElement = document.getElementById('workflow-status');
+            if (statusElement) {
+                statusElement.innerHTML = `<div class="workflow-status ${type}">${message}</div>`;
+            }
+        }
+        
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(() => {
+                        // SW registered successfully
+                    })
+                    .catch(() => {
+                        // SW registration failed
+                    });
+            });
+        }
+        
+        // Initialize Enterprise Service Manager
+        let enterpriseManager = null;
+        
+        async function initializeEnterpriseServices() {
+            try {
+                console.log('Initializing Enterprise Service Manager...');
+                
+                // Import the Enterprise Service Manager
+                const { default: EnterpriseServiceManager } = await import('./src/js/enterprise-service-manager.js');
+                
+                // Create and initialize the manager
+                enterpriseManager = new EnterpriseServiceManager();
+                await enterpriseManager.initialize();
+                
+                console.log('Enterprise Service Manager initialized successfully');
+                
+                // Update integration status in UI
+                updateIntegrationStatuses();
+                
+                // Set up periodic health checks
+                setInterval(async () => {
+                    if (enterpriseManager) {
+                        await enterpriseManager.healthCheckAll();
+                        updateIntegrationStatuses();
+                    }
+                }, 30000); // Check every 30 seconds
+                
+            } catch (error) {
+                console.error('Failed to initialize Enterprise Service Manager:', error);
+                updateWorkflowStatus('Enterprise services initialization failed', 'error');
+            }
+        }
+        
+        async function updateIntegrationStatuses() {
+            if (!enterpriseManager) return;
+            
+            try {
+                const statuses = enterpriseManager.getServiceStatuses();
+                
+                // Update UI based on service statuses
+                Object.entries(statuses).forEach(([serviceName, status]) => {
+                    updateServiceStatusInUI(serviceName, status);
+                });
+                
+            } catch (error) {
+                console.error('Failed to update integration statuses:', error);
+            }
+        }
+        
+        function updateServiceStatusInUI(serviceName, status) {
+            // Find the integration item in the sidebar
+            const integrationItems = document.querySelectorAll('.integration-item');
+            
+            integrationItems.forEach(item => {
+                const nameElement = item.querySelector('.integration-name');
+                const statusBadge = item.querySelector('.status-badge');
+                
+                if (nameElement && nameElement.textContent.toLowerCase().includes(serviceName)) {
+                    // Update status badge
+                    if (statusBadge) {
+                        statusBadge.className = 'status-badge';
+                        
+                        if (status.status === 'connected') {
+                            statusBadge.classList.add('status-connected');
+                            statusBadge.textContent = 'Live';
+                            item.classList.add('connected');
+                        } else if (status.status === 'error') {
+                            statusBadge.classList.add('status-failed');
+                            statusBadge.textContent = 'Error';
+                            item.classList.remove('connected');
+                        } else {
+                            statusBadge.classList.add('status-pending');
+                            statusBadge.textContent = 'Pending';
+                            item.classList.remove('connected');
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Add global access to enterprise manager
+        window.getEnterpriseManager = () => enterpriseManager;
+        
+        // Initialize enterprise services when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add small delay to ensure other modules are loaded
+            setTimeout(initializeEnterpriseServices, 1000);
+        });
+
+        // Enterprise Connector Configuration Functions
+        let currentConfigService = null;
+
+        function configureService(serviceType) {
+            currentConfigService = serviceType;
+            const modal = document.getElementById('connector-config-modal');
+            const title = document.getElementById('config-modal-title');
+            const content = document.getElementById('config-modal-content');
+
+            title.textContent = `Configure ${getServiceDisplayName(serviceType)}`;
+            
+            // Generate configuration form based on service type
+            content.innerHTML = generateConfigForm(serviceType);
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeConfigModal() {
+            const modal = document.getElementById('connector-config-modal');
+            modal.style.display = 'none';
+            currentConfigService = null;
+        }
+
+        function getServiceDisplayName(serviceType) {
+            const names = {
+                'github': 'GitHub Enterprise',
+                'jira': 'JIRA Agile',
+                'confluence': 'Confluence',
+                'jenkins': 'Jenkins',
+                'docker': 'Docker',
+                'aws': 'Amazon Web Services',
+                'azure': 'Microsoft Azure',
+                'gcp': 'Google Cloud Platform'
+            };
+            return names[serviceType] || serviceType;
+        }
+
+        function generateConfigForm(serviceType) {
+            const commonFields = `
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; color: #cccccc;">Base URL</label>
+                    <input type="url" id="config-baseUrl" placeholder="https://your-instance.com" style="width: 100%; padding: 10px; border: 1px solid #666; border-radius: 6px; background: rgba(60, 60, 60, 0.8); color: white;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; color: #cccccc;">Username</label>
+                    <input type="text" id="config-username" placeholder="username" style="width: 100%; padding: 10px; border: 1px solid #666; border-radius: 6px; background: rgba(60, 60, 60, 0.8); color: white;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; color: #cccccc;">API Token/Password</label>
+                    <input type="password" id="config-token" placeholder="API token or password" style="width: 100%; padding: 10px; border: 1px solid #666; border-radius: 6px; background: rgba(60, 60, 60, 0.8); color: white;">
+                </div>
+            `;
+
+            const cloudFields = {
+                aws: `
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: #cccccc;">Access Key ID</label>
+                        <input type="text" id="config-accessKeyId" placeholder="AKIAIOSFODNN7EXAMPLE" style="width: 100%; padding: 10px; border: 1px solid #666; border-radius: 6px; background: rgba(60, 60, 60, 0.8); color: white;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: #cccccc;">Secret Access Key</label>
+                        <input type="password" id="config-secretAccessKey" placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" style="width: 100%; padding: 10px; border: 1px solid #666; border-radius: 6px; background: rgba(60, 60, 60, 0.8); color: white;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: #cccccc;">Region</label>
+                        <select id="config-region" style="width: 100%; padding: 10px; border: 1px solid #666; border-radius: 6px; background: rgba(60, 60, 60, 0.8); color: white;">
+                            <option value="us-east-1">us-east-1</option>
+                            <option value="us-west-2">us-west-2</option>
+                            <option value="eu-west-1">eu-west-1</option>
+                            <option value="ap-southeast-2">ap-southeast-2</option>
+                        </select>
+                    </div>
+                `,
+                azure: `
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: #cccccc;">Tenant ID</label>
+                        <input type="text" id="config-tenantId" placeholder="00000000-0000-0000-0000-000000000000" style="width: 100%; padding: 10px; border: 1px solid #666; border-radius: 6px; background: rgba(60, 60, 60, 0.8); color: white;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: #cccccc;">Client ID</label>
+                        <input type="text" id="config-clientId" placeholder="00000000-0000-0000-0000-000000000000" style="width: 100%; padding: 10px; border: 1px solid #666; border-radius: 6px; background: rgba(60, 60, 60, 0.8); color: white;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: #cccccc;">Client Secret</label>
+                        <input type="password" id="config-clientSecret" placeholder="Client secret" style="width: 100%; padding: 10px; border: 1px solid #666; border-radius: 6px; background: rgba(60, 60, 60, 0.8); color: white;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: #cccccc;">Subscription ID</label>
+                        <input type="text" id="config-subscriptionId" placeholder="00000000-0000-0000-0000-000000000000" style="width: 100%; padding: 10px; border: 1px solid #666; border-radius: 6px; background: rgba(60, 60, 60, 0.8); color: white;">
+                    </div>
+                `,
+                gcp: `
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: #cccccc;">Project ID</label>
+                        <input type="text" id="config-projectId" placeholder="my-project-id" style="width: 100%; padding: 10px; border: 1px solid #666; border-radius: 6px; background: rgba(60, 60, 60, 0.8); color: white;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: #cccccc;">Service Account Key (JSON)</label>
+                        <textarea id="config-serviceAccountKey" placeholder="Paste your service account JSON key here" style="width: 100%; height: 120px; padding: 10px; border: 1px solid #666; border-radius: 6px; background: rgba(60, 60, 60, 0.8); color: white; resize: vertical;"></textarea>
+                    </div>
+                `
+            };
+
+            return cloudFields[serviceType] || commonFields;
+        }
+
+        async function testConnection() {
+            if (!currentConfigService) return;
+
+            const testBtn = event.target;
+            testBtn.disabled = true;
+            testBtn.textContent = 'Testing...';
+
+            try {
+                // Here you would call the actual connector test
+                console.log('Testing connection for', currentConfigService);
+                
+                // Simulate test
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                alert('Connection test successful!');
+                testBtn.style.background = '#4CAF50';
+                testBtn.textContent = 'Test Passed';
+                
+            } catch (error) {
+                alert('Connection test failed: ' + error.message);
+                testBtn.style.background = '#F44336';
+                testBtn.textContent = 'Test Failed';
+            } finally {
+                setTimeout(() => {
+                    testBtn.disabled = false;
+                    testBtn.textContent = 'Test Connection';
+                    testBtn.style.background = '#FF9800';
+                }, 3000);
+            }
+        }
+
+        async function saveConfiguration() {
+            if (!currentConfigService) return;
+
+            const config = {};
+            
+            // Collect form data
+            const inputs = document.querySelectorAll('#config-modal-content input, #config-modal-content select, #config-modal-content textarea');
+            inputs.forEach(input => {
+                const key = input.id.replace('config-', '');
+                config[key] = input.value;
+            });
+
+            try {
+                // Here you would save to the enterprise service manager
+                console.log('Saving configuration for', currentConfigService, config);
+                
+                // Update UI
+                updateConnectorStatus(currentConfigService, 'connected');
+                
+                alert('Configuration saved successfully!');
+                closeConfigModal();
+                
+            } catch (error) {
+                alert('Failed to save configuration: ' + error.message);
+            }
+        }
+
+        function updateConnectorStatus(serviceType, status) {
+            const statusElement = document.getElementById(`${serviceType}-status`);
+            if (statusElement) {
+                statusElement.className = `connector-status ${status}`;
+                statusElement.textContent = status === 'connected' ? 'Connected' : 
+                                          status === 'error' ? 'Error' : 'Not Configured';
+            }
+        }
+
+        // AI Chat Interface Functions
+        window.aiWorkflowActive = false;
+
+        window.startAIWorkflow = function() {
+            const requirements = document.getElementById('ai-project-requirements').value.trim();
+            if (!requirements) {
+                alert('Please enter project requirements to start the workflow.');
+                return;
+            }
+
+            const language = document.getElementById('ai-language-select').value;
+            const framework = document.getElementById('ai-framework-select').value;
+
+            // Hide config panel and start workflow
+            document.getElementById('ai-config-panel').style.display = 'none';
+            window.aiWorkflowActive = true;
+
+            // Enable chat input
+            document.getElementById('ai-chat-input').disabled = false;
+            document.querySelector('button[onclick="sendAIMessage()"]').disabled = false;
+            document.querySelector('button[onclick="sendAIMessage()"]').style.opacity = '1';
+
+            // Add user message
+            addAIMessage('user', requirements);
+
+            // Start agent workflow simulation
+            setTimeout(function() {
+                addAIMessage('ai', 'ðŸš€ Starting SDLC workflow with ' + language + ' and ' + framework + '\n\nOrchestrating AI agents for your project...');
+                simulateAIAgents(requirements, language, framework);
+            }, 1000);
+        };
+
+        window.simulateAIAgents = function(requirements, language, framework) {
+            const agents = [
+                'ðŸ“‹ Product Manager Agent - Requirements Analysis',
+                'ðŸ“Š Business Analyst Agent - User Story Generation',
+                'ðŸ’» Software Developer Agent - Code Generation',
+                'ðŸ§ª QA Engineer Agent - Testing & Security',
+                'ðŸš€ DevOps Engineer Agent - Deployment Ready'
+            ];
+
+            let currentAgent = 0;
+            const interval = setInterval(function() {
+                if (currentAgent < agents.length) {
+                    addAIMessage('ai', agents[currentAgent] + ' completed successfully!');
+                    currentAgent++;
+                } else {
+                    clearInterval(interval);
+                    addAIMessage('ai', 'âœ… SDLC Workflow Completed!\n\nYour ' + language + ' project with ' + framework + ' is ready with:\n\nðŸ“‹ Requirements Analysis\nðŸ“Š User Stories\nðŸ’» Complete Code\nðŸ§ª Test Suite\nðŸš€ Deployment Config\n\nAsk me anything about the implementation!');
+                }
+            }, 2000);
+        };
+
+        window.addAIMessage = function(type, content) {
+            const messagesContainer = document.getElementById('ai-chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = 'display: flex; gap: 12px; align-items: flex-start; margin-bottom: 15px;';
+            
+            if (type === 'user') {
+                messageDiv.style.flexDirection = 'row-reverse';
+            }
+
+            const isUser = type === 'user';
+            const avatar = isUser ? 'ðŸ‘¤' : 'ðŸ¤–';
+            const bgColor = isUser ? 'rgba(102, 126, 234, 0.2)' : 'rgba(40, 40, 40, 0.8)';
+            const borderColor = isUser ? 'rgba(102, 126, 234, 0.3)' : 'rgba(255, 255, 255, 0.1)';
+            const senderName = isUser ? 'You' : 'AI Assistant';
+
+            messageDiv.innerHTML = '<div style="width: 32px; height: 32px; background: ' + (isUser ? 'linear-gradient(135deg, #FFD700, #FFA500)' : 'linear-gradient(135deg, #667eea, #764ba2)') + '; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1em; flex-shrink: 0;">' + avatar + '</div><div style="background: ' + bgColor + '; padding: 15px; border-radius: 12px; border: 1px solid ' + borderColor + '; flex: 1; max-width: 80%;"><div style="color: #ffffff; font-weight: 600; font-size: 0.9em; margin-bottom: 8px;">' + senderName + '</div><div style="color: #cccccc; line-height: 1.5;">' + content.replace(/\n/g, '<br>') + '</div></div>';
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        };
+
+        window.sendAIMessage = function() {
+            const input = document.getElementById('ai-chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            input.value = '';
+            addAIMessage('user', message);
+
+            setTimeout(function() {
+                addAIMessage('ai', 'I understand your question: "' + message + '"\n\nBased on your project configuration, I can provide specific guidance and make adjustments to the generated code and documentation.\n\nWhat would you like me to focus on?');
+            }, 1500);
+        };
+
+        window.clearAIChat = function() {
+            document.getElementById('ai-chat-messages').innerHTML = '<div style="display: flex; gap: 12px; align-items: flex-start;"><div style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2em;">ðŸ¤–</div><div style="background: rgba(40, 40, 40, 0.8); padding: 15px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);"><h4 style="color: #ffffff; margin: 0 0 10px 0; font-size: 1.1em;">Welcome back!</h4><p style="color: #cccccc; margin: 0;">Configure your project above to start a new SDLC workflow.</p></div></div>';
+            document.getElementById('ai-config-panel').style.display = 'block';
+            window.aiWorkflowActive = false;
+            document.getElementById('ai-chat-input').disabled = true;
+            document.querySelector('button[onclick="sendAIMessage()"]').disabled = true;
+            document.querySelector('button[onclick="sendAIMessage()"]').style.opacity = '0.5';
+        };
+
+        window.downloadAIFiles = function() {
+            if (!window.aiWorkflowActive) {
+                alert('Please start a workflow first to generate files.');
+                return;
+            }
+            alert('File download feature ready! Generated files include:\n\nðŸ“ Project Structure\nðŸ’» Source Code\nðŸ§ª Test Files\nðŸ“‹ Documentation\nðŸš€ Deployment Config\n\nIntegration with enterprise connectors available.');
+        };
+    </script>
+</body>
+</html>

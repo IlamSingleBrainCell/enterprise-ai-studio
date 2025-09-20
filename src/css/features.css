@@ -1,0 +1,280 @@
+/* ==========================================================================
+   Feature-Specific Styles - AI Agents, Quality Gates, etc.
+   ========================================================================== */
+
+/* AI Agent Components */
+.ai-agent {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.ai-agent:hover {
+    transform: scale(1.05);
+    border-color: #FFD700;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.ai-agent.active {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #333;
+}
+
+.agent-icon {
+    font-size: 2em;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.agent-name {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.agent-status {
+    font-size: 0.8em;
+    opacity: 0.9;
+}
+
+/* Integration Status Components */
+.integration-status {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.integration-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.integration-item.connected {
+    border-color: #4CAF50;
+    background: linear-gradient(135deg, #e8f5e8, #f1f8e9);
+}
+
+.integration-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.integration-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 0.8em;
+}
+
+.github-logo { background: #24292e; }
+.jira-logo { background: #0052cc; }
+.confluence-logo { background: #172b4d; }
+.posttrade-logo { background: linear-gradient(135deg, #667eea, #764ba2); }
+.rcm-logo { background: linear-gradient(135deg, #FFD700, #FFA500); }
+
+.integration-details {
+    flex: 1;
+}
+
+.integration-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 3px;
+}
+
+.integration-desc {
+    font-size: 0.8em;
+    color: #666;
+}
+
+/* Workflow Stage Components */
+.stage {
+    text-align: center;
+    padding: 20px 15px;
+    border-radius: 15px;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+    position: relative;
+}
+
+.stage.active {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+}
+
+.stage.completed {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+}
+
+.stage.blocked {
+    background: #ffebee;
+    border-color: #f44336;
+    color: #c62828;
+}
+
+.stage-icon {
+    font-size: 1.8em;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.stage-title {
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.stage-status {
+    font-size: 0.7em;
+    opacity: 0.8;
+}
+
+.gate-indicator {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #4CAF50;
+    border: 2px solid white;
+}
+
+.gate-indicator.failed {
+    background: #f44336;
+}
+
+.gate-indicator.pending {
+    background: #FF9800;
+}
+
+/* Quality Gate Components */
+.gate-category {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #333;
+}
+
+.gate-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    margin: 8px 0;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.gate-item.passed {
+    border-left-color: #4CAF50;
+    background: #e8f5e8;
+}
+
+.gate-item.failed {
+    border-left-color: #f44336;
+    background: #ffebee;
+}
+
+.gate-item.pending {
+    border-left-color: #FF9800;
+    background: #fff3e0;
+}
+
+.gate-info {
+    flex: 1;
+}
+
+.gate-name {
+    font-weight: 600;
+    font-size: 0.9em;
+    margin-bottom: 3px;
+}
+
+.gate-criteria {
+    font-size: 0.8em;
+    color: #666;
+}
+
+.gate-result {
+    font-size: 0.8em;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 10px;
+}
+
+.result-passed {
+    background: #4CAF50;
+    color: white;
+}
+
+.result-failed {
+    background: #f44336;
+    color: white;
+}
+
+.result-pending {
+    background: #FF9800;
+    color: white;
+}
+
+/* Control Section */
+.control-section {
+    margin-bottom: 20px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    border-left: 4px solid #FFD700;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.control-section h3 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Requirements Form */
+.requirements-form {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}

@@ -1,0 +1,123 @@
+/* ==========================================================================
+   DORA Metrics Styles
+   ========================================================================== */
+
+.dora-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.dora-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 18px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border-left: 4px solid #FFD700;
+    transition: transform 0.25s ease;
+}
+
+.dora-card:hover { 
+    transform: translateY(-6px); 
+}
+
+.dora-title { 
+    font-weight: 700; 
+    font-size: 1.02em; 
+    margin-bottom: 8px; 
+    color: #333; 
+}
+
+.dora-value { 
+    font-size: 1.6em; 
+    font-weight: 800; 
+    color: #333; 
+}
+
+.dora-subtext { 
+    font-size: 0.82em; 
+    color: #666; 
+    margin-top: 6px; 
+}
+
+.dora-trend { 
+    font-size: 0.78em; 
+    color: #4CAF50; 
+    font-weight: 700; 
+    margin-top: 6px; 
+}
+
+/* ==========================================================================
+   SPACE Framework Styles
+   ========================================================================== */
+
+.space-section {
+    margin-top: 22px;
+}
+
+.space-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+}
+
+.space-card {
+    background: rgba(255,255,255,0.97);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    border-left: 4px solid #667eea;
+}
+
+.space-title {
+    font-weight: 800;
+    color: #172b4d;
+    margin-bottom: 8px;
+}
+
+.space-body {
+    font-size: 0.9em;
+    color: #444;
+    line-height: 1.45;
+}
+
+.space-small {
+    font-size: 0.82em;
+    color: #666;
+    margin-top: 8px;
+}
+
+.space-header {
+    display:flex; 
+    align-items:center; 
+    justify-content:space-between; 
+    gap:12px;
+}
+
+.space-pill {
+    padding:6px 10px; 
+    background:#e3f2fd; 
+    border-radius:999px; 
+    font-weight:700; 
+    color:#0d47a1; 
+    font-size:0.85em;
+}
+
+.space-list { 
+    margin-top:10px; 
+    padding-left:16px; 
+    color:#444; 
+}
+
+.space-list li { 
+    margin-bottom:6px; 
+}
+
+.collapse-toggle { 
+    cursor:pointer; 
+    color:#667eea; 
+    font-weight:700; 
+    font-size:0.9em; 
+}
