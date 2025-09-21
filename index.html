@@ -2817,6 +2817,12 @@
             try {
                 console.log('🚀 Starting REAL AI SDLC Workflow...');
                 
+                // Debug: Check all form elements first
+                console.log('🔍 Debugging form element detection:');
+                console.log('- ai-project-requirements element:', document.getElementById('ai-project-requirements'));
+                console.log('- ai-language-select element:', document.getElementById('ai-language-select'));
+                console.log('- ai-framework-select element:', document.getElementById('ai-framework-select'));
+                
                 const requirements = document.getElementById('ai-project-requirements');
                 const language = document.getElementById('ai-language-select');
                 const framework = document.getElementById('ai-framework-select');
@@ -2830,8 +2836,22 @@
                 const languageValue = language.value;
                 const frameworkValue = framework.value;
                 
-                if (!requirementsValue) {
-                    alert('Please enter project requirements first!');
+                console.log('🔍 Debugging form values:', {
+                    requirements: requirementsValue,
+                    requirementsLength: requirementsValue.length,
+                    language: languageValue,
+                    framework: frameworkValue
+                });
+                
+                // More lenient validation - just check if there's any meaningful text
+                if (!requirementsValue || requirementsValue.length < 3) {
+                    console.warn('❌ Requirements validation failed:', {
+                        value: requirementsValue,
+                        length: requirementsValue.length
+                    });
+                    alert('Please enter some project requirements (at least 3 characters) to start the workflow.\\n\\nExample: "Create a todo list app" or "Build a customer management system"');
+                    // Focus on the requirements field to help user
+                    requirements.focus();
                     return;
                 }
                 
