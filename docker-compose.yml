@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   enterprise_ai_studio:
     build:
@@ -24,7 +22,7 @@ services:
       retries: 3
       start_period: 10s
     networks:
-      - enterprise-ai-network
+      - enterprise_ai_network
 
   # Optional: Add a reverse proxy for production deployment
   nginx-proxy:
