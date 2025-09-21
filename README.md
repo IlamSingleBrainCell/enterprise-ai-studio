@@ -2,7 +2,7 @@
 
 🚀 **The Ultimate Agent-Oriented Programming Platform for Building, Deploying, and Managing AI Agents at Scale**
 
-![Platform Screenshot](https://enterprise-ai-studio.vercel.app)
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Available-brightgreen?style=for-the-badge)](https://enterprise-ai-studio.vercel.app)
 
 [![Docker Hub](https://img.shields.io/docker/pulls/singlebraincell/enterprise_ai_studio)](https://hub.docker.com/r/singlebraincell/enterprise_ai_studio)
 [![GitHub](https://img.shields.io/github/license/IlamSingleBrainCell/enterprise-ai-studio)](https://github.com/IlamSingleBrainCell/enterprise-ai-studio)
