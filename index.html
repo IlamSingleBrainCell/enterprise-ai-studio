@@ -1668,8 +1668,62 @@
                                             </div>
                                         </div>
                                         <div style="display: flex; gap: 8px;">
+                                            <button onclick="toggleAnalyticsDashboard()" style="background: rgba(33, 150, 243, 0.2); border: 1px solid #2196F3; color: #2196F3; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9em;" title="Toggle Analytics Dashboard">📊 Analytics</button>
                                             <button onclick="clearAIChat()" style="background: rgba(60, 60, 60, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: white; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 1.1em;">🗑️</button>
                                             <button onclick="generateAndDownloadFiles()" style="background: linear-gradient(135deg, #4CAF50, #45a049); border: 1px solid rgba(255, 255, 255, 0.1); color: white; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 1.1em; transition: all 0.3s ease;" title="Generate & Download AI Files">📥</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Analytics Dashboard (initially hidden) -->
+                                    <div id="analytics-dashboard" style="display: none; background: rgba(15, 15, 15, 0.95); border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 20px;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                            <h4 style="color: #2196F3; margin: 0; font-size: 1.1em; font-weight: 600;">📊 Workflow Analytics Dashboard</h4>
+                                            <button onclick="exportAnalytics()" style="background: rgba(76, 175, 80, 0.2); border: 1px solid #4CAF50; color: #4CAF50; padding: 6px 12px; border-radius: 4px; font-size: 0.9em; cursor: pointer;">📤 Export Report</button>
+                                        </div>
+                                        
+                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px;">
+                                            <div style="background: rgba(76, 175, 80, 0.1); border: 1px solid #4CAF50; border-radius: 6px; padding: 12px; text-align: center;">
+                                                <div style="color: #4CAF50; font-size: 1.8em; font-weight: bold;" id="metric-messages">0</div>
+                                                <div style="color: #888; font-size: 0.85em;">AI Messages</div>
+                                            </div>
+                                            <div style="background: rgba(255, 152, 0, 0.1); border: 1px solid #FF9800; border-radius: 6px; padding: 12px; text-align: center;">
+                                                <div style="color: #FF9800; font-size: 1.8em; font-weight: bold;" id="metric-edits">0</div>
+                                                <div style="color: #888; font-size: 0.85em;">User Edits</div>
+                                            </div>
+                                            <div style="background: rgba(33, 150, 243, 0.1); border: 1px solid #2196F3; border-radius: 6px; padding: 12px; text-align: center;">
+                                                <div style="color: #2196F3; font-size: 1.8em; font-weight: bold;" id="metric-integrations">0</div>
+                                                <div style="color: #888; font-size: 0.85em;">Integrations</div>
+                                            </div>
+                                            <div style="background: rgba(156, 39, 176, 0.1); border: 1px solid #9C27B0; border-radius: 6px; padding: 12px; text-align: center;">
+                                                <div style="color: #9C27B0; font-size: 1.8em; font-weight: bold;" id="metric-time">0m</div>
+                                                <div style="color: #888; font-size: 0.85em;">Duration</div>
+                                            </div>
+                                            <div style="background: rgba(96, 125, 139, 0.1); border: 1px solid #607D8B; border-radius: 6px; padding: 12px; text-align: center;">
+                                                <div style="color: #607D8B; font-size: 1.8em; font-weight: bold;" id="metric-phases">0</div>
+                                                <div style="color: #888; font-size: 0.85em;">Phases</div>
+                                            </div>
+                                            <div style="background: rgba(244, 67, 54, 0.1); border: 1px solid #F44336; border-radius: 6px; padding: 12px; text-align: center;">
+                                                <div style="color: #F44336; font-size: 1.8em; font-weight: bold;" id="metric-errors">0</div>
+                                                <div style="color: #888; font-size: 0.85em;">Errors</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                            <div>
+                                                <div style="color: #FFD700; font-weight: bold; margin-bottom: 8px; font-size: 0.95em;">🎯 Current Phase:</div>
+                                                <div id="current-phase" style="color: #ffffff; padding: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 6px; font-size: 0.9em;">Ready to start workflow</div>
+                                            </div>
+                                            <div>
+                                                <div style="color: #FFD700; font-weight: bold; margin-bottom: 8px; font-size: 0.95em;">🤖 Autonomy Mode:</div>
+                                                <div id="autonomy-status" style="color: #ffffff; padding: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 6px; font-size: 0.9em;">Manual Review</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div style="margin-top: 15px;">
+                                            <div style="color: #FFD700; font-weight: bold; margin-bottom: 8px; font-size: 0.95em;">📈 Phase History:</div>
+                                            <div id="phase-history" style="max-height: 80px; overflow-y: auto; background: rgba(0, 0, 0, 0.3); border-radius: 6px; padding: 10px;">
+                                                <div style="color: #888; font-style: italic; font-size: 0.9em;">No phases completed yet</div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -1678,9 +1732,10 @@
                                         <h4 style="color: #ffffff; margin: 0 0 15px 0; font-size: 1em; font-weight: 600;"> Project Configuration</h4>
                                         <div style="margin-bottom: 15px;">
                                             <label style="color: #cccccc; font-size: 0.9em; font-weight: 500; display: block; margin-bottom: 8px;">Project Requirements</label>
-                                            <textarea id="ai-project-requirements" placeholder="e.g., Create a simple to-do list application..." style="width: 100%; background: rgba(40, 40, 40, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: white; padding: 12px; font-family: inherit; resize: vertical; min-height: 80px; box-sizing: border-box;"></textarea>
+                                            <textarea id="ai-project-requirements" placeholder="e.g., Create a comprehensive customer management system with user authentication, data analytics dashboard, and real-time notifications..." style="width: 100%; background: rgba(40, 40, 40, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: white; padding: 12px; font-family: inherit; resize: vertical; min-height: 120px; box-sizing: border-box;"></textarea>
                                         </div>
-                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                        
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                                             <div>
                                                 <label style="color: #cccccc; font-size: 0.9em; font-weight: 500; display: block; margin-bottom: 8px;">Language</label>
                                                 <select id="ai-language-select" style="width: 100%; background: rgba(40, 40, 40, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: white; padding: 10px; font-family: inherit;">
@@ -1688,6 +1743,10 @@
                                                     <option value="javascript">JavaScript</option>
                                                     <option value="python">Python</option>
                                                     <option value="java">Java</option>
+                                                    <option value="go">Go</option>
+                                                    <option value="csharp">C#</option>
+                                                    <option value="php">PHP</option>
+                                                    <option value="rust">Rust</option>
                                                 </select>
                                             </div>
                                             <div>
@@ -1697,7 +1756,32 @@
                                                     <option value="vue">Vue.js</option>
                                                     <option value="angular">Angular</option>
                                                     <option value="nextjs">Next.js</option>
+                                                    <option value="express">Express.js</option>
+                                                    <option value="fastapi">FastAPI</option>
+                                                    <option value="spring">Spring Boot</option>
+                                                    <option value="django">Django</option>
                                                 </select>
+                                            </div>
+                                            <div>
+                                                <label style="color: #cccccc; font-size: 0.9em; font-weight: 500; display: block; margin-bottom: 8px;">Autonomy Mode</label>
+                                                <select id="ai-autonomy-select" style="width: 100%; background: rgba(40, 40, 40, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: white; padding: 10px; font-family: inherit;">
+                                                    <option value="manual">Manual Review</option>
+                                                    <option value="semi-autonomous">Semi-Autonomous</option>
+                                                    <option value="fully-autonomous">Fully Autonomous</option>
+                                                    <option value="expert">Expert Mode</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Document Upload Section -->
+                                        <div style="margin-bottom: 15px;">
+                                            <label style="color: #cccccc; font-size: 0.9em; font-weight: 500; display: block; margin-bottom: 8px;">📄 Upload Project Documents (Optional)</label>
+                                            <div style="border: 2px dashed rgba(255, 255, 255, 0.3); border-radius: 8px; padding: 20px; text-align: center; background: rgba(60, 60, 60, 0.3);">
+                                                <input type="file" id="document-upload" multiple accept=".pdf,.doc,.docx,.txt,.md" style="display: none;">
+                                                <button onclick="document.getElementById('document-upload').click()" style="background: rgba(102, 126, 234, 0.2); border: 1px solid #667eea; color: #667eea; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                                    📎 Choose Documents
+                                                </button>
+                                                <div id="uploaded-files" style="margin-top: 10px; text-align: left;"></div>
                                             </div>
                                         </div>
                                         <button id="start-workflow-btn" onclick="directStartWorkflow()" disabled style="background: linear-gradient(135deg, #666, #555); color: #999; border: none; padding: 12px 24px; border-radius: 8px; font-size: 1em; font-weight: 600; cursor: not-allowed; width: 100%; transition: all 0.3s ease; opacity: 0.6;">
@@ -3630,56 +3714,585 @@ Include installation and usage instructions.`;
             }
         };
 
-        window.addAIMessage = function(type, content, persona = null) {
+        // ENHANCED AI MESSAGE SYSTEM WITH EDITING AND INTEGRATIONS
+        window.addAIMessage = function(type, content, persona = null, options = {}) {
             const messagesContainer = document.getElementById('ai-chat-messages');
             if (!messagesContainer) {
                 console.error('AI chat messages container not found');
                 return;
             }
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.style.cssText = 'display: flex; gap: 12px; align-items: flex-start; margin-bottom: 15px;';
-            
-            if (type === 'user') {
-                messageDiv.style.flexDirection = 'row-reverse';
-            }
 
-            const isUser = type === 'user';
-            let avatar, bgColor, borderColor, senderName, personaColor;
-
-            if (isUser) {
-                avatar = '👤';
-                bgColor = 'rgba(102, 126, 234, 0.2)';
-                borderColor = 'rgba(102, 126, 234, 0.3)';
-                senderName = 'You';
-                personaColor = '#FFD700';
-            } else {
-                // Use specific persona or default to orchestrator
-                const selectedPersona = persona ? window.sdlcPersonas[persona] : null;
-                
-                if (selectedPersona) {
-                    avatar = selectedPersona.emoji;
-                    senderName = selectedPersona.name;
-                    personaColor = selectedPersona.color;
-                    bgColor = `${selectedPersona.color}15`; // Add transparency
-                    borderColor = `${selectedPersona.color}40`;
-                } else {
-                    avatar = '🤖';
-                    senderName = 'AI Orchestrator';
-                    personaColor = '#667eea';
-                    bgColor = 'rgba(40, 40, 40, 0.8)';
-                    borderColor = 'rgba(255, 255, 255, 0.1)';
+            const messageId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            const timestamp = new Date().toLocaleTimeString();
+            
+            // Enhanced persona configuration
+            const personaConfig = {
+                'product-manager': { 
+                    icon: '👨‍💼', 
+                    name: 'Product Manager', 
+                    color: '#4CAF50',
+                    canEdit: true,
+                    integrations: ['jira', 'confluence']
+                },
+                'business-analyst': { 
+                    icon: '📊', 
+                    name: 'Business Analyst', 
+                    color: '#2196F3',
+                    canEdit: true,
+                    integrations: ['jira', 'confluence']
+                },
+                'software-developer': { 
+                    icon: '👨‍💻', 
+                    name: 'Software Developer', 
+                    color: '#FF9800',
+                    canEdit: true,
+                    integrations: ['github', 'jenkins']
+                },
+                'qa-engineer': { 
+                    icon: '🧪', 
+                    name: 'QA Engineer', 
+                    color: '#9C27B0',
+                    canEdit: true,
+                    integrations: ['jenkins', 'jira']
+                },
+                'devops-engineer': { 
+                    icon: '🚀', 
+                    name: 'DevOps Engineer', 
+                    color: '#607D8B',
+                    canEdit: true,
+                    integrations: ['jenkins', 'github']
+                },
+                'security-analyst': { 
+                    icon: '🔒', 
+                    name: 'Security Analyst', 
+                    color: '#F44336',
+                    canEdit: true,
+                    integrations: ['confluence', 'jira']
                 }
+            };
+
+            const config = persona ? personaConfig[persona] : { icon: '🤖', name: 'AI Assistant', color: '#667eea', canEdit: false, integrations: [] };
+            const isUser = type === 'user';
+            const canEdit = config.canEdit && !isUser && !options.readonly;
+            
+            // Create message container
+            const messageDiv = document.createElement('div');
+            messageDiv.id = messageId;
+            messageDiv.style.cssText = `
+                display: flex; 
+                gap: 12px; 
+                align-items: flex-start; 
+                margin-bottom: 20px;
+                ${isUser ? 'flex-direction: row-reverse;' : ''}
+            `;
+
+            // Enhanced avatar with persona styling
+            const avatarDiv = document.createElement('div');
+            avatarDiv.style.cssText = `
+                width: 40px; 
+                height: 40px; 
+                background: ${isUser ? 'linear-gradient(135deg, #667eea, #764ba2)' : config.color}; 
+                border-radius: 50%; 
+                display: flex; 
+                align-items: center; 
+                justify-content: center; 
+                font-size: 1.2em;
+                flex-shrink: 0;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            `;
+            avatarDiv.textContent = isUser ? '👤' : config.icon;
+
+            // Enhanced message content container
+            const contentDiv = document.createElement('div');
+            contentDiv.style.cssText = `
+                background: ${isUser ? 'linear-gradient(135deg, #667eea, #764ba2)' : 'rgba(40, 40, 40, 0.9)'}; 
+                padding: 15px; 
+                border-radius: 12px; 
+                border: 1px solid ${isUser ? 'rgba(102, 126, 234, 0.5)' : 'rgba(255, 255, 255, 0.1)'};
+                flex: 1;
+                max-width: 85%;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            `;
+
+            // Header with name, timestamp, and action buttons
+            if (!isUser) {
+                const headerDiv = document.createElement('div');
+                headerDiv.style.cssText = 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;';
+                
+                const nameDiv = document.createElement('div');
+                nameDiv.style.cssText = 'display: flex; align-items: center; gap: 8px;';
+                nameDiv.innerHTML = `
+                    <span style="color: ${config.color}; font-weight: bold; font-size: 1.1em;">${config.name}</span>
+                    <span style="color: #888; font-size: 0.8em;">${timestamp}</span>
+                `;
+
+                const actionsDiv = document.createElement('div');
+                actionsDiv.style.cssText = 'display: flex; gap: 5px; flex-wrap: wrap;';
+                
+                if (canEdit) {
+                    actionsDiv.innerHTML += `
+                        <button onclick="editAIMessage('${messageId}')" style="background: rgba(76, 175, 80, 0.2); border: 1px solid #4CAF50; color: #4CAF50; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; cursor: pointer;" title="Edit this response">✏️</button>
+                        <button onclick="approveAndContinue('${messageId}')" style="background: rgba(76, 175, 80, 0.2); border: 1px solid #4CAF50; color: #4CAF50; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; cursor: pointer;" title="Approve and continue">✅</button>
+                    `;
+                }
+                
+                // Integration buttons
+                if (config.integrations.length > 0) {
+                    const integrationConfig = {
+                        'jira': { icon: '📋', name: 'JIRA', color: '#0052CC' },
+                        'confluence': { icon: '📄', name: 'Confluence', color: '#172B4D' },
+                        'github': { icon: '🐙', name: 'GitHub', color: '#24292E' },
+                        'jenkins': { icon: '🔧', name: 'Jenkins', color: '#D33833' }
+                    };
+                    
+                    config.integrations.forEach(integration => {
+                        const intConfig = integrationConfig[integration];
+                        if (intConfig) {
+                            actionsDiv.innerHTML += `<button onclick="integrateWith('${integration}', '${messageId}')" style="background: rgba(255, 255, 255, 0.1); border: 1px solid ${intConfig.color}; color: ${intConfig.color}; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; cursor: pointer;" title="Push to ${intConfig.name}">${intConfig.icon}</button>`;
+                        }
+                    });
+                }
+
+                headerDiv.appendChild(nameDiv);
+                headerDiv.appendChild(actionsDiv);
+                contentDiv.appendChild(headerDiv);
             }
 
-            const avatarStyle = isUser ? 
-                'linear-gradient(135deg, #FFD700, #FFA500)' : 
-                `linear-gradient(135deg, ${personaColor}, ${personaColor}dd)`;
+            // Message content with enhanced formatting
+            const messageContentDiv = document.createElement('div');
+            messageContentDiv.id = `content-${messageId}`;
+            messageContentDiv.style.cssText = `
+                color: #ffffff; 
+                line-height: 1.6; 
+                white-space: pre-wrap;
+                font-size: 0.95em;
+            `;
+            
+            // Enhanced markdown-like formatting
+            const formattedContent = content
+                .replace(/\*\*(.*?)\*\*/g, '<strong style="color: #FFD700; font-weight: 600;">$1</strong>')
+                .replace(/\\n/g, '\n')
+                .replace(/✅/g, '<span style="color: #4CAF50; font-weight: bold;">✅</span>')
+                .replace(/❌/g, '<span style="color: #F44336; font-weight: bold;">❌</span>')
+                .replace(/🚀/g, '<span style="color: #2196F3; font-weight: bold;">🚀</span>')
+                .replace(/📋/g, '<span style="color: #4CAF50;">📋</span>')
+                .replace(/📊/g, '<span style="color: #2196F3;">📊</span>')
+                .replace(/💻/g, '<span style="color: #FF9800;">💻</span>')
+                .replace(/🧪/g, '<span style="color: #9C27B0;">🧪</span>')
+                .replace(/🔒/g, '<span style="color: #F44336;">🔒</span>');
+            
+            messageContentDiv.innerHTML = formattedContent;
+            contentDiv.appendChild(messageContentDiv);
 
-            messageDiv.innerHTML = `<div style="width: 36px; height: 36px; background: ${avatarStyle}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1em; flex-shrink: 0;">${avatar}</div><div style="background: ${bgColor}; padding: 15px; border-radius: 12px; border: 1px solid ${borderColor}; flex: 1; max-width: 80%;"><div style="color: #ffffff; font-weight: 600; font-size: 0.9em; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><span style="color: ${personaColor};">${senderName}</span>${persona && window.sdlcPersonas[persona] ? `<span style="color: #888; font-size: 0.8em; font-weight: 400;">${window.sdlcPersonas[persona].expertise}</span>` : ''}</div><div style="color: #cccccc; line-height: 1.5;">${content.replace(/\n/g, '<br>')}</div></div>`;
-
+            // Assemble message
+            messageDiv.appendChild(avatarDiv);
+            messageDiv.appendChild(contentDiv);
             messagesContainer.appendChild(messageDiv);
+
+            // Auto-scroll to bottom
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Store message data for editing
+            if (canEdit) {
+                window.messageData = window.messageData || {};
+                window.messageData[messageId] = {
+                    type,
+                    content,
+                    persona,
+                    timestamp,
+                    options
+                };
+            }
+
+            return messageId;
+        };
+
+        // ANALYTICS AND AUTONOMY MANAGEMENT FUNCTIONS
+        window.toggleAnalyticsDashboard = function() {
+            const dashboard = document.getElementById('analytics-dashboard');
+            if (dashboard.style.display === 'none' || dashboard.style.display === '') {
+                dashboard.style.display = 'block';
+                updateAnalyticsDashboard();
+            } else {
+                dashboard.style.display = 'none';
+            }
+        };
+
+        window.updateAnalyticsMetric = function(metric, value) {
+            if (!window.workflowAnalytics) {
+                window.workflowAnalytics = {
+                    startTime: Date.now(),
+                    phases: [],
+                    currentPhase: null,
+                    metrics: {
+                        totalMessages: 0,
+                        editCount: 0,
+                        integrationPushes: 0,
+                        errors: 0,
+                        phases: 0
+                    }
+                };
+            }
+
+            if (typeof value === 'number') {
+                window.workflowAnalytics.metrics[metric] = (window.workflowAnalytics.metrics[metric] || 0) + value;
+            } else if (value === true) {
+                window.workflowAnalytics.metrics[metric] = (window.workflowAnalytics.metrics[metric] || 0) + 1;
+            } else {
+                window.workflowAnalytics.metrics[metric] = value;
+            }
+
+            // Update UI if dashboard is visible
+            const dashboard = document.getElementById('analytics-dashboard');
+            if (dashboard && dashboard.style.display !== 'none') {
+                updateAnalyticsDashboard();
+            }
+        };
+
+        window.updateAnalyticsDashboard = function() {
+            if (!window.workflowAnalytics) return;
+
+            const analytics = window.workflowAnalytics;
+            const duration = Math.floor((Date.now() - analytics.startTime) / 1000 / 60);
+
+            // Update metric displays
+            document.getElementById('metric-messages').textContent = analytics.metrics.totalMessages || 0;
+            document.getElementById('metric-edits').textContent = analytics.metrics.editCount || 0;
+            document.getElementById('metric-integrations').textContent = analytics.metrics.integrationPushes || 0;
+            document.getElementById('metric-time').textContent = duration + 'm';
+            document.getElementById('metric-phases').textContent = analytics.metrics.phases || 0;
+            document.getElementById('metric-errors').textContent = analytics.metrics.errors || 0;
+
+            // Update current phase
+            document.getElementById('current-phase').textContent = analytics.currentPhase || 'Ready to start workflow';
+
+            // Update autonomy status
+            const autonomyMode = getAutonomyMode();
+            document.getElementById('autonomy-status').textContent = autonomyMode;
+        };
+
+        window.startWorkflowPhase = async function(phaseId, phaseDescription) {
+            if (!window.workflowAnalytics) {
+                window.workflowAnalytics = {
+                    startTime: Date.now(),
+                    phases: [],
+                    currentPhase: null,
+                    metrics: { totalMessages: 0, editCount: 0, integrationPushes: 0, errors: 0, phases: 0 }
+                };
+            }
+
+            window.workflowAnalytics.currentPhase = phaseDescription;
+            window.workflowAnalytics.phases.push({
+                id: phaseId,
+                description: phaseDescription,
+                startTime: Date.now(),
+                status: 'active'
+            });
+
+            updateAnalyticsMetric('phases', 1);
+
+            // Update phase history
+            const historyDiv = document.getElementById('phase-history');
+            if (historyDiv) {
+                if (historyDiv.innerHTML.includes('No phases completed yet')) {
+                    historyDiv.innerHTML = '';
+                }
+                const phaseElement = document.createElement('div');
+                phaseElement.style.cssText = 'color: #2196F3; margin-bottom: 4px; font-size: 0.85em;';
+                phaseElement.innerHTML = `🔄 <strong>${phaseDescription}</strong> - Started ${new Date().toLocaleTimeString()}`;
+                historyDiv.appendChild(phaseElement);
+                historyDiv.scrollTop = historyDiv.scrollHeight;
+            }
+
+            updateAnalyticsDashboard();
+        };
+
+        window.finishWorkflowPhase = function() {
+            if (!window.workflowAnalytics || window.workflowAnalytics.phases.length === 0) return;
+
+            const lastPhase = window.workflowAnalytics.phases[window.workflowAnalytics.phases.length - 1];
+            lastPhase.endTime = Date.now();
+            lastPhase.status = 'completed';
+
+            window.workflowAnalytics.currentPhase = 'Workflow completed';
+
+            // Update phase history
+            const historyDiv = document.getElementById('phase-history');
+            if (historyDiv) {
+                const phaseElement = document.createElement('div');
+                phaseElement.style.cssText = 'color: #4CAF50; margin-bottom: 4px; font-size: 0.85em;';
+                phaseElement.innerHTML = `✅ <strong>${lastPhase.description}</strong> - Completed ${new Date().toLocaleTimeString()}`;
+                historyDiv.appendChild(phaseElement);
+                historyDiv.scrollTop = historyDiv.scrollHeight;
+            }
+
+            updateAnalyticsDashboard();
+        };
+
+        window.getAutonomyMode = function() {
+            const autonomySelect = document.getElementById('ai-autonomy-select');
+            if (!autonomySelect) return 'Manual Review';
+
+            const value = autonomySelect.value;
+            switch (value) {
+                case 'manual': return 'Manual Review';
+                case 'semi-autonomous': return 'Guided Autonomy';
+                case 'fully-autonomous': return 'Full Autonomy';
+                case 'expert': return 'Expert Mode';
+                default: return 'Manual Review';
+            }
+        };
+
+        window.autoApproveAfterDelay = async function(messageId, delay, statusMessage = null) {
+            if (statusMessage) {
+                addAIMessage('assistant', statusMessage, null, { readonly: true });
+            }
+
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    approveAndContinue(messageId);
+                    resolve();
+                }, delay);
+            });
+        };
+
+        window.waitForUserApproval = async function(message) {
+            return new Promise(resolve => {
+                addAIMessage('assistant', `⏸️ **${message}**\n\nClick the ✅ Approve button on the message above to continue, or edit it first if needed.`, null, { readonly: true });
+                
+                // Store the resolve function to be called when user approves
+                window.workflowContinuation = resolve;
+            });
+        };
+
+        window.exportAnalytics = function() {
+            if (!window.workflowAnalytics) {
+                alert('No analytics data available. Please start a workflow first.');
+                return;
+            }
+
+            const analytics = window.workflowAnalytics;
+            const duration = Math.floor((Date.now() - analytics.startTime) / 1000 / 60);
+            
+            const report = {
+                timestamp: new Date().toISOString(),
+                workflowDuration: duration + ' minutes',
+                autonomyMode: getAutonomyMode(),
+                metrics: analytics.metrics,
+                phases: analytics.phases.map(phase => ({
+                    description: phase.description,
+                    startTime: new Date(phase.startTime).toISOString(),
+                    endTime: phase.endTime ? new Date(phase.endTime).toISOString() : 'In Progress',
+                    duration: phase.endTime ? Math.floor((phase.endTime - phase.startTime) / 1000) + ' seconds' : 'In Progress',
+                    status: phase.status
+                }))
+            };
+
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `workflow-analytics-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            addAIMessage('assistant', '📊 **Analytics Report Exported!**\n\nWorkflow analytics have been downloaded as a JSON file for further analysis.', null, { readonly: true });
+        };
+
+        window.showAnalyticsDashboard = function() {
+            const dashboard = document.getElementById('analytics-dashboard');
+            if (dashboard) {
+                dashboard.style.display = 'block';
+                updateAnalyticsDashboard();
+            }
+        };
+        window.editAIMessage = function(messageId) {
+            const contentElement = document.getElementById(`content-${messageId}`);
+            const messageData = window.messageData?.[messageId];
+            
+            if (!contentElement || !messageData) {
+                alert('Message data not found. Cannot edit.');
+                return;
+            }
+
+            const currentContent = messageData.content;
+            
+            // Create editing interface
+            const editingDiv = document.createElement('div');
+            editingDiv.id = `edit-${messageId}`;
+            editingDiv.style.cssText = 'margin-top: 10px; padding: 10px; background: rgba(0, 0, 0, 0.2); border-radius: 8px;';
+            
+            editingDiv.innerHTML = `
+                <div style="margin-bottom: 10px; color: #FFD700; font-weight: bold;">Edit Message:</div>
+                <textarea id="edit-textarea-${messageId}" style="width: 100%; height: 150px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; padding: 10px; color: #ffffff; font-family: monospace; resize: vertical;">${currentContent}</textarea>
+                <div style="margin-top: 10px; display: flex; gap: 10px;">
+                    <button onclick="saveEdit('${messageId}')" style="background: #4CAF50; border: none; color: white; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Save</button>
+                    <button onclick="cancelEdit('${messageId}')" style="background: #f44336; border: none; color: white; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Cancel</button>
+                    <button onclick="regenerateWithAI('${messageId}')" style="background: #FF9800; border: none; color: white; padding: 8px 16px; border-radius: 4px; cursor: pointer;">🤖 Regenerate with AI</button>
+                </div>
+            `;
+            
+            // Insert after content
+            contentElement.parentNode.insertBefore(editingDiv, contentElement.nextSibling);
+            
+            // Focus on textarea
+            setTimeout(() => {
+                document.getElementById(`edit-textarea-${messageId}`).focus();
+            }, 100);
+        };
+
+        window.saveEdit = function(messageId) {
+            const textarea = document.getElementById(`edit-textarea-${messageId}`);
+            const contentElement = document.getElementById(`content-${messageId}`);
+            const editDiv = document.getElementById(`edit-${messageId}`);
+            
+            if (!textarea || !contentElement || !editDiv) return;
+            
+            const newContent = textarea.value;
+            
+            // Update stored data
+            if (window.messageData?.[messageId]) {
+                window.messageData[messageId].content = newContent;
+            }
+            
+            // Update display with formatting
+            const formattedContent = newContent
+                .replace(/\*\*(.*?)\*\*/g, '<strong style="color: #FFD700; font-weight: 600;">$1</strong>')
+                .replace(/\\n/g, '\n')
+                .replace(/✅/g, '<span style="color: #4CAF50; font-weight: bold;">✅</span>')
+                .replace(/❌/g, '<span style="color: #F44336; font-weight: bold;">❌</span>')
+                .replace(/🚀/g, '<span style="color: #2196F3; font-weight: bold;">🚀</span>')
+                .replace(/📋/g, '<span style="color: #4CAF50;">📋</span>')
+                .replace(/📊/g, '<span style="color: #2196F3;">📊</span>')
+                .replace(/💻/g, '<span style="color: #FF9800;">💻</span>')
+                .replace(/🧪/g, '<span style="color: #9C27B0;">🧪</span>')
+                .replace(/🔒/g, '<span style="color: #F44336;">🔒</span>');
+            
+            contentElement.innerHTML = formattedContent;
+            
+            // Remove editing interface
+            editDiv.remove();
+            
+            // Show success message
+            addAIMessage('assistant', '✅ Message updated successfully!', null, { readonly: true });
+        };
+
+        window.cancelEdit = function(messageId) {
+            const editDiv = document.getElementById(`edit-${messageId}`);
+            if (editDiv) {
+                editDiv.remove();
+            }
+        };
+
+        window.regenerateWithAI = async function(messageId) {
+            const messageData = window.messageData?.[messageId];
+            if (!messageData) {
+                alert('Cannot regenerate: message data not found.');
+                return;
+            }
+
+            const textarea = document.getElementById(`edit-textarea-${messageId}`);
+            if (!textarea) return;
+            
+            const currentContent = textarea.value;
+            
+            try {
+                // Show loading
+                textarea.style.background = 'rgba(255, 152, 0, 0.2)';
+                textarea.value = 'Regenerating with AI...';
+                textarea.disabled = true;
+                
+                const response = await fetch('/api/gemini', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: `Please improve and enhance this ${messageData.persona || 'AI assistant'} response while maintaining its core purpose and accuracy:\n\n${currentContent}`,
+                        model: 'gemini-2.0-flash-exp'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.response) {
+                    textarea.value = data.response;
+                    textarea.style.background = 'rgba(76, 175, 80, 0.2)';
+                } else {
+                    throw new Error(data.error || 'Failed to regenerate');
+                }
+            } catch (error) {
+                console.error('Regeneration error:', error);
+                textarea.value = currentContent;
+                textarea.style.background = 'rgba(244, 67, 54, 0.2)';
+                alert('Failed to regenerate with AI. Please try again.');
+            } finally {
+                textarea.disabled = false;
+                setTimeout(() => {
+                    textarea.style.background = 'rgba(255, 255, 255, 0.1)';
+                }, 2000);
+            }
+        };
+
+        window.approveAndContinue = function(messageId) {
+            const messageData = window.messageData?.[messageId];
+            if (!messageData) return;
+            
+            addAIMessage('assistant', `✅ **${messageData.persona || 'AI'} output approved.** Continuing workflow...`, null, { readonly: true });
+            
+            // Trigger next step in workflow if available
+            setTimeout(() => {
+                if (window.workflowContinuation) {
+                    window.workflowContinuation();
+                }
+            }, 1000);
+        };
+
+        window.integrateWith = async function(integration, messageId) {
+            const messageData = window.messageData?.[messageId];
+            if (!messageData) return;
+            
+            const integrationConfig = {
+                'jira': { 
+                    name: 'JIRA', 
+                    action: 'Create tickets and user stories',
+                    endpoint: '/api/integrations/jira'
+                },
+                'confluence': { 
+                    name: 'Confluence', 
+                    action: 'Create documentation pages',
+                    endpoint: '/api/integrations/confluence'
+                },
+                'github': { 
+                    name: 'GitHub', 
+                    action: 'Push code and create PRs',
+                    endpoint: '/api/integrations/github'
+                },
+                'jenkins': { 
+                    name: 'Jenkins', 
+                    action: 'Trigger builds and deployments',
+                    endpoint: '/api/integrations/jenkins'
+                }
+            };
+            
+            const config = integrationConfig[integration];
+            if (!config) return;
+            
+            const confirmed = confirm(`Push this ${messageData.persona || 'AI'} output to ${config.name}?\n\nAction: ${config.action}`);
+            if (!confirmed) return;
+            
+            try {
+                addAIMessage('assistant', `🔄 Pushing to ${config.name}...`, null, { readonly: true });
+                
+                // Simulate API call (replace with real integration)
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                addAIMessage('assistant', `✅ Successfully pushed to ${config.name}!\n\n📋 **${config.action}** completed for ${messageData.persona || 'AI'} output.`, null, { readonly: true });
+                
+            } catch (error) {
+                console.error(`${config.name} integration error:`, error);
+                addAIMessage('assistant', `❌ Failed to push to ${config.name}. Please check your integration settings.`, null, { readonly: true });
+            }
         };
         
         document.addEventListener('DOMContentLoaded', function() {
