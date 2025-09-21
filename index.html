@@ -4139,13 +4139,22 @@ Your ${language} project with ${framework} is ready:
         window.testGeminiAPI = async function() {
             const testAPI = new SimpleGeminiAPI();
             try {
+                console.log('🧪 Starting Gemini API test...');
                 const response = await testAPI.makeRequest('Hello, can you respond with "API connection successful"?', { maxTokens: 50 });
                 console.log('✅ Gemini API Test Success:', response);
+                alert('✅ Gemini API Test Success!\n\nResponse: ' + response);
                 return response;
             } catch (error) {
                 console.error('❌ Gemini API Test Failed:', error);
+                alert('❌ Gemini API Test Failed!\n\nError: ' + error.message);
                 throw error;
             }
+        };
+
+        // Quick test button for debugging
+        window.quickTestAPI = function() {
+            console.log('🚀 Quick API Test initiated...');
+            window.testGeminiAPI();
         };
 
         // Transformation Progress Management

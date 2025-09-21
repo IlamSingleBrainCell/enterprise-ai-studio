@@ -1,0 +1,70 @@
+# Docker ignore file for Enterprise AI Studio
+# Build artifacts
+dist/
+build/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+
+# Git
+.git/
+.gitignore
+
+# Development files
+dev-dist/
+*.backup
+*.temp
+*.tmp
+
+# Documentation (optional - include if you want docs in image)
+docs/
+README.md
+
+# Test files
+coverage/
+test-results/
+*.test.js
+**/__tests__/
+
+# Cache
+.cache/
+.npm/
+.yarn/
+
+# Temporary files
+*.pid
+*.seed
+*.tgz
+
+# Docker files (avoid recursion)
+Dockerfile*
+docker-compose*.yml
+.dockerignore

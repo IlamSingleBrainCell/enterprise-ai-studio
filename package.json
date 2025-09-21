@@ -12,7 +12,15 @@
     "lint": "eslint src --ext .js",
     "lint:fix": "eslint src --ext .js --fix",
     "format": "prettier --write \"src/**/*.{js,css}\"",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "docker:build": "docker build -t enterprise_ai_studio:latest .",
+    "docker:run": "docker run -d -p 8080:80 --name enterprise_ai_studio enterprise_ai_studio:latest",
+    "docker:stop": "docker stop enterprise_ai_studio && docker rm enterprise_ai_studio",
+    "docker:logs": "docker logs -f enterprise_ai_studio",
+    "docker:push": "docker tag enterprise_ai_studio:latest singlebraincell/enterprise_ai_studio:latest && docker push singlebraincell/enterprise_ai_studio:latest",
+    "docker:compose:up": "docker-compose up --build -d",
+    "docker:compose:down": "docker-compose down",
+    "docker:health": "curl -f http://localhost:8080/health || echo 'Health check failed'"
   },
   "keywords": [
     "macquarie",
