@@ -4463,16 +4463,278 @@ Include installation and usage instructions.`;
         };
 
         window.updateUIForLoggedInUser = function(plan) {
-            // Update header login button
+            // Update header login button to show user menu
             const loginBtn = document.querySelector('button[onclick="showLoginModal()"]');
             if (loginBtn) {
-                loginBtn.innerHTML = '👤 Account';
-                loginBtn.onclick = function() { switchToTab('account'); };
+                loginBtn.innerHTML = '👤 Account ▼';
+                loginBtn.onclick = function() { showUserMenu(); };
+                loginBtn.style.position = 'relative';
             }
+            
+            // Store user session
+            localStorage.setItem('userLoggedIn', 'true');
+            localStorage.setItem('userPlan', JSON.stringify(plan));
             
             // Show user status in dashboard
             addAIMessage('assistant', `🎉 **Welcome to Enterprise AI Studio!**\n\nYour ${plan.name} plan is now active.\n\n**Plan Features:**\n${plan.features}\n\n**Next Steps:**\n✅ Explore AI Agents tab\n✅ Check out API Access\n✅ Try the SDLC workflow\n\nNeed help? Visit our Help Guide!`, null, { readonly: true });
         };
+
+        window.showUserMenu = function() {
+            // Remove existing menu if any
+            const existingMenu = document.getElementById('user-menu');
+            if (existingMenu) {
+                existingMenu.remove();
+                return;
+            }
+
+            const userPlan = JSON.parse(localStorage.getItem('userPlan') || '{}');
+            
+            const menu = document.createElement('div');
+            menu.id = 'user-menu';
+            menu.style.cssText = `
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 8px;
+                padding: 15px;
+                min-width: 200px;
+                z-index: 1000;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+                margin-top: 5px;
+            `;
+
+            menu.innerHTML = `
+                <div style="color: #ffffff; font-weight: 600; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                    👤 Account Menu
+                </div>
+                
+                <div style="color: #888; font-size: 0.9em; margin-bottom: 8px;">
+                    Current Plan: <span style="color: #4CAF50; font-weight: 600;">${userPlan.name || 'Free'}</span>
+                </div>
+                
+                <div style="margin-bottom: 12px;">
+                    <button onclick="switchToTab('account')" style="background: transparent; border: none; color: #ffffff; padding: 8px 12px; border-radius: 4px; cursor: pointer; width: 100%; text-align: left; font-size: 0.9em; transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                        📊 Account Dashboard
+                    </button>
+                </div>
+                
+                <div style="margin-bottom: 12px;">
+                    <button onclick="switchToTab('pricing')" style="background: transparent; border: none; color: #ffffff; padding: 8px 12px; border-radius: 4px; cursor: pointer; width: 100%; text-align: left; font-size: 0.9em; transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                        💳 Manage Plan
+                    </button>
+                </div>
+                
+                <div style="margin-bottom: 12px;">
+                    <button onclick="switchToTab('api-access')" style="background: transparent; border: none; color: #ffffff; padding: 8px 12px; border-radius: 4px; cursor: pointer; width: 100%; text-align: left; font-size: 0.9em; transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                        🔗 API Keys
+                    </button>
+                </div>
+                
+                <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); margin: 12px 0; padding-top: 12px;">
+                    <button onclick="showAccountSettings()" style="background: transparent; border: none; color: #ffffff; padding: 8px 12px; border-radius: 4px; cursor: pointer; width: 100%; text-align: left; font-size: 0.9em; transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                        ⚙️ Settings
+                    </button>
+                </div>
+                
+                <div style="margin-bottom: 8px;">
+                    <button onclick="showHelpModal()" style="background: transparent; border: none; color: #ffffff; padding: 8px 12px; border-radius: 4px; cursor: pointer; width: 100%; text-align: left; font-size: 0.9em; transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                        ❓ Help & Support
+                    </button>
+                </div>
+                
+                <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); margin: 12px 0; padding-top: 12px;">
+                    <button onclick="logout()" style="background: linear-gradient(135deg, #f44336, #d32f2f); border: none; color: white; padding: 10px 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: 600; font-size: 0.9em; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
+                        🚪 Logout
+                    </button>
+                </div>
+            `;
+
+            // Position menu relative to button
+            const loginBtn = document.querySelector('button[onclick="showUserMenu()"]');
+            if (loginBtn) {
+                loginBtn.parentNode.style.position = 'relative';
+                loginBtn.parentNode.appendChild(menu);
+            }
+
+            // Close menu when clicking outside
+            setTimeout(() => {
+                document.addEventListener('click', function closeMenu(e) {
+                    if (!menu.contains(e.target) && e.target !== loginBtn) {
+                        menu.remove();
+                        document.removeEventListener('click', closeMenu);
+                    }
+                });
+            }, 100);
+        };
+
+        window.logout = function() {
+            // Show confirmation dialog
+            const confirmed = confirm('🚪 Are you sure you want to logout?\n\nYou will need to login again to access your account features.');
+            
+            if (confirmed) {
+                // Clear user session
+                localStorage.removeItem('userLoggedIn');
+                localStorage.removeItem('userPlan');
+                localStorage.removeItem('aiStudioPlan');
+                localStorage.removeItem('trialStartDate');
+                
+                // Reset UI to logged out state
+                const loginBtn = document.querySelector('button[onclick="showUserMenu()"]');
+                if (loginBtn) {
+                    loginBtn.innerHTML = '🔐 Login / Sign Up';
+                    loginBtn.onclick = function() { showLoginModal(); };
+                }
+                
+                // Remove user menu if open
+                const userMenu = document.getElementById('user-menu');
+                if (userMenu) {
+                    userMenu.remove();
+                }
+                
+                // Show logout success message
+                addAIMessage('assistant', '👋 **Successfully logged out!**\n\nThank you for using Enterprise AI Studio.\n\n🔐 Click "Login / Sign Up" to access your account again.\n\n**What you can still do:**\n✅ Browse AI services\n✅ View pricing plans\n✅ Access help documentation\n\n**To unlock full features:**\n🔑 Login to your account\n💳 Upgrade to a paid plan', null, { readonly: true });
+                
+                // Redirect to dashboard
+                switchToTab('dashboard');
+                
+                // Show brief logout notification
+                showLogoutNotification();
+            }
+        };
+
+        window.showLogoutNotification = function() {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #4CAF50, #45a049);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+                z-index: 10000;
+                font-weight: 600;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+            `;
+            notification.innerHTML = '✅ Logged out successfully!';
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Animate out and remove
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        };
+
+        window.showAccountSettings = function() {
+            // Close user menu
+            const userMenu = document.getElementById('user-menu');
+            if (userMenu) {
+                userMenu.remove();
+            }
+            
+            // Switch to account tab
+            switchToTab('account');
+            
+            // Show settings modal
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0, 0, 0, 0.8); display: flex; justify-content: center; 
+                align-items: center; z-index: 10000;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: linear-gradient(135deg, #1a1a1a, #2d2d2d); border-radius: 15px; padding: 30px; max-width: 500px; width: 90%; border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <h2 style="color: #ffffff; text-align: center; margin-bottom: 20px;">⚙️ Account Settings</h2>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="color: #FFD700; margin-bottom: 15px;">🔔 Notifications</h3>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: flex; justify-content: space-between; align-items: center; color: #cccccc; cursor: pointer;">
+                                <span>Email notifications for workflows</span>
+                                <input type="checkbox" checked style="margin-left: 10px;">
+                            </label>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: flex; justify-content: space-between; align-items: center; color: #cccccc; cursor: pointer;">
+                                <span>API usage alerts</span>
+                                <input type="checkbox" checked style="margin-left: 10px;">
+                            </label>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: flex; justify-content: space-between; align-items: center; color: #cccccc; cursor: pointer;">
+                                <span>Billing notifications</span>
+                                <input type="checkbox" checked style="margin-left: 10px;">
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="color: #FFD700; margin-bottom: 15px;">🔐 Security</h3>
+                        <button onclick="alert('Password change functionality would be implemented here')" style="background: #2196F3; border: none; color: white; padding: 10px 15px; border-radius: 6px; cursor: pointer; margin-right: 10px;">Change Password</button>
+                        <button onclick="alert('Two-factor authentication setup would be implemented here')" style="background: #FF9800; border: none; color: white; padding: 10px 15px; border-radius: 6px; cursor: pointer;">Enable 2FA</button>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button onclick="saveSettings()" style="flex: 1; background: linear-gradient(135deg, #4CAF50, #45a049); border: none; color: white; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Settings</button>
+                        <button onclick="closeSettingsModal()" style="flex: 1; background: transparent; border: 1px solid rgba(255, 255, 255, 0.3); color: white; padding: 12px; border-radius: 6px; cursor: pointer;">Cancel</button>
+                    </div>
+                </div>
+            `;
+            
+            modal.onclick = function(e) {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
+                }
+            };
+            
+            window.closeSettingsModal = function() {
+                document.body.removeChild(modal);
+            };
+            
+            window.saveSettings = function() {
+                alert('⚙️ Settings saved successfully!');
+                document.body.removeChild(modal);
+            };
+            
+            document.body.appendChild(modal);
+        };
+
+        window.showHelpModal = function() {
+            // Close user menu
+            const userMenu = document.getElementById('user-menu');
+            if (userMenu) {
+                userMenu.remove();
+            }
+            
+            alert('❓ Help & Support\n\nFor assistance, you can:\n\n• Check our Help Guide tab\n• Email: support@enterprise-ai-studio.com\n• Live chat: Available 24/7 for Pro+ users\n• Documentation: Available in API Access tab\n\nResponse time:\n• Free users: 48 hours\n• Pro users: 24 hours\n• Enterprise: 4 hours');
+        };
+
+        // Check if user is logged in on page load
+        window.addEventListener('load', function() {
+            const isLoggedIn = localStorage.getItem('userLoggedIn');
+            const userPlan = localStorage.getItem('userPlan');
+            
+            if (isLoggedIn === 'true' && userPlan) {
+                const plan = JSON.parse(userPlan);
+                updateUIForLoggedInUser(plan);
+            }
+        });
 
         window.generateNewApiKey = function() {
             const newKey = 'sk-eas-' + Math.random().toString(36).substr(2, 16) + Math.random().toString(36).substr(2, 16);
