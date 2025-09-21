@@ -1,297 +1,402 @@
-# Macquarie CGM Post Trade - AI SDLC Platform
+# Enterprise AI Studio - Agent as a Service Platform
 
-🚀 A comprehensive AI-powered Software Development Lifecycle (SDLC) platform designed for regulatory compliance and automated trading systems in the financial services industry.
+🚀 **The Ultimate Agent-Oriented Programming Platform for Building, Deploying, and Managing AI Agents at Scale**
 
-![Platform Screenshot](docs/screenshot-dashboard.png)
+![Platform Screenshot](https://enterprise-ai-studio.vercel.app)
 
-## Overview
+[![Docker Hub](https://img.shields.io/docker/pulls/singlebraincell/enterprise_ai_studio)](https://hub.docker.com/r/singlebraincell/enterprise_ai_studio)
+[![GitHub](https://img.shields.io/github/license/IlamSingleBrainCell/enterprise-ai-studio)](https://github.com/IlamSingleBrainCell/enterprise-ai-studio)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Available-brightgreen)](https://enterprise-ai-studio.vercel.app)
 
-The Macquarie CGM Post Trade Platform is a modern web application that provides:
+## 🌟 Overview
 
-- **AI Agent Orchestration** - Manage intelligent agents across the development lifecycle
-- **DORA Metrics Tracking** - Real-time DevOps performance metrics
-- **SPACE Framework Analytics** - Comprehensive developer productivity measurement
-- **Regulatory Compliance Management** - Multi-jurisdiction compliance monitoring (AU, UK, US, EU)
-- **Quality Gates Integration** - Automated security, testing, and compliance validation
-- **Real-time Dashboard** - Live metrics and status monitoring
+Enterprise AI Studio is a comprehensive **Agent as a Service (AaaS)** platform that empowers developers to build, deploy, and manage intelligent AI agents through an intuitive web interface. The platform combines cutting-edge AI orchestration with educational resources and enterprise-grade deployment capabilities.
 
-## ✨ Features
+### 🎯 **Core Mission**
+Transform how organizations build and deploy AI agents by providing a unified platform for agent-oriented programming, real-time collaboration, and scalable agent lifecycle management.
 
-### 🤖 AI Agent Management
-- Requirements Analysis Agent with regulatory impact assessment
-- Design & Architecture Agent with compliance verification
-- Build & Test Agents with automated quality validation
-- RCM (Regulatory Compliance Manager) Service
-- Deployment and Operations Agents
+---
 
-### 📊 Advanced Metrics
-- **DORA Metrics**: Deployment Frequency, Lead Time, Change Failure Rate, MTTR
-- **SPACE Framework**: Satisfaction, Performance, Activity, Communication, Efficiency
-- Real-time pipeline monitoring and quality gates
+## ✨ **Key Features**
 
-### 🛡️ Compliance & Security
-- Multi-jurisdiction regulatory compliance (MiFID II, EMIR, SOX, GDPR)
-- Automated compliance monitoring and reporting
-- Security scanning and vulnerability management
-- Audit trail and documentation generation
+### 🤖 **AI Agent Orchestration**
+- **Multi-Agent Workflows**: Coordinate Product Manager, Business Analyst, Developer, QA, and DevOps agents
+- **Real-Time AI Integration**: Powered by Google Gemini API for authentic AI responses
+- **Intelligent Role-Based Agents**: Each agent has specialized personas and capabilities
+- **Workflow Automation**: End-to-end SDLC automation with AI oversight
 
-### 🔗 Enterprise Integrations
-- GitHub Enterprise (Source control & CI/CD)
-- JIRA Agile (Project management)
-- Confluence (Documentation)
-- PostTrade.ai (AI platform)
-- Various regulatory databases
+### 🎓 **Educational Platform**
+- **Agent-Oriented Programming Courses**: 12-week comprehensive curriculum
+- **Prompt-Driven Development Training**: 8-week specialized program
+- **Multi-Agent Systems Mastery**: 16-week advanced course
+- **Interactive Learning Tools**: Agent Playground, Prompt Builder, System Designer
+- **Structured Learning Paths**: Beginner, Advanced, and Enterprise tracks
 
-## 🚀 Quick Start
+### 💼 **Enterprise-Ready Features**
+- **Authentication & User Management**: Secure login with role-based access
+- **Subscription Management**: Starter, Professional, and Enterprise tiers
+- **API Access**: RESTful APIs for system integration
+- **Analytics Dashboard**: Real-time metrics and performance monitoring
+- **Team Collaboration**: Shared workspaces and project management
 
-### Prerequisites
+### 📊 **Advanced Analytics**
+- **Workflow Progress Tracking**: Real-time phase completion monitoring
+- **Agent Performance Metrics**: Success rates, response times, error tracking
+- **Usage Analytics**: API calls, workflow executions, user engagement
+- **Export Capabilities**: JSON reports and data visualization
 
-- Node.js 18+ and npm 9+
-- Modern web browser with ES2022 support
-- Git for version control
+### 🔧 **Developer Tools**
+- **Code Generation**: AI-powered project scaffolding
+- **File Export**: ZIP downloads of generated projects
+- **Template Library**: Pre-built workflows and agent configurations
+- **Version Control**: Git-like versioning for agent configurations
 
-### Installation
+---
 
+## 🚀 **Quick Start**
+
+### **Option 1: Try the Live Demo**
+Visit [https://enterprise-ai-studio.vercel.app](https://enterprise-ai-studio.vercel.app) to experience the platform immediately.
+
+### **Option 2: Run with Docker** ⭐ **Recommended**
+```bash
+# Pull and run from Docker Hub
+docker pull singlebraincell/enterprise_ai_studio:latest
+docker run -d -p 8080:80 --name enterprise_ai_studio singlebraincell/enterprise_ai_studio:latest
+
+# Access the application
+open http://localhost:8080
+```
+
+### **Option 3: Docker Compose**
 ```bash
 # Clone the repository
-git clone https://github.com/macquarie/cgm-posttrade-platform.git
-cd cgm-posttrade-platform
+git clone https://github.com/IlamSingleBrainCell/enterprise-ai-studio.git
+cd enterprise-ai-studio
+
+# Start with docker-compose
+docker-compose up -d
+
+# Access the application
+open http://localhost:8080
+```
+
+### **Option 4: Local Development**
+```bash
+# Prerequisites: Node.js 18+ and npm 9+
+git clone https://github.com/IlamSingleBrainCell/enterprise-ai-studio.git
+cd enterprise-ai-studio
 
 # Install dependencies
 npm install
 
 # Start development server
 npm run dev
+
+# Access the application
+open http://localhost:3000
 ```
-
-The application will be available at `http://localhost:3000`
-
-### Production Build
-
-```bash
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-
-# Serve built files
-npm run serve
-```
-
-## 🏗️ Project Structure
-
-```
-macquarie_poc/
-├── index.html                 # Main HTML entry point
-├── manifest.json             # PWA manifest
-├── service-worker.js         # Service worker for offline capability
-├── package.json              # Dependencies and scripts
-├── vite.config.js           # Build configuration
-├── src/
-│   ├── css/                 # Modular stylesheets
-│   │   ├── base.css         # Global styles and resets
-│   │   ├── layout.css       # Layout and responsive design
-│   │   ├── components.css   # Reusable UI components
-│   │   ├── features.css     # Feature-specific styles
-│   │   └── dora-space.css   # DORA metrics and SPACE framework
-│   ├── js/                  # JavaScript modules
-│   │   ├── app.js           # Main application controller
-│   │   ├── tab-manager.js   # Navigation management
-│   │   ├── notification-manager.js  # User notifications
-│   │   ├── dora-metrics.js  # DORA metrics simulation
-│   │   ├── project-form-manager.js  # Form handling
-│   │   ├── space-framework.js       # SPACE framework UI
-│   │   └── tab-content.js   # Tab content templates
-│   └── assets/              # Static assets
-│       └── icons/           # PWA icons and favicons
-└── docs/                    # Documentation
-```
-
-## 🛠️ Development
-
-### Available Scripts
-
-```bash
-npm run dev         # Start development server with hot reload
-npm run build       # Build for production
-npm run preview     # Preview production build
-npm run lint        # Lint code with ESLint
-npm run lint:fix    # Auto-fix linting issues
-npm run format      # Format code with Prettier
-npm run test        # Run test suite
-npm run test:watch  # Run tests in watch mode
-npm run lighthouse  # Generate Lighthouse performance report
-npm run clean       # Clean build directory
-```
-
-### Code Quality
-
-The project uses modern tooling for code quality:
-
-- **ESLint** for JavaScript linting
-- **Prettier** for code formatting
-- **Jest** for unit testing
-- **Lighthouse** for performance auditing
-
-### Module System
-
-The application uses ES6 modules with:
-- Clean separation of concerns
-- Dependency injection patterns
-- Event-driven architecture
-- Progressive enhancement
-
-## 📱 Progressive Web App (PWA)
-
-The platform is built as a PWA with:
-
-- **Offline capability** via Service Worker
-- **App-like experience** with manifest.json
-- **Push notifications** for updates
-- **Background sync** for form submissions
-- **Installable** on desktop and mobile
-
-## 🎨 UI/UX Features
-
-### Responsive Design
-- Mobile-first approach
-- Tablet and desktop optimizations
-- Touch-friendly interactions
-- Accessible design patterns
-
-### Visual Design
-- Modern gradient backgrounds
-- Glass-morphism effects
-- Smooth animations and transitions
-- Consistent color palette
-- Professional typography
-
-## 🔧 Configuration
-
-### Environment Variables
-
-Create a `.env` file for environment-specific configuration:
-
-```env
-VITE_API_BASE_URL=https://api.macquarie.com
-VITE_GITHUB_TOKEN=your_github_token
-VITE_JIRA_BASE_URL=https://macquarie.atlassian.net
-VITE_CONFLUENCE_BASE_URL=https://macquarie.atlassian.net/wiki
-```
-
-### Build Configuration
-
-The `vite.config.js` file contains:
-- Development server settings
-- Production build optimization
-- PWA plugin configuration
-- Asset bundling strategies
-
-## 📊 Metrics and Analytics
-
-### DORA Metrics
-The platform tracks key DevOps Research and Assessment metrics:
-- **Deployment Frequency**: How often deployments occur
-- **Lead Time for Changes**: Time from commit to production
-- **Change Failure Rate**: Percentage of deployments causing failures
-- **Mean Time to Restore**: Time to recover from failures
-
-### SPACE Framework
-Comprehensive developer productivity measurement:
-- **Satisfaction**: Developer experience and well-being
-- **Performance**: Outcome and business value
-- **Activity**: Development work volume
-- **Communication**: Team collaboration effectiveness
-- **Efficiency**: Developer flow and task completion
-
-## 🛡️ Security
-
-### Security Features
-- Content Security Policy (CSP) headers
-- HTTPS enforcement
-- Secure cookie handling
-- Input validation and sanitization
-- Regular dependency updates
-
-### Compliance
-- GDPR compliance for data handling
-- SOX compliance for financial controls
-- MiFID II and EMIR regulatory requirements
-- Regular security audits and assessments
-
-## 🚀 Deployment
-
-### Static Hosting
-The build output can be deployed to any static hosting service:
-
-```bash
-# Build the project
-npm run build
-
-# Deploy the dist/ directory to your hosting service
-```
-
-### Recommended Hosting
-- Vercel (with automatic deployments)
-- Netlify (with form handling)
-- GitHub Pages (for open source projects)
-- AWS S3 + CloudFront
-- Azure Static Web Apps
-
-### CI/CD Pipeline
-The project includes configuration for:
-- GitHub Actions workflows
-- Automated testing and linting
-- Performance monitoring
-- Security scanning
-
-## 📚 Documentation
-
-### Additional Resources
-- [API Documentation](docs/api.md)
-- [Deployment Guide](docs/deployment.md)
-- [Contributing Guidelines](docs/contributing.md)
-- [Architecture Overview](docs/architecture.md)
-- [Performance Optimization](docs/performance.md)
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](docs/contributing.md) for details.
-
-### Development Process
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Ensure all tests pass
-6. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-### Getting Help
-- 📧 Email: cgm-posttrade-support@macquarie.com
-- 💬 Slack: #cgm-posttrade-platform
-- 📖 Documentation: [docs.macquarie.com/cgm-posttrade](https://docs.macquarie.com/cgm-posttrade)
-- 🐛 Issues: [GitHub Issues](https://github.com/macquarie/cgm-posttrade-platform/issues)
-
-### EY Strategic Partnership
-This platform is delivered in partnership with EY's strategic transformation team, providing:
-- Dedicated Concierge Team support
-- Proven post-trade transformation expertise
-- Comprehensive change management
-- Knowledge transfer and capability building
-
-## 🏢 About Macquarie
-
-Macquarie CGM Post Trade team is focused on revolutionizing post-trade processing through AI-powered automation, regulatory compliance excellence, and operational efficiency improvements.
 
 ---
 
-**Built with ❤️ by the Macquarie CGM Post Trade Team**
+## 🏗️ **Platform Architecture**
 
-*Transforming financial services through AI-powered innovation*
+### **Frontend Stack**
+- **Vite**: Modern build tool and development server
+- **Vanilla JavaScript**: Pure ES6+ modules for maximum performance
+- **CSS3**: Modern styling with animations and responsive design
+- **PWA**: Progressive Web App with offline capabilities
+
+### **AI Integration**
+- **Google Gemini API**: Primary AI engine for agent responses
+- **Multiple AI Endpoints**: Fallback support for reliability
+- **Real-time Processing**: Asynchronous AI workflow execution
+- **Context Management**: Conversation history and session persistence
+
+### **Deployment & Infrastructure**
+- **Docker**: Multi-stage containerization
+- **Nginx**: Production-ready web server with security headers
+- **Vercel**: Automatic deployment and CDN
+- **Docker Hub**: Public image repository
+
+---
+
+## 📁 **Project Structure**
+
+```
+enterprise-ai-studio/
+├── index.html                 # Main application entry point
+├── package.json              # Dependencies and scripts
+├── vite.config.js            # Build configuration
+├── Dockerfile                # Multi-stage Docker build
+├── docker-compose.yml        # Container orchestration
+├── nginx.conf                # Production web server config
+├── DOCKER.md                 # Comprehensive Docker guide
+├── src/
+│   ├── js/                   # JavaScript modules
+│   │   ├── gemini-api.js     # AI service integration
+│   │   ├── ai-workflow.js    # Workflow orchestration
+│   │   ├── ai-chat-interface.js  # Chat UI components
+│   │   └── production-*.js   # Production utilities
+│   ├── css/                  # Stylesheets
+│   └── assets/               # Static assets
+├── docs/                     # Documentation
+└── README.md                 # This file
+```
+
+---
+
+## 🔧 **Configuration & Customization**
+
+### **Environment Variables**
+```env
+VITE_GEMINI_API_KEY=your_gemini_api_key
+VITE_API_BASE_URL=https://your-api-domain.com
+VITE_ENVIRONMENT=production
+```
+
+### **API Integration**
+The platform uses Google Gemini API for AI responses. To configure:
+
+1. Obtain API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Update the API key in the configuration
+3. Customize agent personas and prompts as needed
+
+### **Customization Options**
+- **Agent Personas**: Modify agent behavior and responses
+- **Workflow Templates**: Create custom SDLC workflows
+- **UI Themes**: Customize colors, fonts, and layouts
+- **Integration Points**: Add custom APIs and services
+
+---
+
+## 🎓 **Educational Resources**
+
+### **Learning Modules Available**
+1. **Agent-Oriented Programming** (12 weeks)
+   - Agent Architecture Patterns
+   - BDI (Belief-Desire-Intention) Models
+   - Multi-Agent Communication
+   - Real-world Applications
+
+2. **Prompt-Driven Development** (8 weeks)
+   - Advanced Prompt Engineering
+   - Chain-of-Thought Reasoning
+   - Tool-Augmented Generation
+   - Production Prompt Systems
+
+3. **Multi-Agent Systems** (16 weeks)
+   - System Architecture Design
+   - Consensus Mechanisms
+   - Emergent Behaviors
+   - Enterprise Deployment
+
+### **Interactive Tools**
+- **🧪 Agent Playground**: Experiment with agent behaviors
+- **💡 Prompt Builder**: Interactive prompt engineering
+- **📊 System Designer**: Visual architecture design
+- **📚 Code Examples**: Real-world implementation patterns
+
+---
+
+## 🐳 **Docker Deployment**
+
+### **Quick Commands**
+```bash
+# Build image locally
+npm run docker:build
+
+# Run container
+npm run docker:run
+
+# View logs
+npm run docker:logs
+
+# Stop and remove
+npm run docker:stop
+
+# Push to registry
+npm run docker:push
+```
+
+### **Production Deployment**
+```bash
+# Deploy with docker-compose
+docker-compose --profile production up -d
+
+# Health check
+curl http://localhost:8080/health
+
+# Monitor logs
+docker logs -f enterprise_ai_studio_app
+```
+
+### **Kubernetes Deployment**
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enterprise-ai-studio
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: enterprise-ai-studio
+  template:
+    metadata:
+      labels:
+        app: enterprise-ai-studio
+    spec:
+      containers:
+      - name: enterprise-ai-studio
+        image: singlebraincell/enterprise_ai_studio:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+```
+
+---
+
+## 📊 **Analytics & Monitoring**
+
+### **Built-in Metrics**
+- **Workflow Execution**: Success rates and completion times
+- **API Usage**: Request counts and response times
+- **User Engagement**: Session duration and feature usage
+- **Agent Performance**: Response quality and accuracy
+
+### **Monitoring Endpoints**
+- **Health Check**: `GET /health`
+- **Metrics**: `GET /metrics` (Prometheus format)
+- **Status**: `GET /status` (Application state)
+
+---
+
+## 🔒 **Security & Compliance**
+
+### **Security Features**
+- **Content Security Policy**: XSS protection
+- **HTTPS Enforcement**: Secure data transmission
+- **Input Validation**: Sanitization and validation
+- **API Rate Limiting**: DoS protection
+- **Secure Headers**: OWASP recommendations
+
+### **Data Privacy**
+- **Local Processing**: Client-side AI interactions
+- **No Data Persistence**: Privacy-by-design
+- **Configurable Storage**: Optional data retention
+- **GDPR Compliance**: EU privacy regulations
+
+---
+
+## 🚀 **Deployment Options**
+
+### **Cloud Platforms**
+- **Vercel** (Current): https://enterprise-ai-studio.vercel.app
+- **Netlify**: Static site deployment
+- **AWS**: ECS, Lambda, or S3+CloudFront
+- **Google Cloud**: Cloud Run or App Engine
+- **Azure**: Container Instances or Static Web Apps
+
+### **Self-Hosted**
+- **Docker**: Single container deployment
+- **Kubernetes**: Scalable orchestration
+- **Docker Swarm**: Multi-node clustering
+- **Bare Metal**: Traditional server deployment
+
+---
+
+## 🤝 **Contributing**
+
+We welcome contributions! Here's how to get started:
+
+### **Development Workflow**
+```bash
+# Fork and clone the repository
+git clone https://github.com/your-username/enterprise-ai-studio.git
+cd enterprise-ai-studio
+
+# Create a feature branch
+git checkout -b feature/your-feature-name
+
+# Make your changes and test
+npm run dev
+npm run test
+npm run lint
+
+# Commit and push
+git commit -m "Add your feature description"
+git push origin feature/your-feature-name
+
+# Create a pull request
+```
+
+### **Code Guidelines**
+- **ES6+ JavaScript**: Modern syntax and features
+- **Modular Architecture**: Clean separation of concerns
+- **Responsive Design**: Mobile-first approach
+- **Accessibility**: WCAG 2.1 compliance
+- **Documentation**: Comprehensive inline comments
+
+---
+
+## 📄 **License**
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🆘 **Support & Community**
+
+### **Getting Help**
+- **📖 Documentation**: Comprehensive guides and tutorials
+- **🐛 Issues**: [GitHub Issues](https://github.com/IlamSingleBrainCell/enterprise-ai-studio/issues)
+- **💬 Discussions**: [GitHub Discussions](https://github.com/IlamSingleBrainCell/enterprise-ai-studio/discussions)
+- **🌐 Live Demo**: [Try the platform](https://enterprise-ai-studio.vercel.app)
+
+### **Roadmap**
+- **Real-time Collaboration**: Multi-user workspaces
+- **Advanced Analytics**: ML-powered insights
+- **Enterprise SSO**: SAML/OAuth integration
+- **Mobile App**: Native iOS/Android applications
+- **Marketplace**: Community-driven agent templates
+
+---
+
+## 🌟 **Why Enterprise AI Studio?**
+
+### **For Developers**
+- **Learn Agent Programming**: Comprehensive educational resources
+- **Rapid Prototyping**: Quick AI agent development
+- **Best Practices**: Industry-standard patterns and architectures
+- **Real AI Integration**: Production-ready AI capabilities
+
+### **For Teams**
+- **Collaboration Tools**: Shared workspaces and projects
+- **Workflow Automation**: End-to-end SDLC automation
+- **Performance Monitoring**: Real-time analytics and metrics
+- **Scalable Deployment**: Container-ready architecture
+
+### **For Enterprises**
+- **Agent as a Service**: Complete AaaS platform
+- **Educational Platform**: Team skill development
+- **Integration Ready**: API-first architecture
+- **Security Focused**: Enterprise-grade security
+
+---
+
+**🚀 Ready to transform your AI agent development?**
+
+**[🌐 Try Live Demo](https://enterprise-ai-studio.vercel.app) | [🐳 Pull Docker Image](https://hub.docker.com/r/singlebraincell/enterprise_ai_studio) | [📖 Read Documentation](DOCKER.md)**
+
+---
+
+*Built with ❤️ for the future of Agent-Oriented Programming*
+
+**Enterprise AI Studio v1.0.0** - *Transforming AI agent development, one workflow at a time.*
