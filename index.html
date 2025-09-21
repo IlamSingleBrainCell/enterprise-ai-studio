@@ -3485,10 +3485,12 @@ const result = await response.json();</pre>
             try {
                 // Initialize Real AI
                 if (!window.geminiAPI) {
+                    console.log('🔧 Creating new SimpleGeminiAPI instance...');
                     window.geminiAPI = new SimpleGeminiAPI();
                 }
 
-                console.log('🚀 Starting Clean AI Workflow');
+                console.log('🚀 Starting Clean AI Workflow with:', {requirements, language, framework});
+                console.log('🔍 Gemini API instance:', window.geminiAPI);
                 
                 // Show analytics
                 if (typeof window.showAnalyticsDashboard === 'function') {
@@ -3500,6 +3502,22 @@ const result = await response.json();</pre>
                     window.logToAgentConsole('START', `🚀 AI Workflow: ${requirements}`, '#4CAF50');
                 }
 
+                // Test API connection first
+                try {
+                    console.log('🧪 Testing Gemini API connection...');
+                    const testResponse = await window.geminiAPI.makeRequest('Test connection. Respond with "Connected"', { maxTokens: 50 });
+                    console.log('✅ API Test Success:', testResponse);
+                    
+                    if (typeof window.addAIMessage === 'function') {
+                        window.addAIMessage('assistant', '🔗 **API Connection Verified**\n\nGemini AI is connected and ready. Starting workflow phases...', null);
+                    }
+                } catch (error) {
+                    console.error('❌ API Test Failed:', error);
+                    if (typeof window.addAIMessage === 'function') {
+                        window.addAIMessage('assistant', '⚠️ **API Connection Issue**\n\nUsing fallback mode for this workflow. Some features may be limited.', null);
+                    }
+                }
+
                 // Phase 1: Product Manager
                 if (typeof window.updateTransformationProgress === 'function') {
                     window.updateTransformationProgress(1, 'Product Manager analyzing...', 16);
@@ -3508,13 +3526,18 @@ const result = await response.json();</pre>
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 
                 try {
+                    console.log('🔄 Phase 1: Calling Product Manager Agent...');
                     const pmPrompt = `As a Product Manager, analyze: "${requirements}" for ${language}/${framework}. Provide business objectives, stakeholder analysis, success metrics, scope, and risks.`;
+                    console.log('📤 PM Prompt:', pmPrompt);
+                    
                     const pmResponse = await window.geminiAPI.makeRequest(pmPrompt, { maxTokens: 800 });
+                    console.log('📥 PM Response:', pmResponse);
                     
                     if (typeof window.addAIMessage === 'function') {
                         window.addAIMessage('assistant', pmResponse, 'product-manager');
                     }
                 } catch (error) {
+                    console.error('❌ PM Phase Error:', error);
                     if (typeof window.addAIMessage === 'function') {
                         window.addAIMessage('assistant', '📋 Requirements analysis completed with best practices.', 'product-manager');
                     }
