@@ -4,8 +4,11 @@
  */
 
 class AIAgentWorkflow {
-    constructor() {
-        this.aiService = new GeminiAIService();
+    constructor(aiService) {
+        if (!aiService) {
+            throw new Error("AIAgentWorkflow requires an aiService instance.");
+        }
+        this.aiService = aiService;
         this.agents = {
             requirements: new RequirementsAgent(),
             design: new DesignAgent(),

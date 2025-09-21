@@ -5,8 +5,8 @@
 
 class ProductionGeminiConfig {
     constructor() {
-        // Use the provided production API key
-        this.apiKey = 'AIzaSyC6JpuPJPjZyLnNOs0peWh47K7MVPR7NOk';
+        // API key will be loaded from secure storage or user prompt
+        this.apiKey = null;
         this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
         this.rateLimitQueue = [];
         this.requestCount = 0;
@@ -20,7 +20,22 @@ class ProductionGeminiConfig {
     init() {
         // Check for stored API key
         this.loadConfiguration();
+        if (!this.isConfigured) {
+            this.promptForApiKey();
+        }
         this.setupRateLimiting();
+    }
+
+    promptForApiKey() {
+        const userApiKey = prompt("Please enter your Gemini API key:");
+        if (userApiKey) {
+            try {
+                this.configureAPI(userApiKey);
+            } catch (error) {
+                alert("Failed to configure API key: " + error.message);
+                console.error(error);
+            }
+        }
     }
 
     /**

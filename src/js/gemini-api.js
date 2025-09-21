@@ -4,9 +4,13 @@
  */
 
 class GeminiAIService {
-    constructor() {
-        this.apiKey = 'AIzaSyC6JpuPJPjZyLnNOs0peWh47K7MVPR7NOk';
-        this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+    constructor(config) {
+        if (!config || !config.apiKey) {
+            throw new Error("GeminiAIService requires a configuration object with an apiKey.");
+        }
+        this.config = config;
+        this.apiKey = this.config.apiKey;
+        this.baseUrl = this.config.baseUrl || 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
         this.initialized = false;
         this.conversationDB = null;
         this.currentSessionId = null;
