@@ -1,0 +1,52 @@
+# Multi-stage build with backend API
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+# Backend stage with SQLite
+FROM node:18-alpine AS backend
+
+WORKDIR /app
+
+# Install backend dependencies
+COPY backend/package*.json ./
+RUN npm ci --only=production
+
+# Copy backend source
+COPY backend/ ./
+
+# Create SQLite database directory
+RUN mkdir -p /app/data
+
+# Expose backend port
+EXPOSE 3001
+
+# Production stage with Nginx + Node.js
+FROM nginx:alpine AS production
+
+# Install Node.js for backend
+RUN apk add --no-cache nodejs npm
+
+# Copy frontend build
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy backend
+COPY --from=backend /app /usr/app/backend
+
+# Copy custom nginx config with API proxy
+COPY nginx-with-backend.conf /etc/nginx/nginx.conf
+
+# Copy startup script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Create data directory for SQLite
+RUN mkdir -p /data
+
+EXPOSE 80
+
+CMD ["/start.sh"]

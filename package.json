@@ -20,7 +20,12 @@
     "docker:push": "docker tag enterprise_ai_studio:latest singlebraincell/enterprise_ai_studio:latest && docker push singlebraincell/enterprise_ai_studio:latest",
     "docker:compose:up": "docker-compose up --build -d",
     "docker:compose:down": "docker-compose down",
-    "docker:health": "curl -f http://localhost:8080/health || echo 'Health check failed'"
+    "docker:health": "curl -f http://localhost:8080/health || echo 'Health check failed'",
+    "docker:db:up": "docker-compose -f docker-compose.with-db.yml up --build -d",
+    "docker:db:down": "docker-compose -f docker-compose.with-db.yml down",
+    "docker:db:logs": "docker-compose -f docker-compose.with-db.yml logs -f",
+    "docker:db:backup": "docker-compose -f docker-compose.with-db.yml exec postgres pg_dump -U aiuser enterprise_ai_studio > backup.sql",
+    "docker:db:restore": "docker-compose -f docker-compose.with-db.yml exec -T postgres psql -U aiuser enterprise_ai_studio < backup.sql"
   },
   "keywords": [
     "macquarie",
