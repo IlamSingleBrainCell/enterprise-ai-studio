@@ -7,7 +7,8 @@ import logging
 import asyncio
 import os
 from typing import Dict, List, Optional
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import redis.asyncio as redis
@@ -309,6 +310,42 @@ async def get_metrics(redis_client: redis.Redis = Depends(get_redis_client)):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Metrics error: {str(e)}")
+
+# --- Added agent-compatible endpoints for orchestrator/gateway ---
+
+@app.post("/agent/generate")
+async def agent_generate(payload: dict):
+    agent_type = payload.get("agent_type", "general")
+    task = payload.get("task", "")
+    context = payload.get("context", {})
+    base_prompt = f"Agent: {agent_type}\nTask: {task}\nContext: {json.dumps(context)[:500]}\n\nResponse:"
+    response_text = await generate_simple_response(base_prompt)
+    return {
+        "response": response_text,
+        "confidence": 0.5,
+        "agent_type": agent_type,
+        "model": "simple-ai"
+    }
+
+async def simple_stream_generator(prompt: str):
+    words = prompt.split()
+    assembled = []
+    for w in words[:100]:  # limit stream
+        assembled.append(w)
+        chunk = {"token": w, "text": " ".join(assembled)}
+        yield f"data: {json.dumps(chunk)}\n\n"
+        await asyncio.sleep(0.01)
+    final_chunk = {"final": True, "text": " ".join(assembled)}
+    yield f"data: {json.dumps(final_chunk)}\n\n"
+
+@app.post("/agent/stream")
+async def agent_stream(request: Request):
+    body = await request.json()
+    agent_type = body.get("agent_type", "general")
+    task = body.get("task", "")
+    context = body.get("context", {})
+    prompt = f"Streaming draft for {agent_type} on task: {task}. Context keys: {list(context.keys())}"
+    return StreamingResponse(simple_stream_generator(prompt), media_type="text/event-stream")
 
 if __name__ == "__main__":
     import uvicorn

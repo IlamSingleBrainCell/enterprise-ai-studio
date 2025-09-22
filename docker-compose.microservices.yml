@@ -68,34 +68,105 @@ services:
       - enterprise_ai_network
 
   # Phi-4 AI Service (Heavy model - disabled by default)
-  # phi4-service:
+  phi4-service:
+    build:
+      context: ./microservices/phi4-service
+      dockerfile: Dockerfile
+    container_name: enterprise_ai_phi4
+    environment:
+      - PYTHONPATH=/app
+      - TRANSFORMERS_CACHE=/app/.cache
+      - HF_HOME=/app/.cache
+    volumes:
+      - phi4_cache:/app/.cache
+    ports:
+      - "8001:8001"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8001/health')"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+      start_period: 120s
+    networks:
+      - enterprise_ai_network
+
+  # Optional: Dedicated Phi-4 instances per agent type (enable selectively due to resource cost)
+  # product-manager-phi4:
   #   build:
   #     context: ./microservices/phi4-service
   #     dockerfile: Dockerfile
-  #   container_name: enterprise_ai_phi4
   #   environment:
   #     - PYTHONPATH=/app
   #     - TRANSFORMERS_CACHE=/app/.cache
   #     - HF_HOME=/app/.cache
-  #   volumes:
-  #     - phi4_cache:/app/.cache
-  #   ports:
-  #     - "8001:8001"
+  #   container_name: product_manager_phi4
+  #   networks: [enterprise_ai_network]
   #   restart: unless-stopped
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         memory: 8G
-  #       reservations:
-  #         memory: 4G
-  #   healthcheck:
-  #     test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8001/health')"]
-  #     interval: 60s
-  #     timeout: 30s
-  #     retries: 3
-  #     start_period: 120s
-  #   networks:
-  #     - enterprise_ai_network
+  #   ports:
+  #     - "8101:8001"
+  #
+  # business-analyst-phi4:
+  #   build:
+  #     context: ./microservices/phi4-service
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - PYTHONPATH=/app
+  #     - TRANSFORMERS_CACHE=/app/.cache
+  #     - HF_HOME=/app/.cache
+  #   container_name: business_analyst_phi4
+  #   networks: [enterprise_ai_network]
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8102:8001"
+  #
+  # software-developer-phi4:
+  #   build:
+  #     context: ./microservices/phi4-service
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - PYTHONPATH=/app
+  #     - TRANSFORMERS_CACHE=/app/.cache
+  #     - HF_HOME=/app/.cache
+  #   container_name: software_developer_phi4
+  #   networks: [enterprise_ai_network]
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8103:8001"
+  #
+  # qa-engineer-phi4:
+  #   build:
+  #     context: ./microservices/phi4-service
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - PYTHONPATH=/app
+  #     - TRANSFORMERS_CACHE=/app/.cache
+  #     - HF_HOME=/app/.cache
+  #   container_name: qa_engineer_phi4
+  #   networks: [enterprise_ai_network]
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8104:8001"
+  #
+  # devops-engineer-phi4:
+  #   build:
+  #     context: ./microservices/phi4-service
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - PYTHONPATH=/app
+  #     - TRANSFORMERS_CACHE=/app/.cache
+  #     - HF_HOME=/app/.cache
+  #   container_name: devops_engineer_phi4
+  #   networks: [enterprise_ai_network]
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8105:8001"
 
   # Agent Orchestrator Service
   agent-orchestrator:
@@ -105,13 +176,19 @@ services:
     container_name: enterprise_ai_orchestrator
     environment:
       - REDIS_URL=redis://redis:6379
-      - AI_SERVICE_URL=http://simple-ai-service:8004
+      - AI_SERVICE_URL=http://phi4-service:8001
+      # Optional dedicated model backends (uncomment and set when enabling the per-agent Phi-4 services above)
+      # - PRODUCT_MANAGER_PHI4_URL=http://product-manager-phi4:8001
+      # - BUSINESS_ANALYST_PHI4_URL=http://business-analyst-phi4:8001
+      # - SOFTWARE_DEVELOPER_PHI4_URL=http://software-developer-phi4:8001
+      # - QA_ENGINEER_PHI4_URL=http://qa-engineer-phi4:8001
+      # - DEVOPS_ENGINEER_PHI4_URL=http://devops-engineer-phi4:8001
     ports:
       - "8002:8002"
     depends_on:
       redis:
         condition: service_healthy
-      simple-ai-service:
+      phi4-service:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
@@ -130,13 +207,19 @@ services:
     container_name: enterprise_ai_gateway
     environment:
       - ORCHESTRATOR_URL=http://agent-orchestrator:8002
-      - AI_SERVICE_URL=http://simple-ai-service:8004
+      - AI_SERVICE_URL=http://phi4-service:8001
+      # Optional per-agent Phi-4 overrides (uncomment when enabling dedicated instances)
+      # - PRODUCT_MANAGER_PHI4_URL=http://product-manager-phi4:8001
+      # - BUSINESS_ANALYST_PHI4_URL=http://business-analyst-phi4:8001
+      # - SOFTWARE_DEVELOPER_PHI4_URL=http://software-developer-phi4:8001
+      # - QA_ENGINEER_PHI4_URL=http://qa-engineer-phi4:8001
+      # - DEVOPS_ENGINEER_PHI4_URL=http://devops-engineer-phi4:8001
     ports:
       - "8080:8080"
     depends_on:
       agent-orchestrator:
         condition: service_healthy
-      simple-ai-service:
+      phi4-service:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:

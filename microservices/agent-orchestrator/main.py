@@ -78,13 +78,22 @@ agent_results: Dict[str, List[AgentResult]] = {}
 # Service endpoints
 import os
 AI_SERVICE_URL = os.getenv("AI_SERVICE_URL", "http://phi4-service:8001")
-AGENT_SERVICES = {
-    "product_manager": "http://product-manager-agent:8002",
-    "business_analyst": "http://business-analyst-agent:8003",
-    "software_developer": "http://software-developer-agent:8004",
-    "qa_engineer": "http://qa-engineer-agent:8005",
-    "devops_engineer": "http://devops-engineer-agent:8006"
+
+# Optional per-agent dedicated Phi-4 service endpoints.
+# Provide env vars like PRODUCT_MANAGER_PHI4_URL, BUSINESS_ANALYST_PHI4_URL, etc.
+AGENT_PHI4_ENV_MAP = {
+    "product_manager": "PRODUCT_MANAGER_PHI4_URL",
+    "business_analyst": "BUSINESS_ANALYST_PHI4_URL",
+    "software_developer": "SOFTWARE_DEVELOPER_PHI4_URL",
+    "qa_engineer": "QA_ENGINEER_PHI4_URL",
+    "devops_engineer": "DEVOPS_ENGINEER_PHI4_URL",
 }
+
+def resolve_agent_phi4_url(agent_type: str) -> str:
+    env_var = AGENT_PHI4_ENV_MAP.get(agent_type)
+    if env_var and os.getenv(env_var):
+        return os.getenv(env_var)
+    return AI_SERVICE_URL
 
 @app.get("/health")
 async def health_check():
@@ -275,9 +284,10 @@ async def execute_agent_task(workflow_id: str, task: Dict[str, Any]) -> AgentRes
     start_time = time.time()
     
     try:
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        service_url = resolve_agent_phi4_url(agent_type)
+        async with httpx.AsyncClient(timeout=120.0) as client:
             response = await client.post(
-                f"{AI_SERVICE_URL}/agent/generate",
+                f"{service_url.rstrip('/')}/agent/generate",
                 json=request_data
             )
             response.raise_for_status()

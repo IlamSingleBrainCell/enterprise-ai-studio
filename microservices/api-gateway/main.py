@@ -1,10 +1,10 @@
 # API Gateway Service
 # Central entry point for all microservices
 
-from fastapi import FastAPI, HTTPException, Request, Depends
+from fastapi import FastAPI, HTTPException, Request, Depends, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response, StreamingResponse
 import httpx
 import time
 import logging
@@ -12,6 +12,7 @@ from typing import Dict, Optional
 from pydantic import BaseModel
 import asyncio
 import json
+import os
 from datetime import datetime
 
 # Configure logging
@@ -65,6 +66,21 @@ SERVICES = {
         "status": "unknown"
     }
 }
+
+# Optional per-agent Phi-4 overrides (env vars). If not set, fallback to SERVICES['ai_service']['url'].
+AGENT_PHI4_ENV_MAP = {
+    "product_manager": "PRODUCT_MANAGER_PHI4_URL",
+    "business_analyst": "BUSINESS_ANALYST_PHI4_URL",
+    "software_developer": "SOFTWARE_DEVELOPER_PHI4_URL",
+    "qa_engineer": "QA_ENGINEER_PHI4_URL",
+    "devops_engineer": "DEVOPS_ENGINEER_PHI4_URL",
+}
+
+def resolve_agent_ai_url(agent_type: str) -> str:
+    env_var = AGENT_PHI4_ENV_MAP.get(agent_type)
+    if env_var and os.getenv(env_var):
+        return os.getenv(env_var)
+    return SERVICES['ai_service']['url']
 
 # Request tracking
 request_stats = {
@@ -300,8 +316,15 @@ async def generate_ai_response(request: Request, auth: dict = Depends(check_auth
     
     async with httpx.AsyncClient(timeout=60.0) as client:
         try:
+            # Peek agent_type if provided to possibly route to dedicated instance
+            try:
+                body_json = json.loads(body.decode() if isinstance(body, bytes) else body)
+                agent_type = body_json.get("agent_type", "") if isinstance(body_json, dict) else ""
+            except Exception:
+                agent_type = ""
+            target_url = resolve_agent_ai_url(agent_type)
             response = await client.post(
-                f"{SERVICES['phi4']['url']}/agent/generate",
+                f"{target_url.rstrip('/')}/agent/generate",
                 content=body,
                 headers={"content-type": "application/json"}
             )
@@ -320,7 +343,7 @@ async def chat_with_ai(request: Request, auth: dict = Depends(check_auth)):
     async with httpx.AsyncClient(timeout=60.0) as client:
         try:
             response = await client.post(
-                f"{SERVICES['phi4']['url']}/agent/chat",
+                f"{SERVICES['ai_service']['url']}/agent/chat",
                 content=body,
                 headers={"content-type": "application/json"}
             )
@@ -337,7 +360,7 @@ async def get_agent_types(auth: dict = Depends(check_auth)):
     async with httpx.AsyncClient(timeout=30.0) as client:
         try:
             response = await client.get(
-                f"{SERVICES['phi4']['url']}/agents/types"
+                f"{SERVICES['ai_service']['url']}/agents/types"
             )
             return JSONResponse(
                 content=response.json(),
@@ -345,6 +368,36 @@ async def get_agent_types(auth: dict = Depends(check_auth)):
             )
         except Exception as e:
             raise HTTPException(status_code=503, detail=f"AI service unavailable: {str(e)}")
+
+@app.post("/api/v1/ai/stream")
+async def stream_ai_response(request: Request, auth: dict = Depends(check_auth)):
+    """True chunked SSE proxy to underlying Phi4 /agent/stream endpoint"""
+    body = await request.body()
+    try:
+        body_json = json.loads(body.decode() if isinstance(body, bytes) else body)
+        agent_type = body_json.get("agent_type", "general")
+    except Exception:
+        agent_type = "general"
+    target_url = resolve_agent_ai_url(agent_type)
+    stream_url = f"{target_url.rstrip('/')}/agent/stream"
+
+    async def event_generator():
+        async with httpx.AsyncClient(timeout=None) as client:
+            try:
+                async with client.stream("POST", stream_url, content=body, headers={"content-type": "application/json"}) as r:
+                    if r.status_code != 200:
+                        yield f"data: {json.dumps({'error': f'Upstream {r.status_code}'})}\n\n"
+                        return
+                    async for line in r.aiter_lines():
+                        if not line:
+                            continue
+                        # Pass through SSE lines
+                        if line.startswith("data: "):
+                            yield line + "\n\n"
+            except Exception as e:
+                yield f"data: {json.dumps({'error': str(e)})}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 @app.get("/api/v1/system/stats")
 async def get_system_stats(auth: dict = Depends(check_auth)):
@@ -362,6 +415,11 @@ async def get_system_stats(auth: dict = Depends(check_auth)):
 async def startup_event():
     """Initialize gateway"""
     logger.info("API Gateway starting up...")
+    # Allow AI_SERVICE_URL override via environment
+    ai_env = os.getenv("AI_SERVICE_URL")
+    if ai_env:
+        SERVICES['ai_service']['url'] = ai_env.rstrip('/')
+        logger.info(f"Configured AI service base URL: {SERVICES['ai_service']['url']}")
     
     # Start background health checking
     asyncio.create_task(periodic_health_check())
@@ -375,6 +433,42 @@ async def periodic_health_check():
         except Exception as e:
             logger.error(f"Health check failed: {str(e)}")
             await asyncio.sleep(10)
+
+@app.websocket("/ws/ai/stream")
+async def websocket_ai_stream(ws: WebSocket):
+    await ws.accept()
+    try:
+        init_message = await ws.receive_text()
+        try:
+            payload = json.loads(init_message)
+        except Exception:
+            await ws.send_text(json.dumps({"error": "Invalid JSON"}))
+            await ws.close()
+            return
+        agent_type = payload.get("agent_type", "general")
+        target_url = resolve_agent_ai_url(agent_type)
+        stream_url = f"{target_url.rstrip('/')}/agent/stream"
+        async with httpx.AsyncClient(timeout=None) as client:
+            async with client.stream("POST", stream_url, json=payload) as r:
+                if r.status_code != 200:
+                    await ws.send_text(json.dumps({"error": f"Upstream status {r.status_code}"}))
+                    await ws.close()
+                    return
+                async for line in r.aiter_lines():
+                    if not line:
+                        continue
+                    if line.startswith("data: "):
+                        data_part = line[len("data: "):]
+                        await ws.send_text(data_part)
+        await ws.close()
+    except WebSocketDisconnect:
+        pass
+    except Exception as e:
+        try:
+            await ws.send_text(json.dumps({"error": str(e)}))
+            await ws.close()
+        except Exception:
+            pass
 
 if __name__ == "__main__":
     import uvicorn

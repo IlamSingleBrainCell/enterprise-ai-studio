@@ -8,8 +8,10 @@ import asyncio
 import os
 import gc
 import time
+import uuid
 from typing import Dict, List, Optional, Any
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import torch
@@ -216,6 +218,49 @@ async def generate_response(prompt: str, max_tokens: int = MAX_NEW_TOKENS, tempe
     except Exception as e:
         logger.error(f"❌ Generation failed: {e}")
         raise HTTPException(status_code=500, detail=f"Generation failed: {str(e)}")
+
+async def estimate_token_count(text: str) -> int:
+    # Simple heuristic: 1 token ~= 0.75 words (adjust if needed)
+    words = len(text.split())
+    return int(words / 0.75) if words else 0
+
+async def stream_generate(prompt: str, max_tokens: int = MAX_NEW_TOKENS, temperature: float = TEMPERATURE, generation_id: Optional[str] = None):
+    global model, tokenizer
+    if model is None or tokenizer is None:
+        yield json.dumps({"error": "Model not loaded"}) + "\n"
+        return
+    device = next(model.parameters()).device
+    inputs = tokenizer(prompt, return_tensors="pt").to(device)
+    max_new = max_tokens
+    generated = inputs["input_ids"]
+    past_key_values = None
+    prompt_tokens = generated.shape[-1]
+    # Greedy-ish incremental generation (simple, not optimal). For production use accelerate/streamer.
+    for _ in range(max_new):
+        # Cancellation check
+        if generation_id and redis_client:
+            cancelled = await redis_client.get(f"cancel:{generation_id}")
+            if cancelled == "1":
+                yield f"data: {json.dumps({'cancelled': True, 'generation_id': generation_id})}\n\n"
+                return
+        with torch.no_grad():
+            outputs = model(input_ids=generated if past_key_values is None else generated[:, -1:], use_cache=True, past_key_values=past_key_values)
+            logits = outputs.logits[:, -1, :]
+            past_key_values = outputs.past_key_values
+            probs = torch.softmax(logits / temperature, dim=-1)
+            next_token = torch.multinomial(probs, num_samples=1)
+            generated = torch.cat([generated, next_token], dim=-1)
+        token_text = tokenizer.decode(next_token[0])
+        if token_text.strip():
+            chunk = {"token": token_text, "text": tokenizer.decode(generated[0], skip_special_tokens=True)}
+            yield f"data: {json.dumps(chunk)}\n\n"
+        # Basic stop on eos
+        if next_token.item() == tokenizer.eos_token_id:
+            break
+    full_text = tokenizer.decode(generated[0], skip_special_tokens=True)
+    completion_tokens = generated.shape[-1] - prompt_tokens
+    usage = {"prompt_tokens": int(prompt_tokens), "completion_tokens": int(completion_tokens), "total_tokens": int(prompt_tokens+completion_tokens)}
+    yield f"data: {json.dumps({'final': True, 'text': full_text, 'usage': usage, 'generation_id': generation_id})}\n\n"
 
 def build_agent_prompt(agent_type: str, prompt: str) -> str:
     """Build specialized prompts for different agent types"""
@@ -466,13 +511,38 @@ async def agent_generate(request: Dict[str, Any]):
         request.get("max_tokens", MAX_NEW_TOKENS),
         request.get("temperature", TEMPERATURE)
     )
+    usage = {
+        "prompt_tokens": await estimate_token_count(enhanced_prompt),
+        "completion_tokens": await estimate_token_count(response_text),
+        "total_tokens": await estimate_token_count(enhanced_prompt + response_text)
+    }
     
     return {
         "response": response_text,
         "confidence": 0.9,  # Static confidence for now
         "agent_type": agent_type,
-        "model": MODEL_NAME
+        "model": MODEL_NAME,
+        "usage": usage
     }
+
+@app.post("/agent/stream")
+async def agent_stream(request: Request):
+    body = await request.json()
+    agent_type = body.get("agent_type", "general")
+    task = body.get("task", "")
+    context = body.get("context", {})
+    generation_id = body.get("generation_id") or str(uuid.uuid4())
+    enhanced_prompt = build_agent_prompt(agent_type, task)
+    if context:
+        enhanced_prompt += f"\n\nAdditional Context:\n{json.dumps(context, indent=2)}\n\nResponse:"
+    return StreamingResponse(stream_generate(enhanced_prompt, body.get("max_tokens", MAX_NEW_TOKENS), body.get("temperature", TEMPERATURE), generation_id=generation_id), media_type="text/event-stream", headers={"X-Generation-ID": generation_id})
+
+@app.post("/agent/cancel/{generation_id}")
+async def cancel_generation(generation_id: str):
+    if not redis_client:
+        raise HTTPException(status_code=503, detail="Redis not available for cancellation")
+    await redis_client.set(f"cancel:{generation_id}", "1", ex=300)
+    return {"cancelled": True, "generation_id": generation_id}
 
 @app.get("/metrics")
 async def get_metrics():
