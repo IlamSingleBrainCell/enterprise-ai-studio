@@ -24,6 +24,13 @@ app = FastAPI(
     version="1.0.0"
 )
 
+from pydantic import BaseModel
+
+# Request models
+class SDLCWorkflowRequest(BaseModel):
+    project_name: str
+    requirements: str
+
 # Security
 security = HTTPBearer(auto_error=False)
 
@@ -38,11 +45,11 @@ app.add_middleware(
 # Service registry
 SERVICES = {
     "orchestrator": {
-        "url": "http://agent-orchestrator:8000",
+        "url": "http://agent-orchestrator:8002",
         "health": "/health",
         "status": "unknown"
     },
-    "phi4": {
+    "ai_service": {
         "url": "http://phi4-service:8001",
         "health": "/health",
         "status": "unknown"
@@ -234,6 +241,49 @@ async def create_sdlc_workflow(request: Request, auth: dict = Depends(check_auth
                 f"{SERVICES['orchestrator']['url']}/workflow/sdlc",
                 content=body,
                 headers={"content-type": "application/json"}
+            )
+            return JSONResponse(
+                content=response.json(),
+                status_code=response.status_code
+            )
+        except Exception as e:
+            raise HTTPException(status_code=503, detail=f"Orchestrator service unavailable: {str(e)}")
+
+@app.post("/api/test/workflow/sdlc")
+async def create_sdlc_workflow_test(
+    project_name: str,
+    requirements: str
+):
+    """Create SDLC workflow (test endpoint without auth)"""
+    
+    async with httpx.AsyncClient(timeout=120.0) as client:
+        try:
+            response = await client.post(
+                f"{SERVICES['orchestrator']['url']}/workflow/sdlc",
+                params={
+                    "project_name": project_name,
+                    "requirements": requirements
+                }
+            )
+            return JSONResponse(
+                content=response.json(),
+                status_code=response.status_code
+            )
+        except Exception as e:
+            raise HTTPException(status_code=503, detail=f"Orchestrator service unavailable: {str(e)}")
+
+@app.post("/api/test/workflow/sdlc-json")
+async def create_sdlc_workflow_test_json(request: SDLCWorkflowRequest):
+    """Create SDLC workflow (test endpoint with JSON body)"""
+    
+    async with httpx.AsyncClient(timeout=120.0) as client:
+        try:
+            response = await client.post(
+                f"{SERVICES['orchestrator']['url']}/workflow/sdlc",
+                params={
+                    "project_name": request.project_name,
+                    "requirements": request.requirements
+                }
             )
             return JSONResponse(
                 content=response.json(),

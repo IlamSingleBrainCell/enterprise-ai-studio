@@ -12,6 +12,7 @@ import time
 from datetime import datetime
 import logging
 import uuid
+import os
 from enum import Enum
 
 # Configure logging
@@ -75,7 +76,8 @@ workflows: Dict[str, Dict] = {}
 agent_results: Dict[str, List[AgentResult]] = {}
 
 # Service endpoints
-PHI4_SERVICE_URL = "http://phi4-service:8001"
+import os
+AI_SERVICE_URL = os.getenv("AI_SERVICE_URL", "http://phi4-service:8001")
 AGENT_SERVICES = {
     "product_manager": "http://product-manager-agent:8002",
     "business_analyst": "http://business-analyst-agent:8003",
@@ -99,7 +101,7 @@ async def create_workflow(request: WorkflowRequest, background_tasks: Background
     workflow_id = request.workflow_id or str(uuid.uuid4())
     
     workflow = {
-        "id": workflow_id,
+        "workflow_id": workflow_id,
         "project_name": request.project_name,
         "description": request.description,
         "tasks": [task.dict() for task in request.tasks],
@@ -176,7 +178,7 @@ async def list_workflows():
     return {
         "workflows": [
             {
-                "id": wf["id"],
+                "workflow_id": wf["workflow_id"],
                 "project_name": wf["project_name"],
                 "status": wf["status"],
                 "progress": wf["progress"],
@@ -261,7 +263,7 @@ async def execute_agent_task(workflow_id: str, task: Dict[str, Any]) -> AgentRes
     if workflow_id in workflows:
         context["previous_results"] = workflows[workflow_id]["results"]
     
-    # Prepare request for Phi-4 service
+    # Prepare request for Phi-4 agent endpoint
     request_data = {
         "agent_type": agent_type,
         "task": task["task"],
@@ -275,7 +277,7 @@ async def execute_agent_task(workflow_id: str, task: Dict[str, Any]) -> AgentRes
     try:
         async with httpx.AsyncClient(timeout=60.0) as client:
             response = await client.post(
-                f"{PHI4_SERVICE_URL}/agent/generate",
+                f"{AI_SERVICE_URL}/agent/generate",
                 json=request_data
             )
             response.raise_for_status()
@@ -283,11 +285,15 @@ async def execute_agent_task(workflow_id: str, task: Dict[str, Any]) -> AgentRes
         
         processing_time = time.time() - start_time
         
+        # Extract response from Phi-4 agent endpoint
+        ai_response = result_data.get("response", "")
+        confidence = result_data.get("confidence", 0.9)
+        
         return AgentResult(
             agent_type=agent_type,
             task_id=task_id,
-            response=result_data["response"],
-            confidence=result_data["confidence"],
+            response=ai_response,
+            confidence=confidence,
             processing_time=processing_time,
             status="completed"
         )
@@ -295,6 +301,77 @@ async def execute_agent_task(workflow_id: str, task: Dict[str, Any]) -> AgentRes
     except Exception as e:
         logger.error(f"Failed to execute task for {agent_type}: {str(e)}")
         raise e
+
+def build_agent_prompt(agent_type: str, task: str, context: Dict[str, Any]) -> str:
+    """Build enhanced prompt for specific agent types"""
+    
+    base_prompt = f"Task: {task}\n\n"
+    
+    # Add context information
+    if context:
+        base_prompt += "Context:\n"
+        for key, value in context.items():
+            if key != "previous_results":
+                base_prompt += f"- {key}: {value}\n"
+        base_prompt += "\n"
+    
+    # Add previous results if available
+    if "previous_results" in context and context["previous_results"]:
+        base_prompt += "Previous Results:\n"
+        for agent, result in context["previous_results"].items():
+            base_prompt += f"- {agent}: {result.get('response', '')[:200]}...\n"
+        base_prompt += "\n"
+    
+    # Add agent-specific instructions
+    agent_instructions = {
+        "product_manager": """
+As a Product Manager, focus on:
+- Business value and user needs
+- Feature prioritization
+- Market analysis and competitive landscape
+- User stories and acceptance criteria
+- Roadmap planning and milestones
+        """,
+        "business_analyst": """
+As a Business Analyst, focus on:
+- Requirements gathering and analysis
+- Process mapping and optimization
+- Stakeholder communication
+- Functional and non-functional requirements
+- Risk assessment and mitigation
+        """,
+        "software_developer": """
+As a Software Developer, focus on:
+- Technical architecture and design patterns
+- Code structure and implementation approach
+- Technology stack recommendations
+- Performance and scalability considerations
+- Development best practices and standards
+        """,
+        "qa_engineer": """
+As a QA Engineer, focus on:
+- Test strategy and planning
+- Test case design and automation
+- Quality metrics and reporting
+- Bug tracking and resolution
+- Performance and security testing
+        """,
+        "devops_engineer": """
+As a DevOps Engineer, focus on:
+- CI/CD pipeline design
+- Infrastructure as code
+- Monitoring and logging
+- Deployment strategies
+- Security and compliance
+        """
+    }
+    
+    if agent_type in agent_instructions:
+        base_prompt += agent_instructions[agent_type]
+    
+    base_prompt += "\nProvide a comprehensive response addressing the task requirements:"
+    
+    return base_prompt
 
 @app.post("/workflow/sdlc")
 async def create_sdlc_workflow(
@@ -353,4 +430,4 @@ async def create_sdlc_workflow(
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8002)

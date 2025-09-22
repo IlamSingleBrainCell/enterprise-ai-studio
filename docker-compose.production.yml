@@ -1,10 +1,10 @@
-# Enterprise AI Studio - Microservices Architecture
-# Complete Docker Compose configuration for production deployment
+# Enterprise AI Studio - Production Deployment with Phi-4
+# Use this for client deployment with real Phi-4 model
 
 version: '3.8'
 
 services:
-  # Redis Message Broker
+  # Infrastructure Services
   redis:
     image: redis:7-alpine
     container_name: enterprise_ai_redis
@@ -21,7 +21,6 @@ services:
     networks:
       - enterprise_ai_network
 
-  # PostgreSQL Database
   postgres:
     image: bitnami/postgresql:15
     container_name: enterprise_ai_db
@@ -32,7 +31,6 @@ services:
       POSTGRESQL_PASSWORD: ${DB_PASSWORD:-secure_password_123}
     volumes:
       - postgres_data:/bitnami/postgresql
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
     restart: unless-stopped
@@ -45,59 +43,40 @@ services:
     networks:
       - enterprise_ai_network
 
-  # Simple AI Service (Lightweight alternative)
-  simple-ai-service:
+  # AI Services
+  phi4-service:
     build:
-      context: ./microservices/simple-ai-service
+      context: ./microservices/phi4-service
       dockerfile: Dockerfile
-    container_name: enterprise_ai_simple
+    container_name: enterprise_ai_phi4
     environment:
+      - PYTHONPATH=/app
+      - TRANSFORMERS_CACHE=/app/.cache
+      - HF_HOME=/app/.cache
       - REDIS_URL=redis://redis:6379
+    volumes:
+      - phi4_cache:/app/.cache
     ports:
-      - "8004:8004"
+      - "8001:8001"
     depends_on:
       redis:
         condition: service_healthy
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 12G
+        reservations:
+          memory: 8G
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 60s
+      timeout: 30s
+      retries: 5
+      start_period: 300s  # 5 minutes for model loading
     networks:
       - enterprise_ai_network
 
-  # Phi-4 AI Service (Heavy model - disabled by default)
-  # phi4-service:
-  #   build:
-  #     context: ./microservices/phi4-service
-  #     dockerfile: Dockerfile
-  #   container_name: enterprise_ai_phi4
-  #   environment:
-  #     - PYTHONPATH=/app
-  #     - TRANSFORMERS_CACHE=/app/.cache
-  #     - HF_HOME=/app/.cache
-  #   volumes:
-  #     - phi4_cache:/app/.cache
-  #   ports:
-  #     - "8001:8001"
-  #   restart: unless-stopped
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         memory: 8G
-  #       reservations:
-  #         memory: 4G
-  #   healthcheck:
-  #     test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8001/health')"]
-  #     interval: 60s
-  #     timeout: 30s
-  #     retries: 3
-  #     start_period: 120s
-  #   networks:
-  #     - enterprise_ai_network
-
-  # Agent Orchestrator Service
   agent-orchestrator:
     build:
       context: ./microservices/agent-orchestrator
@@ -105,13 +84,13 @@ services:
     container_name: enterprise_ai_orchestrator
     environment:
       - REDIS_URL=redis://redis:6379
-      - AI_SERVICE_URL=http://simple-ai-service:8004
+      - AI_SERVICE_URL=http://phi4-service:8001
     ports:
       - "8002:8002"
     depends_on:
       redis:
         condition: service_healthy
-      simple-ai-service:
+      phi4-service:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
@@ -122,7 +101,6 @@ services:
     networks:
       - enterprise_ai_network
 
-  # API Gateway
   api-gateway:
     build:
       context: ./microservices/api-gateway
@@ -130,13 +108,13 @@ services:
     container_name: enterprise_ai_gateway
     environment:
       - ORCHESTRATOR_URL=http://agent-orchestrator:8002
-      - AI_SERVICE_URL=http://simple-ai-service:8004
+      - AI_SERVICE_URL=http://phi4-service:8001
     ports:
       - "8080:8080"
     depends_on:
       agent-orchestrator:
         condition: service_healthy
-      simple-ai-service:
+      phi4-service:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
@@ -147,7 +125,6 @@ services:
     networks:
       - enterprise_ai_network
 
-  # Frontend Web Application
   frontend:
     build:
       context: .
@@ -174,7 +151,7 @@ services:
     networks:
       - enterprise_ai_network
 
-  # Monitoring and Metrics
+  # Monitoring (Optional)
   prometheus:
     image: prom/prometheus:latest
     container_name: enterprise_ai_prometheus
@@ -196,78 +173,6 @@ services:
     profiles:
       - monitoring
 
-  # Grafana Dashboard
-  grafana:
-    image: grafana/grafana:latest
-    container_name: enterprise_ai_grafana
-    environment:
-      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin123}
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./microservices/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
-      - ./microservices/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
-    ports:
-      - "3000:3000"
-    depends_on:
-      - prometheus
-    restart: unless-stopped
-    networks:
-      - enterprise_ai_network
-    profiles:
-      - monitoring
-
-  # Elasticsearch for Logging
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
-    container_name: enterprise_ai_elasticsearch
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-    ports:
-      - "9200:9200"
-    restart: unless-stopped
-    networks:
-      - enterprise_ai_network
-    profiles:
-      - logging
-
-  # Kibana for Log Visualization
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.8.0
-    container_name: enterprise_ai_kibana
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    ports:
-      - "5601:5601"
-    depends_on:
-      - elasticsearch
-    restart: unless-stopped
-    networks:
-      - enterprise_ai_network
-    profiles:
-      - logging
-
-  # Load Balancer (HAProxy)
-  load-balancer:
-    image: haproxy:2.8-alpine
-    container_name: enterprise_ai_loadbalancer
-    volumes:
-      - ./microservices/loadbalancer/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
-    ports:
-      - "443:443"
-      - "8443:8443"
-    depends_on:
-      - api-gateway
-    restart: unless-stopped
-    networks:
-      - enterprise_ai_network
-    profiles:
-      - production
-
 volumes:
   redis_data:
     driver: local
@@ -276,10 +181,6 @@ volumes:
   phi4_cache:
     driver: local
   prometheus_data:
-    driver: local
-  grafana_data:
-    driver: local
-  elasticsearch_data:
     driver: local
 
 networks:

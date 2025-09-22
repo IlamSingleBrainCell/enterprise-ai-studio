@@ -1,10 +1,7 @@
 FROM nginx:alpine
 
-# Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Copy the UI files
-COPY ../enterprise-ui.html /usr/share/nginx/html/index.html
+# Install curl for health checks
+RUN apk add --no-cache curl
 
 # Create health check endpoint
 RUN echo '{"status":"healthy","service":"frontend","timestamp":"'$(date -Iseconds)'"}' > /usr/share/nginx/html/health
