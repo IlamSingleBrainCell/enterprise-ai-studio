@@ -3,7 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
-const { Pool } = require('pg');
+const { Client } = require('pg');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
@@ -11,17 +11,39 @@ const { body, validationResult } = require('express-validator');
 
 require('dotenv').config();
 
+// Force disable SSL for PostgreSQL
+const pg = require('pg');
+pg.defaults.ssl = false;
+process.env.PGSSLMODE = 'disable';
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Database connection
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://aiuser:secure_password_123@localhost:5432/enterprise_ai_studio',
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
+// Database configuration
+const dbConfig = {
+  connectionString: 'postgresql://aiuser:secure_password_123@postgres:5432/enterprise_ai_studio?sslmode=disable',
+  ssl: false,
+};
+
+// Helper function to execute queries
+async function executeQuery(text, params = []) {
+  console.log('Creating new database client...');
+  const client = new Client(dbConfig);
+  try {
+    console.log('Attempting to connect to database...');
+    await client.connect();
+    console.log('Connected! Executing query:', text.substring(0, 50));
+    const result = await client.query(text, params);
+    console.log('Query executed successfully');
+    return result;
+  } catch (error) {
+    console.error('Database error:', error.message);
+    throw error;
+  } finally {
+    await client.end();
+  }
+}
 
 // Middleware
 app.use(helmet());
@@ -94,10 +116,12 @@ app.post('/api/auth/register', authLimiter, [
     const { email, username, password, firstName, lastName } = req.body;
 
     // Check if user already exists
-    const existingUser = await pool.query(
+    console.log('Executing query to check existing user...');
+    const existingUser = await executeQuery(
       'SELECT id FROM users WHERE email = $1 OR username = $2',
       [email, username]
     );
+    console.log('Query executed successfully, rows found:', existingUser.rows.length);
 
     if (existingUser.rows.length > 0) {
       return res.status(409).json({ error: 'User already exists with this email or username' });
@@ -108,7 +132,7 @@ app.post('/api/auth/register', authLimiter, [
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
     // Create user
-    const result = await pool.query(
+    const result = await executeQuery(
       `INSERT INTO users (email, username, password_hash, first_name, last_name) 
        VALUES ($1, $2, $3, $4, $5) 
        RETURNING id, email, username, first_name, last_name, role, subscription_tier, created_at`,
@@ -118,7 +142,7 @@ app.post('/api/auth/register', authLimiter, [
     const user = result.rows[0];
 
     // Create default workspace for user
-    await pool.query(
+    await executeQuery(
       'INSERT INTO workspaces (name, description, owner_id) VALUES ($1, $2, $3)',
       [`${username}'s Workspace`, 'Default workspace', user.id]
     );
@@ -164,7 +188,7 @@ app.post('/api/auth/login', authLimiter, [
     const { email, password } = req.body;
 
     // Find user
-    const result = await pool.query(
+    const result = await executeQuery(
       'SELECT id, email, username, password_hash, first_name, last_name, role, subscription_tier, is_active FROM users WHERE email = $1',
       [email]
     );
@@ -186,7 +210,7 @@ app.post('/api/auth/login', authLimiter, [
     }
 
     // Update last login
-    await pool.query('UPDATE users SET last_login = NOW() WHERE id = $1', [user.id]);
+    await executeQuery('UPDATE users SET last_login = NOW() WHERE id = $1', [user.id]);
 
     // Generate JWT token
     const token = jwt.sign(
@@ -197,7 +221,7 @@ app.post('/api/auth/login', authLimiter, [
 
     // Create session
     const sessionToken = uuidv4();
-    await pool.query(
+    await executeQuery(
       'INSERT INTO user_sessions (user_id, session_token, expires_at, ip_address, user_agent) VALUES ($1, $2, $3, $4, $5)',
       [user.id, sessionToken, new Date(Date.now() + 24 * 60 * 60 * 1000), req.ip, req.get('User-Agent')]
     );
@@ -225,7 +249,7 @@ app.post('/api/auth/login', authLimiter, [
 // Get user profile
 app.get('/api/auth/profile', authenticateToken, async (req, res) => {
   try {
-    const result = await pool.query(
+    const result = await executeQuery(
       'SELECT id, email, username, first_name, last_name, role, subscription_tier, created_at, last_login FROM users WHERE id = $1',
       [req.user.userId]
     );
@@ -244,7 +268,7 @@ app.get('/api/auth/profile', authenticateToken, async (req, res) => {
 // Get user workspaces
 app.get('/api/workspaces', authenticateToken, async (req, res) => {
   try {
-    const result = await pool.query(`
+    const result = await executeQuery(`
       SELECT w.id, w.name, w.description, w.is_public, w.created_at, w.updated_at,
              wm.role as user_role,
              u.username as owner_username
@@ -275,7 +299,7 @@ app.post('/api/workspaces', authenticateToken, [
 
     const { name, description } = req.body;
 
-    const result = await pool.query(
+    const result = await executeQuery(
       'INSERT INTO workspaces (name, description, owner_id) VALUES ($1, $2, $3) RETURNING *',
       [name, description, req.user.userId]
     );
@@ -291,7 +315,7 @@ app.post('/api/workspaces', authenticateToken, [
 app.post('/api/auth/logout', authenticateToken, async (req, res) => {
   try {
     // Invalidate sessions (optional - you could keep them for security audit)
-    await pool.query('DELETE FROM user_sessions WHERE user_id = $1', [req.user.userId]);
+    await executeQuery('DELETE FROM user_sessions WHERE user_id = $1', [req.user.userId]);
     
     res.json({ message: 'Logged out successfully' });
   } catch (error) {
@@ -321,8 +345,6 @@ app.listen(PORT, () => {
 // Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully');
-  pool.end(() => {
-    console.log('Database connections closed');
-    process.exit(0);
-  });
+  // No pool to close since we're using individual client connections
+  process.exit(0);
 });

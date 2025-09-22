@@ -12,6 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://enterprise-ai-studio.vercel.app">
     <link rel="canonical" href="https://enterprise-ai-studio.vercel.app">
+    <link rel="stylesheet" href="src/css/auth.css">
     <style>
         * {
             margin: 0;
@@ -1284,6 +1285,20 @@
             <div class="status-indicator">
                 <span style="width: 8px; height: 8px; background: #4CAF50; border-radius: 50%; display: block;"></span>
                 All Systems Operational
+            </div>
+            
+            <!-- Authentication Section -->
+            <div id="nav-login" style="display: inline-block;">
+                <button data-auth="login" style="background: #4CAF50; border: none; color: white; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; margin-right: 10px;">
+                    Login
+                </button>
+                <button data-auth="register" style="background: transparent; border: 2px solid #4CAF50; color: #4CAF50; padding: 8px 18px; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                    Sign Up
+                </button>
+            </div>
+            
+            <div id="user-menu" style="display: none;">
+                <!-- User menu will be populated by auth manager -->
             </div>
         </div>
     </div>
@@ -4060,6 +4075,7 @@ Your ${language} project with ${framework} is ready:
     <script src="src/js/ai-chat-interface.js"></script>
     <script src="src/js/ai-workflow.js"></script>
     <script src="src/js/ai-agent-ui.js"></script>
+    <script src="src/js/auth.js"></script>
     
     <!-- JavaScript Modules -->
     <!-- <script src="src/js/app.js"></script> -->
