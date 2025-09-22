@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise AI Studio - Microservices Architecture</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        .header {
+            background: rgba(15, 20, 25, 0.95);
+            backdrop-filter: blur(15px);
+            padding: 20px 40px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+        }
+
+        .logo-text h1 {
+            font-size: 1.8em;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .logo-text p {
+            font-size: 0.9em;
+            color: #a0a0a0;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4CAF50;
+            border-radius: 25px;
+            font-size: 0.9em;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 40px;
+        }
+
+        .nav-section {
+            background: rgba(26, 35, 50, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-tab:hover {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: #FFD700;
+            transform: translateY(-2px);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            border-color: #FFD700;
+        }
+
+        .content-area {
+            background: rgba(26, 35, 50, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            min-height: 600px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-card {
+            background: rgba(15, 20, 25, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            border-color: rgba(255, 215, 0, 0.5);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            color: white;
+        }
+
+        .workflow-form {
+            background: rgba(15, 20, 25, 0.6);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #FFD700;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1em;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #FFD700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #FFD700);
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+
+        .agent-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .agent-card {
+            background: rgba(15, 20, 25, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .agent-card.active {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .agent-card.processing {
+            border-color: #FF9800;
+            background: rgba(255, 152, 0, 0.1);
+        }
+
+        .results-container {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .result-item {
+            background: rgba(15, 20, 25, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #FFD700;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .service-card {
+            background: rgba(15, 20, 25, 0.8);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .service-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .status-healthy {
+            color: #4CAF50;
+        }
+
+        .status-unhealthy {
+            color: #f44336;
+        }
+
+        .status-unknown {
+            color: #FF9800;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Enterprise AI Studio</h1>
+                    <p>Microservices Architecture | Phi-4 Powered</p>
+                </div>
+            </div>
+            <div class="system-status">
+                <div class="status-indicator" id="system-status">
+                    <div class="status-dot"></div>
+                    <span>System Operational</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="nav-section">
+            <div class="nav-tabs">
+                <div class="nav-tab active" data-tab="orchestrator">
+                    <i class="fas fa-cogs"></i>
+                    Agent Orchestrator
+                </div>
+                <div class="nav-tab" data-tab="phi4">
+                    <i class="fas fa-brain"></i>
+                    Phi-4 AI Engine
+                </div>
+                <div class="nav-tab" data-tab="workflows">
+                    <i class="fas fa-project-diagram"></i>
+                    Workflows
+                </div>
+                <div class="nav-tab" data-tab="monitoring">
+                    <i class="fas fa-chart-line"></i>
+                    System Monitoring
+                </div>
+                <div class="nav-tab" data-tab="services">
+                    <i class="fas fa-server"></i>
+                    Microservices
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- Agent Orchestrator Tab -->
+            <div id="orchestrator-tab" class="tab-content active">
+                <h2><i class="fas fa-cogs"></i> Agent Orchestration System</h2>
+                
+                <div class="workflow-form">
+                    <h3>Create SDLC Workflow</h3>
+                    <div class="form-group">
+                        <label class="form-label">Project Name</label>
+                        <input type="text" class="form-input" id="project-name" placeholder="Enter project name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Requirements</label>
+                        <textarea class="form-input form-textarea" id="requirements" placeholder="Describe your project requirements..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="createSDLCWorkflow()">
+                        <i class="fas fa-play"></i>
+                        Start SDLC Workflow
+                    </button>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-tasks"></i>
+                                Active Workflows
+                            </div>
+                        </div>
+                        <div id="workflow-list">
+                            <p>No active workflows</p>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-robot"></i>
+                                Agent Status
+                            </div>
+                        </div>
+                        <div class="agent-status">
+                            <div class="agent-card" id="pm-agent">
+                                <strong>Product Manager</strong>
+                                <div>Status: <span class="agent-status-text">Ready</span></div>
+                            </div>
+                            <div class="agent-card" id="ba-agent">
+                                <strong>Business Analyst</strong>
+                                <div>Status: <span class="agent-status-text">Ready</span></div>
+                            </div>
+                            <div class="agent-card" id="dev-agent">
+                                <strong>Software Developer</strong>
+                                <div>Status: <span class="agent-status-text">Ready</span></div>
+                            </div>
+                            <div class="agent-card" id="qa-agent">
+                                <strong>QA Engineer</strong>
+                                <div>Status: <span class="agent-status-text">Ready</span></div>
+                            </div>
+                            <div class="agent-card" id="devops-agent">
+                                <strong>DevOps Engineer</strong>
+                                <div>Status: <span class="agent-status-text">Ready</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-container" id="workflow-progress" style="display: none;">
+                    <h3>Workflow Progress</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+                    </div>
+                    <div id="current-agent" style="margin-top: 10px;">Initializing...</div>
+                </div>
+
+                <div class="results-container" id="workflow-results"></div>
+            </div>
+
+            <!-- Phi-4 AI Engine Tab -->
+            <div id="phi4-tab" class="tab-content">
+                <h2><i class="fas fa-brain"></i> Phi-4 Mini Instruct AI Engine</h2>
+                
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-info-circle"></i>
+                                Model Information
+                            </div>
+                        </div>
+                        <div id="model-info">
+                            <div class="loading"></div> Loading model information...
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-users"></i>
+                                Available Agents
+                            </div>
+                        </div>
+                        <div id="agent-types">
+                            <div class="loading"></div> Loading agent types...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="workflow-form">
+                    <h3>Direct AI Interaction</h3>
+                    <div class="form-group">
+                        <label class="form-label">Agent Type</label>
+                        <select class="form-input" id="agent-type">
+                            <option value="product_manager">Product Manager</option>
+                            <option value="business_analyst">Business Analyst</option>
+                            <option value="software_developer">Software Developer</option>
+                            <option value="qa_engineer">QA Engineer</option>
+                            <option value="devops_engineer">DevOps Engineer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Task/Question</label>
+                        <textarea class="form-input form-textarea" id="ai-task" placeholder="Enter your task or question..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateAIResponse()">
+                        <i class="fas fa-magic"></i>
+                        Generate Response
+                    </button>
+                </div>
+
+                <div class="results-container" id="ai-results"></div>
+            </div>
+
+            <!-- Workflows Tab -->
+            <div id="workflows-tab" class="tab-content">
+                <h2><i class="fas fa-project-diagram"></i> Workflow Management</h2>
+                
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-list"></i>
+                            All Workflows
+                        </div>
+                        <button class="btn btn-secondary" onclick="refreshWorkflows()">
+                            <i class="fas fa-sync"></i>
+                            Refresh
+                        </button>
+                    </div>
+                    <div id="all-workflows">
+                        <div class="loading"></div> Loading workflows...
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Monitoring Tab -->
+            <div id="monitoring-tab" class="tab-content">
+                <h2><i class="fas fa-chart-line"></i> System Monitoring</h2>
+                
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-tachometer-alt"></i>
+                                Gateway Statistics
+                            </div>
+                        </div>
+                        <div id="gateway-stats">
+                            <div class="loading"></div> Loading statistics...
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-heartbeat"></i>
+                                Service Health
+                            </div>
+                        </div>
+                        <div id="service-health">
+                            <div class="loading"></div> Checking service health...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Microservices Tab -->
+            <div id="services-tab" class="tab-content">
+                <h2><i class="fas fa-server"></i> Microservices Architecture</h2>
+                
+                <div class="service-grid" id="microservices-grid">
+                    <div class="loading"></div> Loading microservices information...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Gateway base URL
+        const API_BASE = window.location.origin.includes('localhost') 
+            ? 'http://localhost:8080/api/v1' 
+            : '/api/v1';
+
+        // Current workflow tracking
+        let currentWorkflowId = null;
+        let workflowPollInterval = null;
+
+        // Tab switching
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTab = tab.dataset.tab;
+                
+                // Update active tab
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Update active content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(`${targetTab}-tab`).classList.add('active');
+                
+                // Load tab-specific data
+                loadTabData(targetTab);
+            });
+        });
+
+        // Load tab-specific data
+        function loadTabData(tab) {
+            switch(tab) {
+                case 'phi4':
+                    loadModelInfo();
+                    loadAgentTypes();
+                    break;
+                case 'workflows':
+                    refreshWorkflows();
+                    break;
+                case 'monitoring':
+                    loadSystemStats();
+                    loadServiceHealth();
+                    break;
+                case 'services':
+                    loadMicroservicesInfo();
+                    break;
+            }
+        }
+
+        // Create SDLC Workflow
+        async function createSDLCWorkflow() {
+            const projectName = document.getElementById('project-name').value;
+            const requirements = document.getElementById('requirements').value;
+            
+            if (!projectName || !requirements) {
+                alert('Please fill in both project name and requirements');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/workflow/sdlc?project_name=${encodeURIComponent(projectName)}&requirements=${encodeURIComponent(requirements)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentWorkflowId = data.workflow_id;
+                    document.getElementById('workflow-progress').style.display = 'block';
+                    startWorkflowPolling();
+                    updateWorkflowList();
+                } else {
+                    alert('Failed to create workflow: ' + data.detail);
+                }
+            } catch (error) {
+                console.error('Error creating workflow:', error);
+                alert('Failed to create workflow. Please check if services are running.');
+            }
+        }
+
+        // Start polling workflow status
+        function startWorkflowPolling() {
+            if (workflowPollInterval) {
+                clearInterval(workflowPollInterval);
+            }
+            
+            workflowPollInterval = setInterval(async () => {
+                if (currentWorkflowId) {
+                    await pollWorkflowStatus();
+                }
+            }, 2000);
+        }
+
+        // Poll workflow status
+        async function pollWorkflowStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/workflow/${currentWorkflowId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateWorkflowProgress(data);
+                    
+                    if (data.status === 'completed' || data.status === 'failed') {
+                        clearInterval(workflowPollInterval);
+                        loadWorkflowResults();
+                    }
+                }
+            } catch (error) {
+                console.error('Error polling workflow:', error);
+            }
+        }
+
+        // Update workflow progress
+        function updateWorkflowProgress(workflow) {
+            const progressFill = document.getElementById('progress-fill');
+            const currentAgent = document.getElementById('current-agent');
+            
+            progressFill.style.width = `${workflow.progress}%`;
+            currentAgent.textContent = `Status: ${workflow.status} (${workflow.progress.toFixed(1)}%)`;
+            
+            // Update agent cards
+            const agentCards = document.querySelectorAll('.agent-card');
+            agentCards.forEach(card => {
+                card.classList.remove('active', 'processing');
+                const statusText = card.querySelector('.agent-status-text');
+                statusText.textContent = 'Ready';
+            });
+            
+            // Highlight current agent based on results
+            Object.keys(workflow.results || {}).forEach(agentType => {
+                const agentMap = {
+                    'product_manager': 'pm-agent',
+                    'business_analyst': 'ba-agent',
+                    'software_developer': 'dev-agent',
+                    'qa_engineer': 'qa-agent',
+                    'devops_engineer': 'devops-agent'
+                };
+                
+                const cardId = agentMap[agentType];
+                if (cardId) {
+                    const card = document.getElementById(cardId);
+                    card.classList.add('active');
+                    const statusText = card.querySelector('.agent-status-text');
+                    statusText.textContent = 'Completed';
+                }
+            });
+        }
+
+        // Load workflow results
+        async function loadWorkflowResults() {
+            try {
+                const response = await fetch(`${API_BASE}/workflow/${currentWorkflowId}/results`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayWorkflowResults(data.agent_results);
+                }
+            } catch (error) {
+                console.error('Error loading results:', error);
+            }
+        }
+
+        // Display workflow results
+        function displayWorkflowResults(results) {
+            const resultsContainer = document.getElementById('workflow-results');
+            resultsContainer.innerHTML = '<h3>Workflow Results</h3>';
+            
+            results.forEach(result => {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'result-item';
+                resultDiv.innerHTML = `
+                    <h4>${result.agent_type.replace('_', ' ').toUpperCase()}</h4>
+                    <p><strong>Confidence:</strong> ${(result.confidence * 100).toFixed(1)}%</p>
+                    <p><strong>Processing Time:</strong> ${result.processing_time.toFixed(2)}s</p>
+                    <div style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 5px;">
+                        ${result.response}
+                    </div>
+                `;
+                resultsContainer.appendChild(resultDiv);
+            });
+        }
+
+        // Generate AI Response
+        async function generateAIResponse() {
+            const agentType = document.getElementById('agent-type').value;
+            const task = document.getElementById('ai-task').value;
+            
+            if (!task) {
+                alert('Please enter a task or question');
+                return;
+            }
+            
+            const resultsContainer = document.getElementById('ai-results');
+            resultsContainer.innerHTML = '<div class="loading"></div> Generating response...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/ai/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        agent_type: agentType,
+                        task: task,
+                        max_tokens: 500,
+                        temperature: 0.7
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultsContainer.innerHTML = `
+                        <div class="result-item">
+                            <h4>${data.agent_type.replace('_', ' ').toUpperCase()} Response</h4>
+                            <p><strong>Confidence:</strong> ${(data.confidence * 100).toFixed(1)}%</p>
+                            <p><strong>Processing Time:</strong> ${data.processing_time.toFixed(2)}s</p>
+                            <div style="margin-top: 10px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; line-height: 1.6;">
+                                ${data.response}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultsContainer.innerHTML = `<p style="color: #f44336;">Error: ${data.detail}</p>`;
+                }
+            } catch (error) {
+                console.error('Error generating response:', error);
+                resultsContainer.innerHTML = '<p style="color: #f44336;">Failed to generate response. Please check if services are running.</p>';
+            }
+        }
+
+        // Load model information
+        async function loadModelInfo() {
+            try {
+                const response = await fetch(`${API_BASE}/ai/model/info`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('model-info').innerHTML = `
+                        <p><strong>Model:</strong> ${data.model_name}</p>
+                        <p><strong>Type:</strong> ${data.model_type}</p>
+                        <p><strong>Device:</strong> ${data.device}</p>
+                        <p><strong>Parameters:</strong> ${data.parameters}</p>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('model-info').innerHTML = '<p style="color: #f44336;">Failed to load model info</p>';
+            }
+        }
+
+        // Load agent types
+        async function loadAgentTypes() {
+            try {
+                const response = await fetch(`${API_BASE}/ai/agents`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const agentTypesDiv = document.getElementById('agent-types');
+                    agentTypesDiv.innerHTML = '';
+                    
+                    Object.entries(data.available_agents).forEach(([type, info]) => {
+                        const agentDiv = document.createElement('div');
+                        agentDiv.style.marginBottom = '15px';
+                        agentDiv.innerHTML = `
+                            <h4>${type.replace('_', ' ').toUpperCase()}</h4>
+                            <p style="font-size: 0.9em; color: #ccc;">${info.expertise.join(', ')}</p>
+                        `;
+                        agentTypesDiv.appendChild(agentDiv);
+                    });
+                }
+            } catch (error) {
+                document.getElementById('agent-types').innerHTML = '<p style="color: #f44336;">Failed to load agent types</p>';
+            }
+        }
+
+        // Refresh workflows
+        async function refreshWorkflows() {
+            try {
+                const response = await fetch(`${API_BASE}/workflows`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const workflowsDiv = document.getElementById('all-workflows');
+                    workflowsDiv.innerHTML = '';
+                    
+                    if (data.workflows.length === 0) {
+                        workflowsDiv.innerHTML = '<p>No workflows found</p>';
+                        return;
+                    }
+                    
+                    data.workflows.forEach(workflow => {
+                        const workflowDiv = document.createElement('div');
+                        workflowDiv.className = 'result-item';
+                        workflowDiv.innerHTML = `
+                            <h4>${workflow.project_name}</h4>
+                            <p><strong>Status:</strong> ${workflow.status}</p>
+                            <p><strong>Progress:</strong> ${workflow.progress.toFixed(1)}%</p>
+                            <p><strong>Started:</strong> ${new Date(workflow.started_at).toLocaleString()}</p>
+                            <button class="btn btn-secondary" onclick="viewWorkflow('${workflow.id}')">
+                                View Details
+                            </button>
+                        `;
+                        workflowsDiv.appendChild(workflowDiv);
+                    });
+                }
+            } catch (error) {
+                document.getElementById('all-workflows').innerHTML = '<p style="color: #f44336;">Failed to load workflows</p>';
+            }
+        }
+
+        // Load system statistics
+        async function loadSystemStats() {
+            try {
+                const response = await fetch(`${API_BASE}/system/stats`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const stats = data.gateway_stats;
+                    document.getElementById('gateway-stats').innerHTML = `
+                        <p><strong>Total Requests:</strong> ${stats.total_requests}</p>
+                        <p><strong>Successful:</strong> ${stats.successful_requests}</p>
+                        <p><strong>Failed:</strong> ${stats.failed_requests}</p>
+                        <p><strong>Avg Response Time:</strong> ${stats.average_response_time.toFixed(3)}s</p>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('gateway-stats').innerHTML = '<p style="color: #f44336;">Failed to load statistics</p>';
+            }
+        }
+
+        // Load service health
+        async function loadServiceHealth() {
+            try {
+                const response = await fetch('/services/health');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const healthDiv = document.getElementById('service-health');
+                    healthDiv.innerHTML = '';
+                    
+                    data.services.forEach(service => {
+                        const statusClass = service.status === 'healthy' ? 'status-healthy' : 
+                                          service.status === 'unhealthy' ? 'status-unhealthy' : 'status-unknown';
+                        
+                        const serviceDiv = document.createElement('div');
+                        serviceDiv.style.marginBottom = '10px';
+                        serviceDiv.innerHTML = `
+                            <div class="service-status">
+                                <strong>${service.service}:</strong>
+                                <span class="${statusClass}">${service.status}</span>
+                                ${service.response_time ? `(${service.response_time.toFixed(3)}s)` : ''}
+                            </div>
+                        `;
+                        healthDiv.appendChild(serviceDiv);
+                    });
+                }
+            } catch (error) {
+                document.getElementById('service-health').innerHTML = '<p style="color: #f44336;">Failed to load service health</p>';
+            }
+        }
+
+        // Load microservices information
+        function loadMicroservicesInfo() {
+            const servicesGrid = document.getElementById('microservices-grid');
+            servicesGrid.innerHTML = `
+                <div class="service-card">
+                    <h3><i class="fas fa-brain"></i> Phi-4 AI Service</h3>
+                    <p>Microsoft Phi-4-mini-instruct powered AI engine</p>
+                    <div class="service-status">
+                        <span class="status-healthy">Port: 8001</span>
+                    </div>
+                </div>
+                <div class="service-card">
+                    <h3><i class="fas fa-cogs"></i> Agent Orchestrator</h3>
+                    <p>Multi-agent workflow coordination service</p>
+                    <div class="service-status">
+                        <span class="status-healthy">Port: 8000</span>
+                    </div>
+                </div>
+                <div class="service-card">
+                    <h3><i class="fas fa-gateway"></i> API Gateway</h3>
+                    <p>Central API gateway with load balancing</p>
+                    <div class="service-status">
+                        <span class="status-healthy">Port: 8080</span>
+                    </div>
+                </div>
+                <div class="service-card">
+                    <h3><i class="fas fa-database"></i> Message Broker</h3>
+                    <p>Redis-based message queuing system</p>
+                    <div class="service-status">
+                        <span class="status-unknown">Port: 6379</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update workflow list
+        function updateWorkflowList() {
+            // This would be called to refresh the workflow list in the orchestrator tab
+            refreshWorkflows();
+        }
+
+        // View specific workflow
+        function viewWorkflow(workflowId) {
+            currentWorkflowId = workflowId;
+            
+            // Switch to orchestrator tab
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('[data-tab="orchestrator"]').classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById('orchestrator-tab').classList.add('active');
+            
+            // Load workflow details
+            pollWorkflowStatus();
+            loadWorkflowResults();
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load initial data
+            loadTabData('orchestrator');
+            
+            // Set up periodic health checks
+            setInterval(() => {
+                loadServiceHealth();
+            }, 30000); // Every 30 seconds
+        });
+    </script>
+</body>
+</html>
